@@ -23,24 +23,22 @@ export function serializedComponentsReplacer(key, value) {
 }
 
 let nanInfinityReviver = function (key, value) {
-
-  if (value && value.objectType === "special-numeric") {
-    if (value.stringValue === "NaN") {
+  if (value && value.objectType === 'special-numeric') {
+    if (value.stringValue === 'NaN') {
       return NaN;
-    } else if (value.stringValue === "Infinity") {
+    } else if (value.stringValue === 'Infinity') {
       return Infinity;
-    } else if (value.stringValue === "-Infinity") {
+    } else if (value.stringValue === '-Infinity') {
       return -Infinity;
     }
   }
 
   return value;
-}
+};
 
 export function serializedComponentsReviver(key, value) {
-  return me.reviver(key, nanInfinityReviver(key, value))
+  return me.reviver(key, nanInfinityReviver(key, value));
 }
-
 
 class DoenetViewerChild extends Component {
   constructor(props) {
@@ -74,27 +72,26 @@ class DoenetViewerChild extends Component {
       this.requestedVariant = { index: this.attemptNumber - 1 };
     }
 
-    this.documentRenderer = <>Loading...</>
+    this.documentRenderer = <>Loading...</>;
 
     if (props.contentId === undefined) {
       // use doenetML given via props
       let doenetML = props.doenetML;
 
       // calculate contentId from doenetML
-      this.contentId = sha256(JSON.stringify(doenetML)).toString(CryptoJS.enc.Hex);
+      this.contentId = sha256(JSON.stringify(doenetML)).toString(
+        CryptoJS.enc.Hex,
+      );
 
       this.haveDoenetML({ contentId: this.contentId, doenetML });
-
     } else {
       this.contentId = props.contentId;
       // load doenetML from database using contentId
-      this.loadDoenetML(props.contentId, this.haveDoenetML)  //TODO: Does this work?
+      this.loadDoenetML(props.contentId, this.haveDoenetML); //TODO: Does this work?
     }
   }
 
   haveDoenetML({ contentId, doenetML }) {
-
-
     this.contentId = contentId;
     this.doenetML = doenetML;
 
@@ -103,15 +100,16 @@ class DoenetViewerChild extends Component {
     this.loadState(this.createCore);
   }
 
-
   createCore({ stateVariables, variant }) {
-
     if (stateVariables === undefined) {
       console.error(`error loading state variables`);
       this.cumulativeStateVariableChanges = null;
       variant = null;
     } else {
-      this.cumulativeStateVariableChanges = JSON.parse(stateVariables, serializedComponentsReviver)
+      this.cumulativeStateVariableChanges = JSON.parse(
+        stateVariables,
+        serializedComponentsReviver,
+      );
     }
 
     // if loaded variant from database,
@@ -124,9 +122,8 @@ class DoenetViewerChild extends Component {
     // Core or viewer?
     // Argument for doing it in core: core will have to do it anyway for
     // <copy uri="doenetML:abc" />
-    // Best option: viewer and the function passed in to retrieve content 
+    // Best option: viewer and the function passed in to retrieve content
     // should verify hash
-
 
     if (this.props.core) {
       this.core = new this.props.core({
@@ -158,15 +155,10 @@ class DoenetViewerChild extends Component {
       });
     }
 
-
-
     // this.databaseItemsToReload = props.databaseItemsToReload;
-
   }
 
-
   coreReady() {
-
     this.generatedVariant = this.core.document.state.selectedVariantInfo.value;
 
     if (this.cumulativeStateVariableChanges) {
@@ -176,8 +168,8 @@ class DoenetViewerChild extends Component {
       let nFailures = Infinity;
       while (nFailures > 0) {
         let result = this.core.executeUpdateStateVariables({
-          newStateVariableValues: this.cumulativeStateVariableChanges
-        })
+          newStateVariableValues: this.cumulativeStateVariableChanges,
+        });
         if (!(result.nFailures && result.nFailures < nFailures)) {
           break;
         }
@@ -189,12 +181,10 @@ class DoenetViewerChild extends Component {
       this.cumulativeStateVariableChanges = {};
     }
 
-
     // TODO: look up the items and their weights
     // save info to user_assignment_attempt and user_assignment_attempt_item
     // if it is the first time (adds records to database if they don't exist?)
     // this.core.scoredItemWeights = [ weight1, weight2, weight3 ]
-
 
     //TODO: Handle if number of items changed. Handle if weights changed
 
@@ -203,16 +193,14 @@ class DoenetViewerChild extends Component {
         weights: this.core.scoredItemWeights,
         contentId: this.contentId,
         assignmentId: this.assignmentId,
-        attemptNumber: this.attemptNumber
-      }
-      console.log(">>>this.assignmentId", this.assignmentId)
-      console.log(">>>this.props.ignoreDatabase", this.props.ignoreDatabase)
-      console.log("core ready payload:", payload)
-      axios.post('/api/saveAssignmentWeights.php', payload)
-        .then(resp => {
-          console.log('saveAssignmentWeights-->>', resp.data);
-
-        });
+        attemptNumber: this.attemptNumber,
+      };
+      console.log('>>>this.assignmentId', this.assignmentId);
+      console.log('>>>this.props.ignoreDatabase', this.props.ignoreDatabase);
+      console.log('core ready payload:', payload);
+      axios.post('/api/saveAssignmentWeights.php', payload).then((resp) => {
+        console.log('saveAssignmentWeights-->>', resp.data);
+      });
     }
 
     let renderPromises = [];
@@ -225,24 +213,25 @@ class DoenetViewerChild extends Component {
       renderPromises.push(import(`./renderers/${rendererClassName}.js`));
     }
 
+    renderersloadComponent(renderPromises, rendererClassNames).then(
+      (rendererClasses) => {
+        this.rendererClasses = rendererClasses;
+        let documentComponentInstructions =
+          this.core.renderedComponentInstructions[this.core.documentName];
+        let documentRendererClass =
+          this.rendererClasses[documentComponentInstructions.rendererType];
 
-    renderersloadComponent(renderPromises, rendererClassNames).then((rendererClasses) => {
-      this.rendererClasses = rendererClasses;
-      let documentComponentInstructions = this.core.renderedComponentInstructions[this.core.documentName];
-      let documentRendererClass = this.rendererClasses[documentComponentInstructions.rendererType]
-
-      this.documentRenderer = React.createElement(documentRendererClass,
-        {
+        this.documentRenderer = React.createElement(documentRendererClass, {
           key: documentComponentInstructions.componentName,
           componentInstructions: documentComponentInstructions,
           rendererClasses: this.rendererClasses,
           rendererUpdateMethods: this.rendererUpdateMethods,
           flags: this.props.flags,
-        }
-      )
+        });
 
-      this.forceUpdate();
-    });
+        this.forceUpdate();
+      },
+    );
 
     //Let viewer know we are ready
     if (this.props.onCoreReady) {
@@ -252,43 +241,55 @@ class DoenetViewerChild extends Component {
 
   localStateChanged({
     newStateVariableValues,
-    contentId, sourceOfUpdate, transient = false
+    contentId,
+    sourceOfUpdate,
+    transient = false,
   }) {
-
     // TODO: what should we do with transient updates?
     if (transient || this.props.ignoreDatabase) {
       return;
     }
 
-
     for (let componentName in newStateVariableValues) {
       if (!this.cumulativeStateVariableChanges[componentName]) {
-        this.cumulativeStateVariableChanges[componentName] = {}
+        this.cumulativeStateVariableChanges[componentName] = {};
       }
       for (let varName in newStateVariableValues[componentName]) {
-        let cumValues = this.cumulativeStateVariableChanges[componentName][varName];
+        let cumValues =
+          this.cumulativeStateVariableChanges[componentName][varName];
         // if cumValues is an object with mergeObject = true,
         // then merge attributes from newStateVariableValues into cumValues
-        if (typeof cumValues === "object" && cumValues !== null && cumValues.mergeObject) {
-          Object.assign(cumValues, newStateVariableValues[componentName][varName])
+        if (
+          typeof cumValues === 'object' &&
+          cumValues !== null &&
+          cumValues.mergeObject
+        ) {
+          Object.assign(
+            cumValues,
+            newStateVariableValues[componentName][varName],
+          );
         } else {
-          this.cumulativeStateVariableChanges[componentName][varName] = newStateVariableValues[componentName][varName];
+          this.cumulativeStateVariableChanges[componentName][varName] =
+            newStateVariableValues[componentName][varName];
         }
       }
     }
 
-    let changeString = JSON.stringify(this.cumulativeStateVariableChanges, serializedComponentsReplacer);
+    let changeString = JSON.stringify(
+      this.cumulativeStateVariableChanges,
+      serializedComponentsReplacer,
+    );
 
-
-    let variantString = JSON.stringify(this.generatedVariant, serializedComponentsReplacer);
+    let variantString = JSON.stringify(
+      this.generatedVariant,
+      serializedComponentsReplacer,
+    );
 
     // save to database
     // check the cookie to see if allowed to record
     // display warning if is assignment for class and have returned off recording
     // maybe that's shown when enroll in class, and you cannot turn it off
     // without disenrolling from class
-
-
 
     // if (assignmentId) {
     //   //Save Assignment Info
@@ -302,36 +303,29 @@ class DoenetViewerChild extends Component {
       attemptNumber: this.attemptNumber,
       assignmentId: this.assignmentId,
       variant: variantString,
-    }
+    };
 
-    axios.post(phpUrl, data)
-      .then(resp => {
-        console.log('save', resp.data);
-      });
-
-
-
+    axios.post(phpUrl, data).then((resp) => {
+      console.log('save', resp.data);
+    });
   }
 
   loadDoenetML(contentId, callback) {
-
-    axios.get(`/media/${contentId}.doenet`)
-      .then(resp => {
-        if (callback) {
-          callback({
-            contentId, doenetML: resp.data,
-          })
-        }
-      });
-
+    axios.get(`/media/${contentId}.doenet`).then((resp) => {
+      if (callback) {
+        callback({
+          contentId,
+          doenetML: resp.data,
+        });
+      }
+    });
   }
 
   loadState(callback) {
-
     if (this.props.ignoreDatabase) {
       callback({
         stateVariables: null,
-        variant: null
+        variant: null,
       });
       return;
     }
@@ -341,56 +335,53 @@ class DoenetViewerChild extends Component {
       contentId: this.contentId,
       attemptNumber: this.attemptNumber,
       assignmentId: this.assignmentId,
-    }
+    };
     const payload = {
-      params: data
-    }
+      params: data,
+    };
 
-    axios.get(phpUrl, payload)
-      .then(resp => {
-        console.log("load ci", resp.data)
-        if (callback) {
-          callback({
-            stateVariables: resp.data.stateVariables,
-            variant: resp.data.variant
-          })
-        }
-      });
-
+    axios.get(phpUrl, payload).then((resp) => {
+      console.log('load ci', resp.data);
+      if (callback) {
+        callback({
+          stateVariables: resp.data.stateVariables,
+          variant: resp.data.variant,
+        });
+      }
+    });
   }
 
   //offscreen then postpone that one
   update(instructions) {
     for (let instruction of instructions) {
-
-      if (instruction.instructionType === "updateStateVariable") {
-        for (let componentName of instruction.renderersToUpdate
-          .filter(x => x in this.rendererUpdateMethods)
-        ) {
+      if (instruction.instructionType === 'updateStateVariable') {
+        for (let componentName of instruction.renderersToUpdate.filter(
+          (x) => x in this.rendererUpdateMethods,
+        )) {
           this.rendererUpdateMethods[componentName].update({
-            sourceOfUpdate: instruction.sourceOfUpdate
+            sourceOfUpdate: instruction.sourceOfUpdate,
           });
         }
-      } else if (instruction.instructionType === "addRenderer") {
+      } else if (instruction.instructionType === 'addRenderer') {
         if (instruction.parentName in this.rendererUpdateMethods)
-          this.rendererUpdateMethods[instruction.parentName].addChildren(instruction)
-      } else if (instruction.instructionType === "deleteRenderers") {
+          this.rendererUpdateMethods[instruction.parentName].addChildren(
+            instruction,
+          );
+      } else if (instruction.instructionType === 'deleteRenderers') {
         if (instruction.parentName in this.rendererUpdateMethods)
-          this.rendererUpdateMethods[instruction.parentName].removeChildren(instruction)
-      } else if (instruction.instructionType === "swapChildRenderers") {
+          this.rendererUpdateMethods[instruction.parentName].removeChildren(
+            instruction,
+          );
+      } else if (instruction.instructionType === 'swapChildRenderers') {
         if (instruction.parentName in this.rendererUpdateMethods)
-          this.rendererUpdateMethods[instruction.parentName].swapChildren(instruction)
+          this.rendererUpdateMethods[instruction.parentName].swapChildren(
+            instruction,
+          );
       }
     }
-
-
   }
 
-  submitResponse({
-    itemNumber,
-    itemCreditAchieved,
-    callBack,
-  }) {
+  submitResponse({ itemNumber, itemCreditAchieved, callBack }) {
     // console.log('CALLED!',
     //   itemNumber,
     //   itemCreditAchieved
@@ -402,23 +393,19 @@ class DoenetViewerChild extends Component {
         attemptNumber: this.attemptNumber,
         credit: itemCreditAchieved,
         itemNumber,
-      }
-      axios.post('/api/saveCreditForItem.php', payload)
-        .then(resp => {
-          // console.log('saveCreditForItem-->>>',resp.data);
-
-        });
+      };
+      axios.post('/api/saveCreditForItem.php', payload).then((resp) => {
+        // console.log('saveCreditForItem-->>>',resp.data);
+      });
     }
 
-    callBack("submitResponse callback parameter");
+    callBack('submitResponse callback parameter');
   }
-
 
   // TODO: if assignmentId, then need to record fact that student
   // viewed solution in user_assignment_attempt_item
   recordSolutionView({ itemNumber, scoredComponent, callBack }) {
-
-    console.log(`reveal solution, ${itemNumber}`)
+    console.log(`reveal solution, ${itemNumber}`);
 
     if (this.assignmentId) {
       console.warn(`Need to record solution view in the database!!`);
@@ -428,20 +415,14 @@ class DoenetViewerChild extends Component {
       // But, should the condition be checked on the server?
 
       // TODO: call callBack as callBack from php call
-      callBack({ allowView: true, message: "", scoredComponent })
-
+      callBack({ allowView: true, message: '', scoredComponent });
     } else {
-
       // if not an assignment, immediately show solution
-      callBack({ allowView: true, message: "", scoredComponent })
-
+      callBack({ allowView: true, message: '', scoredComponent });
     }
-
   }
 
-
   recordEvent(event) {
-
     if (this.props.ignoreDatabase) {
       return;
     }
@@ -450,26 +431,26 @@ class DoenetViewerChild extends Component {
       assignmentId: this.assignmentId,
       contentId: this.contentId,
       attemptNumber: this.attemptNumber,
-      variant: JSON.stringify(this.generatedVariant, serializedComponentsReplacer),
+      variant: JSON.stringify(
+        this.generatedVariant,
+        serializedComponentsReplacer,
+      ),
       verb: event.verb,
       object: JSON.stringify(event.object, serializedComponentsReplacer),
       result: JSON.stringify(event.result, serializedComponentsReplacer),
       context: JSON.stringify(event.context, serializedComponentsReplacer),
       timestamp: event.timestamp,
-      version: "0.1.0",
-    }
+      version: '0.1.0',
+    };
 
-    axios.post('/api/recordEvent.php', payload)
-      .then(resp => {
-        // console.log('recordEvent-->>>',resp.data);
-      });
-
+    axios.post('/api/recordEvent.php', payload).then((resp) => {
+      // console.log('recordEvent-->>>',resp.data);
+    });
   }
 
   render() {
     return this.documentRenderer;
   }
-
 }
 
 class ErrorBoundary extends React.Component {
@@ -477,14 +458,14 @@ class ErrorBoundary extends React.Component {
     super(props);
     this.state = {
       hasError: false,
-      errorMsg: ""
+      errorMsg: '',
     };
   }
 
   static getDerivedStateFromError(error) {
     return {
       hasError: true,
-      errorMsg: error.toString()
+      errorMsg: error.toString(),
     };
   }
 
@@ -498,27 +479,25 @@ class ErrorBoundary extends React.Component {
 }
 
 function DoenetViewer(props) {
-  return <ErrorBoundary><DoenetViewerChild {...props} /></ErrorBoundary>
+  return (
+    <ErrorBoundary>
+      <DoenetViewerChild {...props} />
+    </ErrorBoundary>
+  );
 }
 
 export default DoenetViewer;
 
-
-
 async function renderersloadComponent(promises, rendererClassNames) {
-
   var rendererClasses = {};
   for (let [index, promise] of promises.entries()) {
     try {
       let module = await promise;
       rendererClasses[rendererClassNames[index]] = module.default;
     } catch (error) {
-      console.log(error)
-      console.error(`Error: loading ${rendererClassNames[index]} failed.`)
+      console.log(error);
+      console.error(`Error: loading ${rendererClassNames[index]} failed.`);
     }
-
   }
   return rendererClasses;
-
 }
-

@@ -2,38 +2,35 @@ import BaseComponent from './BaseComponent';
 import { returnDefaultStyleDefinitions } from '../../utils/style';
 
 export default class GraphicalComponent extends BaseComponent {
-  static componentType = "_graphical";
+  static componentType = '_graphical';
 
   static createAttributesObject(args) {
     let attributes = super.createAttributesObject(args);
     attributes.label = {
-      createComponentOfType: "text",
-      createStateVariable: "label",
-      defaultValue: "",
+      createComponentOfType: 'text',
+      createStateVariable: 'label',
+      defaultValue: '',
       public: true,
-      forRenderer: true
+      forRenderer: true,
     };
     attributes.showLabel = {
-      createComponentOfType: "boolean",
-      createStateVariable: "showLabel",
+      createComponentOfType: 'boolean',
+      createStateVariable: 'showLabel',
       defaultValue: true,
       public: true,
-      forRenderer: true
+      forRenderer: true,
     };
     attributes.layer = {
-      createComponentOfType: "number",
-      createStateVariable: "layer",
+      createComponentOfType: 'number',
+      createStateVariable: 'layer',
       defaultValue: 0,
       public: true,
-      forRenderer: true
+      forRenderer: true,
     };
     return attributes;
-
   }
 
-
   static returnStateVariableDefinitions() {
-
     let stateVariableDefinitions = super.returnStateVariableDefinitions();
 
     stateVariableDefinitions.selectedStyle = {
@@ -41,17 +38,17 @@ export default class GraphicalComponent extends BaseComponent {
       willNeverBeEssential: true,
       returnDependencies: () => ({
         styleNumber: {
-          dependencyType: "stateVariable",
-          variableName: "styleNumber",
+          dependencyType: 'stateVariable',
+          variableName: 'styleNumber',
         },
         ancestorWithStyle: {
-          dependencyType: "ancestor",
-          variableNames: ["styleDefinitions"]
-        }
+          dependencyType: 'ancestor',
+          variableNames: ['styleDefinitions'],
+        },
       }),
       definition: function ({ dependencyValues }) {
-
-        let styleDefinitions = dependencyValues.ancestorWithStyle.stateValues.styleDefinitions;
+        let styleDefinitions =
+          dependencyValues.ancestorWithStyle.stateValues.styleDefinitions;
         if (!styleDefinitions) {
           styleDefinitions = returnDefaultStyleDefinitions();
         }
@@ -64,7 +61,10 @@ export default class GraphicalComponent extends BaseComponent {
               selectedStyle = styleDefinition;
             } else {
               // attributes from earlier matches take precedence
-              selectedStyle = Object.assign(Object.assign({}, styleDefinition), selectedStyle)
+              selectedStyle = Object.assign(
+                Object.assign({}, styleDefinition),
+                selectedStyle,
+              );
             }
           }
         }
@@ -73,11 +73,9 @@ export default class GraphicalComponent extends BaseComponent {
           selectedStyle = styleDefinitions[0];
         }
         return { newValues: { selectedStyle } };
-      }
-    }
+      },
+    };
 
     return stateVariableDefinitions;
   }
-
-
 }

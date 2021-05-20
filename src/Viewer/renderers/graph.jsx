@@ -3,12 +3,13 @@ import DoenetRenderer from './DoenetRenderer';
 import { sizeToCSS } from './utils/css';
 
 export default class Graph extends DoenetRenderer {
-
   constructor(props) {
     super(props);
 
-    this.setAllBoardsToStayLowQuality = this.setAllBoardsToStayLowQuality.bind(this);
-    this.setAllBoardsToHighQualityAndUpdate = this.setAllBoardsToHighQualityAndUpdate.bind(this);
+    this.setAllBoardsToStayLowQuality =
+      this.setAllBoardsToStayLowQuality.bind(this);
+    this.setAllBoardsToHighQualityAndUpdate =
+      this.setAllBoardsToHighQualityAndUpdate.bind(this);
   }
 
   static initializeChildrenOnConstruction = false;
@@ -20,18 +21,21 @@ export default class Graph extends DoenetRenderer {
   }
 
   drawBoard() {
-
     window.JXG.Options.axis.ticks.majorHeight = 20;
 
-    let boundingbox = [this.doenetSvData.xmin, this.doenetSvData.ymax, this.doenetSvData.xmax, this.doenetSvData.ymin];
+    let boundingbox = [
+      this.doenetSvData.xmin,
+      this.doenetSvData.ymax,
+      this.doenetSvData.xmax,
+      this.doenetSvData.ymin,
+    ];
 
-    this.board = window.JXG.JSXGraph.initBoard(this.componentName,
-      {
-        boundingbox,
-        axis: false,
-        showCopyright: false,
-        showNavigation: this.doenetSvData.showNavigation
-      });
+    this.board = window.JXG.JSXGraph.initBoard(this.componentName, {
+      boundingbox,
+      axis: false,
+      showCopyright: false,
+      showNavigation: this.doenetSvData.showNavigation,
+    });
 
     if (this.doenetSvData.displayXAxis) {
       let xaxisOptions = {};
@@ -40,28 +44,33 @@ export default class Graph extends DoenetRenderer {
         xaxisOptions.withLabel = true;
         xaxisOptions.label = {
           position: 'rt',
-          offset: [-10, 15]
+          offset: [-10, 15],
         };
       }
       xaxisOptions.ticks = {
         ticksDistance: 2,
         label: {
-          offset: [-5, -15]
+          offset: [-5, -15],
         },
         minorTicks: 5,
         precision: 4,
-      }
+      };
 
       if (!this.doenetSvData.displayYAxis) {
         xaxisOptions.ticks.drawZero = true;
       }
 
-      let xaxis = this.board.create('axis', [[0, 0], [1, 0]], xaxisOptions)
-
+      let xaxis = this.board.create(
+        'axis',
+        [
+          [0, 0],
+          [1, 0],
+        ],
+        xaxisOptions,
+      );
     }
 
     if (this.doenetSvData.displayYAxis) {
-
       let yaxisOptions = {};
       if (this.doenetSvData.ylabel) {
         yaxisOptions.name = this.doenetSvData.ylabel;
@@ -69,22 +78,29 @@ export default class Graph extends DoenetRenderer {
         yaxisOptions.label = {
           position: 'rt',
           offset: [-25, -5],
-        }
+        };
       }
       yaxisOptions.ticks = {
         ticksDistance: 2,
         label: {
-          offset: [12, -2]
+          offset: [12, -2],
         },
         minorTicks: 4,
         precision: 4,
-      }
+      };
 
       if (!this.doenetSvData.displayXAxis) {
         yaxisOptions.ticks.drawZero = true;
       }
 
-      let yaxis = this.board.create('axis', [[0, 0], [0, 1]], yaxisOptions)
+      let yaxis = this.board.create(
+        'axis',
+        [
+          [0, 0],
+          [0, 1],
+        ],
+        yaxisOptions,
+      );
     }
 
     this.board.itemsRenderedLowQuality = {};
@@ -97,11 +113,13 @@ export default class Graph extends DoenetRenderer {
         this.previousBoundingbox = this.board.getBoundingBox();
         let [xmin, ymax, xmax, ymin] = this.previousBoundingbox;
         this.actions.changeAxisLimits({
-          xmin, xmax, ymin, ymax
+          xmin,
+          xmax,
+          ymin,
+          ymax,
         });
       }
-    })
-
+    });
 
     this.doenetPropsForChildren = { board: this.board };
     this.initializeChildren();
@@ -111,26 +129,34 @@ export default class Graph extends DoenetRenderer {
     this.previousDimensions = {
       width: parseFloat(sizeToCSS(this.doenetSvData.width)),
       height: parseFloat(sizeToCSS(this.doenetSvData.height)),
-    }
-
+    };
   }
 
   update() {
-
     let currentDimensions = {
       width: parseFloat(sizeToCSS(this.doenetSvData.width)),
       height: parseFloat(sizeToCSS(this.doenetSvData.height)),
-    }
+    };
 
-    if ((currentDimensions.width !== this.previousDimensions.width ||
-      currentDimensions.height !== this.previousDimensions.height)
-      && Number.isFinite(currentDimensions.width) && Number.isFinite(currentDimensions.height)
+    if (
+      (currentDimensions.width !== this.previousDimensions.width ||
+        currentDimensions.height !== this.previousDimensions.height) &&
+      Number.isFinite(currentDimensions.width) &&
+      Number.isFinite(currentDimensions.height)
     ) {
-      this.board.resizeContainer(currentDimensions.width, currentDimensions.height);
+      this.board.resizeContainer(
+        currentDimensions.width,
+        currentDimensions.height,
+      );
       this.previousDimensions = currentDimensions;
     }
 
-    let boundingbox = [this.doenetSvData.xmin, this.doenetSvData.ymax, this.doenetSvData.xmax, this.doenetSvData.ymin];
+    let boundingbox = [
+      this.doenetSvData.xmin,
+      this.doenetSvData.ymax,
+      this.doenetSvData.xmax,
+      this.doenetSvData.ymin,
+    ];
 
     if (boundingbox.some((v, i) => v !== this.previousBoundingbox[i])) {
       this.settingBoundingBox = true;
@@ -144,11 +170,9 @@ export default class Graph extends DoenetRenderer {
       }
 
       this.previousBoundingbox = boundingbox;
-
     }
 
     super.update();
-
   }
 
   setToLowQualityRender({ stayLowQuality } = {}) {
@@ -191,10 +215,11 @@ export default class Graph extends DoenetRenderer {
 
   setAllBoardsToHighQualityAndUpdate() {
     for (let renderer of this.graphRenderComponents) {
-      renderer.setToHighQualityRenderAndUpdate({ overrideStayLowQuality: true });
+      renderer.setToHighQualityRenderAndUpdate({
+        overrideStayLowQuality: true,
+      });
     }
   }
-
 
   componentWillUnmount() {
     // let allRenderers = this.renderers;
@@ -206,28 +231,27 @@ export default class Graph extends DoenetRenderer {
     // }
   }
 
-
   componentDidUpdate() {
     // this.updateGraphicalComponents();
     //window.MathJax.Hub.Queue(["Typeset",window.MathJax.Hub, "#"+this.component.componentName]);
   }
 
   render() {
-
     const divStyle = {
       width: sizeToCSS(this.doenetSvData.width),
       height: sizeToCSS(this.doenetSvData.height),
-    }
+    };
 
     if (this.doenetSvData.hidden) {
-      divStyle.display = "none";
+      divStyle.display = 'none';
     }
 
-    return <React.Fragment>
-      <a name={this.componentName} />
-      <div id={this.componentName} className="jxgbox" style={divStyle} />
-      {this.children}
-    </React.Fragment>;
+    return (
+      <React.Fragment>
+        <a name={this.componentName} />
+        <div id={this.componentName} className="jxgbox" style={divStyle} />
+        {this.children}
+      </React.Fragment>
+    );
   }
-
 }

@@ -1,7 +1,7 @@
 import BaseComponent from './abstract/BaseComponent';
 
 export default class CollaborateGroupSetup extends BaseComponent {
-  static componentType = "collaborateGroupSetup";
+  static componentType = 'collaborateGroupSetup';
 
   static returnChildLogic(args) {
     let childLogic = super.returnChildLogic(args);
@@ -11,40 +11,36 @@ export default class CollaborateGroupSetup extends BaseComponent {
       componentType: 'possibleNumberOfGroups',
       comparison: 'atMost',
       number: 1,
-      setAsBase: true
+      setAsBase: true,
     });
     return childLogic;
   }
 
-
   static returnStateVariableDefinitions() {
-
     let stateVariableDefinitions = super.returnStateVariableDefinitions();
 
     stateVariableDefinitions.possibleNumberOfGroups = {
       returnDependencies: () => ({
         pngChild: {
-          dependencyType: "child",
-          childLogicName: "atMostOnePossibleNumberOfGroups",
-          variableNames: ["numbers"]
+          dependencyType: 'child',
+          childLogicName: 'atMostOnePossibleNumberOfGroups',
+          variableNames: ['numbers'],
         },
       }),
       definition: function ({ dependencyValues }) {
-
         if (dependencyValues.pngChild.length === 0) {
-          return { newValues: { possibleNumberOfGroups: [1] } }
+          return { newValues: { possibleNumberOfGroups: [1] } };
         }
 
         return {
           newValues: {
-            possibleNumberOfGroups: dependencyValues.pngChild[0].stateValues.numbers
-          }
-        }
-
-      }
-    }
+            possibleNumberOfGroups:
+              dependencyValues.pngChild[0].stateValues.numbers,
+          },
+        };
+      },
+    };
 
     return stateVariableDefinitions;
   }
-
 }

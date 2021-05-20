@@ -1,20 +1,27 @@
-import React, { useRef, useEffect } from "react";
+import React, { useRef, useEffect } from 'react';
 
-const WithDropTarget = ({ children, id, registerDropTarget, unregisterDropTarget, dropCallbacks }) => {
+const WithDropTarget = ({
+  children,
+  id,
+  registerDropTarget,
+  unregisterDropTarget,
+  dropCallbacks,
+}) => {
   const dropRef = useRef();
 
-  const { onDragOver, onDragHover, onDrop, onDragEnter, onDragExit } = dropCallbacks;
+  const { onDragOver, onDragHover, onDrop, onDragEnter, onDragExit } =
+    dropCallbacks;
 
   useEffect(() => {
-    registerDropTarget({ 
-      id, 
-      ref: dropRef.current, 
-      onDragOver, 
-      onDragHover, 
+    registerDropTarget({
+      id,
+      ref: dropRef.current,
+      onDragOver,
+      onDragHover,
       onDragEnter,
       onDragExit,
       onDrop,
-     });
+    });
     return () => {
       unregisterDropTarget(id);
     };

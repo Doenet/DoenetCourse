@@ -9,17 +9,20 @@ export default class Container extends DoenetRenderer {
       this.doenetPropsForChildren = { board: this.props.board };
     }
     this.initializeChildren();
-
   }
 
   static initializeChildrenOnConstruction = false;
 
   render() {
-
     if (this.doenetSvData.hidden) {
       return null;
     }
 
-    return <><a name={this.componentName} />{this.children}</>
+    return (
+      <>
+        <a name={this.componentName} />
+        {this.children}
+      </>
+    );
   }
 }

@@ -2,55 +2,50 @@ import BaseComponent from './BaseComponent';
 import { breakEmbeddedStringsIntoParensPieces } from '../commonsugar/breakstrings';
 
 export default class VectorListComponent extends BaseComponent {
-  static componentType = "_vectorListComponent";
-  static rendererType = "container";
+  static componentType = '_vectorListComponent';
+  static rendererType = 'container';
   static renderChildren = true;
 
   static returnSugarInstructions() {
     let sugarInstructions = super.returnSugarInstructions();
 
-
     let createVectorList = function ({ matchedChildren }) {
-
       let results = breakEmbeddedStringsIntoParensPieces({
         componentList: matchedChildren,
       });
 
-
       if (results.success !== true) {
-        return { success: false }
+        return { success: false };
       }
 
       return {
         success: true,
         newChildren: results.pieces.map(function (piece) {
-          if (piece.length > 1 || piece[0].componentType === "string") {
+          if (piece.length > 1 || piece[0].componentType === 'string') {
             return {
-              componentType: "vector",
-              children: piece
-            }
+              componentType: 'vector',
+              children: piece,
+            };
           } else {
-            return piece[0]
+            return piece[0];
           }
-        })
-      }
-    }
+        }),
+      };
+    };
 
     sugarInstructions.push({
       // childrenRegex: /s+(.*s)?/,
-      replacementFunction: createVectorList
+      replacementFunction: createVectorList,
     });
 
     return sugarInstructions;
-
   }
-
 
   static returnChildLogic(args) {
     let childLogic = super.returnChildLogic(args);
 
     childLogic.newLeaf({
-      name: "atLeastZeroVectors",
+      name: 'atLeastZeroVectors',
       componentType: 'vector',
       comparison: 'atLeast',
       number: 0,
@@ -60,37 +55,33 @@ export default class VectorListComponent extends BaseComponent {
     return childLogic;
   }
 
-
   static returnStateVariableDefinitions() {
-
     let stateVariableDefinitions = super.returnStateVariableDefinitions();
 
     stateVariableDefinitions.nVectors = {
       returnDependencies: () => ({
         vectorChildren: {
-          dependencyType: "child",
-          childLogicName: "atLeastZeroVectors",
+          dependencyType: 'child',
+          childLogicName: 'atLeastZeroVectors',
           skipComponentNames: true,
-        }
+        },
       }),
       definition: ({ dependencyValues }) => ({
         newValues: { nVectors: dependencyValues.vectorChildren.length },
-        checkForActualChange: { nVectors: true }
-      })
-    }
+        checkForActualChange: { nVectors: true },
+      }),
+    };
 
-    
     stateVariableDefinitions.nDimensions = {
       returnDependencies: () => ({
         vectorChildren: {
-          dependencyType: "child",
-          childLogicName: "atLeastZeroVectors",
-          variableNames: ["nDimensions"],
+          dependencyType: 'child',
+          childLogicName: 'atLeastZeroVectors',
+          variableNames: ['nDimensions'],
           skipPlaceholders: true,
-        }
+        },
       }),
       definition: function ({ dependencyValues }) {
-
         let nDimensions;
 
         if (dependencyValues.vectorChildren.length === 0) {
@@ -99,29 +90,32 @@ export default class VectorListComponent extends BaseComponent {
           nDimensions = 1;
           for (let vector of dependencyValues.vectorChildren) {
             if (Number.isFinite(vector.stateValues.nDimensions)) {
-              nDimensions = Math.max(nDimensions, vector.stateValues.nDimensions)
+              nDimensions = Math.max(
+                nDimensions,
+                vector.stateValues.nDimensions,
+              );
             }
           }
         }
         return {
           newValues: { nDimensions },
-          checkForActualChange: { nDimensions: true }
-        }
-      }
-    }
-
+          checkForActualChange: { nDimensions: true },
+        };
+      },
+    };
 
     stateVariableDefinitions.vectors = {
       isArray: true,
       nDimensions: 2,
-      entryPrefixes: ["vectorX", "vector"],
+      entryPrefixes: ['vectorX', 'vector'],
       getArrayKeysFromVarName({ arrayEntryPrefix, varEnding, arraySize }) {
-        if (arrayEntryPrefix === "vectorX") {
+        if (arrayEntryPrefix === 'vectorX') {
           // vectorX1_2 is the 2nd component of the first vector
-          let indices = varEnding.split('_').map(x => Number(x) - 1)
-          if (indices.length === 2 && indices.every(
-            (x, i) => Number.isInteger(x) && x >= 0
-          )) {
+          let indices = varEnding.split('_').map((x) => Number(x) - 1);
+          if (
+            indices.length === 2 &&
+            indices.every((x, i) => Number.isInteger(x) && x >= 0)
+          ) {
             if (arraySize) {
               if (indices.every((x, i) => x < arraySize[i])) {
                 return [String(indices)];
@@ -143,23 +137,29 @@ export default class VectorListComponent extends BaseComponent {
           if (!arraySize) {
             return [];
           }
-          if (Number.isInteger(vectorInd) && vectorInd >= 0 && vectorInd < arraySize[0]) {
+          if (
+            Number.isInteger(vectorInd) &&
+            vectorInd >= 0 &&
+            vectorInd < arraySize[0]
+          ) {
             // array of "vectorInd,i", where i=0, ..., arraySize[1]-1
-            return Array.from(Array(arraySize[1]), (_, i) => vectorInd + "," + i)
+            return Array.from(
+              Array(arraySize[1]),
+              (_, i) => vectorInd + ',' + i,
+            );
           } else {
             return [];
           }
         }
-
       },
       returnArraySizeDependencies: () => ({
         nVectors: {
-          dependencyType: "stateVariable",
-          variableName: "nVectors",
+          dependencyType: 'stateVariable',
+          variableName: 'nVectors',
         },
         nDimensions: {
-          dependencyType: "stateVariable",
-          variableName: "nDimensions",
+          dependencyType: 'stateVariable',
+          variableName: 'nDimensions',
         },
       }),
       returnArraySize({ dependencyValues }) {
@@ -171,19 +171,17 @@ export default class VectorListComponent extends BaseComponent {
           let [vectorInd, dim] = arrayKey.split(',');
           dependenciesByKey[arrayKey] = {
             vectorChild: {
-              dependencyType: "child",
-              childLogicName: "atLeastZeroVectors",
-              variableNames: ["x" + (Number(dim) + 1)],
+              dependencyType: 'child',
+              childLogicName: 'atLeastZeroVectors',
+              variableNames: ['x' + (Number(dim) + 1)],
               childIndices: [vectorInd],
-            }
-          }
+            },
+          };
         }
 
         return { dependenciesByKey };
-
       },
       arrayDefinitionByKey({ dependencyValuesByKey, arrayKeys }) {
-
         // console.log('array definition of vectors for vectorlist')
         // console.log(JSON.parse(JSON.stringify(dependencyValuesByKey)))
         // console.log(arrayKeys);
@@ -195,44 +193,39 @@ export default class VectorListComponent extends BaseComponent {
 
           let vectorChild = dependencyValuesByKey[arrayKey].vectorChild[0];
           if (vectorChild) {
-            vectors[arrayKey] = vectorChild.stateValues["x" + (Number(dim) + 1)];
+            vectors[arrayKey] =
+              vectorChild.stateValues['x' + (Number(dim) + 1)];
           }
         }
 
-        return { newValues: { vectors } }
-
+        return { newValues: { vectors } };
       },
-      inverseArrayDefinitionByKey({ desiredStateVariableValues,
+      inverseArrayDefinitionByKey({
+        desiredStateVariableValues,
         dependencyNamesByKey,
         // componentName
       }) {
-
         // console.log(`array inverse definition of vectors of vectorlist of ${componentName}`)
         // console.log(desiredStateVariableValues)
         // console.log(arrayKeys);
 
         let instructions = [];
         for (let arrayKey in desiredStateVariableValues.vectors) {
-
           instructions.push({
             setDependency: dependencyNamesByKey[arrayKey].vectorChild,
             desiredValue: desiredStateVariableValues.vectors[arrayKey],
             childIndex: 0,
-            variableIndex: 0
-          })
-
+            variableIndex: 0,
+          });
         }
 
         return {
           success: true,
-          instructions
-        }
-
-      }
-    }
+          instructions,
+        };
+      },
+    };
 
     return stateVariableDefinitions;
-
   }
-
 }

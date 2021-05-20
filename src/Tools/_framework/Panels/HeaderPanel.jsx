@@ -41,22 +41,24 @@ export default function HeaderPanel({ title, children }) {
   const { close } = useToolControlHelper();
   const stackId = useStackId();
 
-  const profile = useContext(ProfileContext)
+  const profile = useContext(ProfileContext);
   // console.log(">>>Header profile",profile)
 
-  let userProfile = <p>Loading</p> //TODO: update this to blank circle svg
-  if (Object.keys(profile).length > 0){
-    userProfile = <UserProfile
-          profile={profile}
-          // cookies={jwt}
-          // isSignedIn={isSignedIn}
-          showProfileOnly={true}
-          // TODO: this needs review
-          // headerRoleFromLayout={props.headerRoleFromLayout}
-          // headerChangesFromLayout={props.headerChangesFromLayout}
-          // guestUser={props.guestUser}
-          // onChange={showCollapseMenu}
-        />
+  let userProfile = <p>Loading</p>; //TODO: update this to blank circle svg
+  if (Object.keys(profile).length > 0) {
+    userProfile = (
+      <UserProfile
+        profile={profile}
+        // cookies={jwt}
+        // isSignedIn={isSignedIn}
+        showProfileOnly={true}
+        // TODO: this needs review
+        // headerRoleFromLayout={props.headerRoleFromLayout}
+        // headerChangesFromLayout={props.headerChangesFromLayout}
+        // guestUser={props.guestUser}
+        // onChange={showCollapseMenu}
+      />
+    );
   }
 
   return (
@@ -67,7 +69,6 @@ export default function HeaderPanel({ title, children }) {
       </ControlsContainer>
       {!(stackId > 0 ?? false) ? (
         <>{userProfile}</>
-    
       ) : (
         <ExitOverlayButton onClick={close}>
           <FontAwesomeIcon icon={faTimes} />

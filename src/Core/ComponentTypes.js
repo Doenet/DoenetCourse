@@ -121,7 +121,6 @@ import Case from './components/Case';
 import SelectByCondition from './components/SelectByCondition';
 import Lorem from './components/Lorem';
 
-
 //Extended
 import * as ComponentSize from './components/abstract/ComponentSize';
 import BaseComponent from './components/abstract/BaseComponent';
@@ -140,7 +139,6 @@ import SectioningComponent from './components/abstract/SectioningComponent';
 import TextFromSingleStringChild from './components/abstract/TextFromSingleStringChild';
 import InlineRenderInlineChildren from './components/abstract/InlineRenderInlineChildren';
 import TextOrInline from './components/abstract/TextOrInline';
-
 
 const componentTypeArray = [
   ...Object.values(PropertyComponents),
@@ -164,36 +162,50 @@ const componentTypeArray = [
   ...Object.values(ComponentWithSelectableType),
   Document,
   StringComponent,
-  Text, TextList,
+  Text,
+  TextList,
   RandomizedTextList,
   P,
-  BooleanComponent, BooleanList,
-  MathComponent, MathList,
+  BooleanComponent,
+  BooleanList,
+  MathComponent,
+  MathList,
   NumberList,
   Copy,
   Extract,
   Collect,
   Ref,
-  Point, Coords,
-  Line, LineSegment, Polyline,
+  Point,
+  Coords,
+  Line,
+  LineSegment,
+  Polyline,
   Polygon,
   Triangle,
   Rectangle,
   Circle,
   Parabola,
   Curve,
-  BezierControls, ControlVectors,
+  BezierControls,
+  ControlVectors,
   Vector,
   Angle,
-  Answer, Award, When,
-  MathInput, TextInput, BooleanInput, ChoiceInput,
+  Answer,
+  Award,
+  When,
+  MathInput,
+  TextInput,
+  BooleanInput,
+  ChoiceInput,
   Choice,
-  NumberComponent, Integer,
+  NumberComponent,
+  Integer,
   Graph,
   Variables,
   Variable,
   Function,
-  Template, Option,
+  Template,
+  Option,
   Sequence,
   Slider,
   Spreadsheet,
@@ -204,7 +216,8 @@ const componentTypeArray = [
   Table,
   Markers,
   Panel,
-  Map, Sources,
+  Map,
+  Sources,
   Constraints,
   ConstrainToGrid,
   AttractToGrid,
@@ -213,11 +226,15 @@ const componentTypeArray = [
   ConstraintUnion,
   TransformConstraintIntoAttractor,
   Intersection,
-  ConstrainToAngles, AttractToAngles,
+  ConstrainToAngles,
+  AttractToAngles,
   ConditionalContent,
   AsList,
-  Seeds, Variants, VariantControl,
-  SelectFromSequence, Select,
+  Seeds,
+  Variants,
+  VariantControl,
+  SelectFromSequence,
+  Select,
   Group,
   AnimateFromSequence,
   Evaluate,
@@ -229,7 +246,8 @@ const componentTypeArray = [
   Image,
   Video,
   Embed,
-  Hint, Solution,
+  Hint,
+  Solution,
   IntComma,
   Pluralize,
   Feedback,
@@ -254,7 +272,8 @@ const componentTypeArray = [
   AngleListComponent,
   BooleanBaseOperator,
   BooleanBaseOperatorOfMath,
-  MathBaseOperator, MathBaseOperatorOneInput,
+  MathBaseOperator,
+  MathBaseOperatorOneInput,
   FunctionBaseOperator,
   ...Object.values(ComponentSize),
   SectioningComponent,
@@ -269,17 +288,25 @@ export function standardComponentClasses() {
   for (let ct of componentTypeArray) {
     let newComponentType = ct.componentType;
 
-    if (newComponentType.substring(0, 1) !== "_") {
-
+    if (newComponentType.substring(0, 1) !== '_') {
       if (newComponentType === undefined) {
-        throw Error("Cannot create component as componentType is undefined for class " + ct)
+        throw Error(
+          'Cannot create component as componentType is undefined for class ' +
+            ct,
+        );
       }
       let lowerCaseType = newComponentType.toLowerCase();
       if (lowerCaseComponentTypes.has(lowerCaseType)) {
-        throw Error("component type " + newComponentType + " defined in two classes");
+        throw Error(
+          'component type ' + newComponentType + ' defined in two classes',
+        );
       }
-      if (!(/[a-zA-Z]/.test(newComponentType.substring(0, 1)))) {
-        throw Error("Invalid component type " + newComponentType + ". Component types must begin with a letter.");
+      if (!/[a-zA-Z]/.test(newComponentType.substring(0, 1))) {
+        throw Error(
+          'Invalid component type ' +
+            newComponentType +
+            '. Component types must begin with a letter.',
+        );
       }
       componentClasses[newComponentType] = ct;
       lowerCaseComponentTypes.add(lowerCaseType);
@@ -294,18 +321,21 @@ export function allComponentClasses() {
   for (let ct of componentTypeArray) {
     let newComponentType = ct.componentType;
     if (newComponentType === undefined) {
-      throw Error("Cannot create component as componentType is undefined for class " + ct)
+      throw Error(
+        'Cannot create component as componentType is undefined for class ' + ct,
+      );
     }
     let lowerCaseType = newComponentType.toLowerCase();
     if (lowerCaseComponentTypes.has(lowerCaseType)) {
-      throw Error("component type " + newComponentType + " defined in two classes");
+      throw Error(
+        'component type ' + newComponentType + ' defined in two classes',
+      );
     }
     componentClasses[newComponentType] = ct;
     lowerCaseComponentTypes.add(lowerCaseType);
   }
   return componentClasses;
 }
-
 
 export function componentTypesCreatingVariants() {
   const componentClasses = {};
@@ -314,11 +344,16 @@ export function componentTypesCreatingVariants() {
     if (ct.createsVariants) {
       let newComponentType = ct.componentType;
       if (newComponentType === undefined) {
-        throw Error("Cannot create component as componentType is undefined for class " + ct)
+        throw Error(
+          'Cannot create component as componentType is undefined for class ' +
+            ct,
+        );
       }
       let lowerCaseType = newComponentType.toLowerCase();
       if (lowerCaseComponentTypes.has(lowerCaseType)) {
-        throw Error("component type " + newComponentType + " defined in two classes");
+        throw Error(
+          'component type ' + newComponentType + ' defined in two classes',
+        );
       }
       componentClasses[newComponentType] = ct;
       lowerCaseComponentTypes.add(lowerCaseType);
@@ -326,23 +361,28 @@ export function componentTypesCreatingVariants() {
   }
   return componentClasses;
 }
-
 
 export function componentTypeWithPotentialVariants() {
   const componentClasses = {};
   const lowerCaseComponentTypes = new Set();
   for (let ct of componentTypeArray) {
-    if (ct.createsVariants ||
+    if (
+      ct.createsVariants ||
       ct.setUpVariantIfVariantControlChild ||
       ct.alwaysSetUpVariant
     ) {
       let newComponentType = ct.componentType;
       if (newComponentType === undefined) {
-        throw Error("Cannot create component as componentType is undefined for class " + ct)
+        throw Error(
+          'Cannot create component as componentType is undefined for class ' +
+            ct,
+        );
       }
       let lowerCaseType = newComponentType.toLowerCase();
       if (lowerCaseComponentTypes.has(lowerCaseType)) {
-        throw Error("component type " + newComponentType + " defined in two classes");
+        throw Error(
+          'component type ' + newComponentType + ' defined in two classes',
+        );
       }
       componentClasses[newComponentType] = ct;
       lowerCaseComponentTypes.add(lowerCaseType);
@@ -350,4 +390,3 @@ export function componentTypeWithPotentialVariants() {
   }
   return componentClasses;
 }
-

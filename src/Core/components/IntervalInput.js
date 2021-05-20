@@ -1,14 +1,10 @@
-
 import BlockComponent from './abstract/BlockComponent';
 import me from 'math-expressions';
 
 export default class IntervalInput extends BlockComponent {
+  static componentType = 'intervalinput';
 
-
-
-  static componentType = "intervalinput";
-
-  //creates attributes 
+  //creates attributes
   //Automatically creates childlogic leaf comparison:'atMost' number:1
   //creates state variables with a value from the matching child or default if not found
   //updates the value of the state variable if the child changes
@@ -17,39 +13,39 @@ export default class IntervalInput extends BlockComponent {
   static createAttributesObject(args) {
     let attributes = super.createAttributesObject(args);
     attributes.xmin = {
-      createComponentOfType: "number",
-      createStateVariable: "xmin",
+      createComponentOfType: 'number',
+      createStateVariable: 'xmin',
       defaultValue: -10,
       public: true,
-      forRenderer: true
+      forRenderer: true,
     };
     attributes.xmax = {
-      createComponentOfType: "number",
-      createStateVariable: "xmax",
+      createComponentOfType: 'number',
+      createStateVariable: 'xmax',
       defaultValue: 10,
       public: true,
-      forRenderer: true
+      forRenderer: true,
     };
     attributes.width = {
-      createComponentOfType: "_componentSize",
-      createStateVariable: "width",
+      createComponentOfType: '_componentSize',
+      createStateVariable: 'width',
       defaultValue: 800,
       public: true,
-      forRenderer: true
+      forRenderer: true,
     };
     attributes.height = {
-      createComponentOfType: "_componentSize",
-      createStateVariable: "height",
+      createComponentOfType: '_componentSize',
+      createStateVariable: 'height',
       defaultValue: 300,
       public: true,
-      forRenderer: true
+      forRenderer: true,
     };
     attributes.xlabel = {
-      createComponentOfType: "text",
-      createStateVariable: "xlabel",
-      defaultValue: "",
+      createComponentOfType: 'text',
+      createStateVariable: 'xlabel',
+      defaultValue: '',
       public: true,
-      forRenderer: true
+      forRenderer: true,
     };
     //interval type buttons includeIntervalBasedControls
     //point type buttons includePointBasedControls
@@ -60,63 +56,65 @@ export default class IntervalInput extends BlockComponent {
     let childLogic = super.returnChildLogic(args);
 
     let atLeastZeroIntervals = childLogic.newLeaf({
-      name: "atLeastZeroIntervals",
+      name: 'atLeastZeroIntervals',
       componentType: 'interval',
       comparison: 'atLeast',
       number: 0,
     });
 
     let atLeastZeroPoints = childLogic.newLeaf({
-      name: "atLeastZeroPoints",
+      name: 'atLeastZeroPoints',
       componentType: 'point',
       comparison: 'atLeast',
       number: 0,
     });
 
     childLogic.newOperator({
-      name: "intervalsAndPoints",
+      name: 'intervalsAndPoints',
       operator: 'and',
       propositions: [atLeastZeroIntervals, atLeastZeroPoints],
       requireConsecutive: true,
-      setAsBase: true
+      setAsBase: true,
     });
 
     return childLogic;
   }
 
   static returnStateVariableDefinitions() {
-
     let stateVariableDefinitions = super.returnStateVariableDefinitions();
 
     stateVariableDefinitions.points = {
       public: true,
-      componentType: "point",
+      componentType: 'point',
       // forRenderer: true,
       isArray: true,
-      entryPrefixes: ["point"],
+      entryPrefixes: ['point'],
 
       returnDependencies: () => ({
         pointChildren: {
-          dependencyType: "child",
-          childLogicName: "atLeastZeroPoints",
-          variableNames: ["x"],
+          dependencyType: 'child',
+          childLogicName: 'atLeastZeroPoints',
+          variableNames: ['x'],
         },
       }),
       definition: function ({ dependencyValues }) {
         if (dependencyValues.pointChildren.length === 0) {
           return {
             newValues: {
-              points: []
-            }
-          }
+              points: [],
+            },
+          };
         }
         let points = [];
         for (let point of dependencyValues.pointChildren) {
-          points.push(point.stateValues.x)
+          points.push(point.stateValues.x);
         }
         return { newValues: { points } };
       },
-      inverseDefinition: function ({ desiredStateVariableValues, dependencyValues }) {
+      inverseDefinition: function ({
+        desiredStateVariableValues,
+        dependencyValues,
+      }) {
         return { success: false };
 
         // let numChildren = dependencyValues.stringTextChildren.length;
@@ -142,17 +140,17 @@ export default class IntervalInput extends BlockComponent {
         //     value: desiredStateVariableValues.value
         //   }]
         // };
-      }
-    }
+      },
+    };
 
     stateVariableDefinitions.numericalPoints = {
       isArray: true,
-      entryPrefixes: ["numericalPoint"],
+      entryPrefixes: ['numericalPoint'],
       forRenderer: true,
       returnDependencies: () => ({
         points: {
-          dependencyType: "stateVariable",
-          variableName: "points"
+          dependencyType: 'stateVariable',
+          variableName: 'points',
         },
       }),
       definition: function ({ dependencyValues }) {
@@ -164,32 +162,31 @@ export default class IntervalInput extends BlockComponent {
           }
           numericalPoints.push(val);
         }
-        return { newValues: { numericalPoints } }
-      }
-    }
-
+        return { newValues: { numericalPoints } };
+      },
+    };
 
     stateVariableDefinitions.intervals = {
       public: true,
-      componentType: "interval",
+      componentType: 'interval',
       // forRenderer: true,
       isArray: true,
-      entryPrefixes: ["interval"],
+      entryPrefixes: ['interval'],
 
       returnDependencies: () => ({
         intervalChildren: {
-          dependencyType: "child",
-          childLogicName: "atLeastZeroIntervals",
-          variableNames: ["value"],
+          dependencyType: 'child',
+          childLogicName: 'atLeastZeroIntervals',
+          variableNames: ['value'],
         },
       }),
       definition: function ({ dependencyValues }) {
         if (dependencyValues.intervalChildren.length === 0) {
           return {
             newValues: {
-              intervals: []
-            }
-          }
+              intervals: [],
+            },
+          };
         }
         // tree: Array(3)
         // 0: "interval"
@@ -198,44 +195,45 @@ export default class IntervalInput extends BlockComponent {
 
         // [{start:3,end:4,startClosed:true,endClosed:false}]
 
-
         //TODO: Use math expressions instead in the future
         let intervals = [];
         for (let interval of dependencyValues.intervalChildren) {
           let intervalTree = interval.stateValues.value.tree;
-          if (intervalTree[0] !== "interval") {
-            intervals.push({ start: NaN, end: NaN })
+          if (intervalTree[0] !== 'interval') {
+            intervals.push({ start: NaN, end: NaN });
           } else {
             let intervalObj = {
               start: me.fromAst(intervalTree[1][1]),
               end: me.fromAst(intervalTree[1][2]),
               startClosed: intervalTree[2][1],
               endClosed: intervalTree[2][2],
-            }
-            intervals.push(intervalObj)
+            };
+            intervals.push(intervalObj);
           }
-
         }
         return { newValues: { intervals } };
       },
-
-    }
+    };
 
     stateVariableDefinitions.numericalIntervals = {
       isArray: true,
-      entryPrefixes: ["numericalIntervals"],
+      entryPrefixes: ['numericalIntervals'],
       forRenderer: true,
       returnDependencies: () => ({
         intervals: {
-          dependencyType: "stateVariable",
-          variableName: "intervals"
+          dependencyType: 'stateVariable',
+          variableName: 'intervals',
         },
       }),
       definition: function ({ dependencyValues }) {
         let numericalIntervals = [];
         for (let interval of dependencyValues.intervals) {
           let start = interval.start.evaluate_to_constant();
-          if (!Number.isFinite(start) && start !== Infinity && start !== -Infinity) {
+          if (
+            !Number.isFinite(start) &&
+            start !== Infinity &&
+            start !== -Infinity
+          ) {
             start = NaN;
           }
           let end = interval.end.evaluate_to_constant();
@@ -243,23 +241,20 @@ export default class IntervalInput extends BlockComponent {
             end = NaN;
           }
 
-// 0: {start: 1, end: 2, startClosed: true, endClosed: true}
-// 1: {start: 3, end: 4, startClosed: false, endClosed: false}
-
+          // 0: {start: 1, end: 2, startClosed: true, endClosed: true}
+          // 1: {start: 3, end: 4, startClosed: false, endClosed: false}
 
           numericalIntervals.push({
             start,
             end,
             startClosed: interval.startClosed,
-            endClosed: interval.endClosed
+            endClosed: interval.endClosed,
           });
         }
-        return { newValues: { numericalIntervals } }
-      }
-    }
+        return { newValues: { numericalIntervals } };
+      },
+    };
 
     return stateVariableDefinitions;
   }
-
-
 }

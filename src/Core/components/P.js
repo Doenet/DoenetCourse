@@ -1,7 +1,7 @@
 import BlockComponent from './abstract/BlockComponent';
 
 export default class P extends BlockComponent {
-  static componentType = "p";
+  static componentType = 'p';
   static renderChildren = true;
 
   static includeBlankStringChildren = true;
@@ -10,7 +10,7 @@ export default class P extends BlockComponent {
     let childLogic = super.returnChildLogic(args);
 
     childLogic.newLeaf({
-      name: "atLeastZeroInline",
+      name: 'atLeastZeroInline',
       componentType: '_inline',
       comparison: 'atLeast',
       number: 0,
@@ -20,39 +20,34 @@ export default class P extends BlockComponent {
     return childLogic;
   }
 
-
   static returnStateVariableDefinitions() {
-
     let stateVariableDefinitions = super.returnStateVariableDefinitions();
 
     stateVariableDefinitions.text = {
       public: true,
-      componentType: "text",
+      componentType: 'text',
       returnDependencies: () => ({
         inlineChildren: {
-          dependencyType: "child",
-          childLogicName: "atLeastZeroInline",
-          variableNames: ["text"],
+          dependencyType: 'child',
+          childLogicName: 'atLeastZeroInline',
+          variableNames: ['text'],
           variablesOptional: true,
-        }
+        },
       }),
       definition: function ({ dependencyValues }) {
-
-        let text = ""
+        let text = '';
         for (let child of dependencyValues.inlineChildren) {
-          if (typeof child.stateValues.text === "string") {
+          if (typeof child.stateValues.text === 'string') {
             text += child.stateValues.text;
           } else {
-            text += " ";
+            text += ' ';
           }
         }
 
         return { newValues: { text } };
-      }
-    }
+      },
+    };
 
     return stateVariableDefinitions;
-
   }
-
 }

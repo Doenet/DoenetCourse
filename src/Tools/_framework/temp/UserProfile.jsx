@@ -145,12 +145,14 @@ class UserProfile extends Component {
         className="select"
         onChange={(e) => {
           this.currentCourseId = e.target.value;
-          this.accessAllowed = this.coursesPermissions['courseInfo'][
-            this.currentCourseId
-          ]['accessAllowed'];
-          this.adminAccess = this.coursesPermissions['courseInfo'][
-            this.currentCourseId
-          ]['adminAccess'];
+          this.accessAllowed =
+            this.coursesPermissions['courseInfo'][this.currentCourseId][
+              'accessAllowed'
+            ];
+          this.adminAccess =
+            this.coursesPermissions['courseInfo'][this.currentCourseId][
+              'adminAccess'
+            ];
           if (this.accessAllowed === '1') {
             this.rightToView = true;
             if (this.adminAccess === '1') {
@@ -166,14 +168,10 @@ class UserProfile extends Component {
       </select>
     );
 
-  
     this.prepareProfileDropDown(this.profilePicture);
   }
 
- 
-
   prepareProfileDropDown(picture) {
-
     this.profileMenuMap = [
       {
         optionElem: (
@@ -187,61 +185,52 @@ class UserProfile extends Component {
         label: `${this.props.profile.screenName}`,
         // subLabel: `Device Here`,
         subLabel: `${this.props.profile.device}`,
-      }]
+      },
+    ];
 
-      for (let toolName of this.toolAccess){
-        let name = toolName.toLowerCase()
-   
-        switch (name){
-          case "library":
-          this.profileMenuMap.push(
-            {
-              id: 'Library',
-              label: 'Library',
-              link: '/library/',
-            }
-          )
+    for (let toolName of this.toolAccess) {
+      let name = toolName.toLowerCase();
+
+      switch (name) {
+        case 'library':
+          this.profileMenuMap.push({
+            id: 'Library',
+            label: 'Library',
+            link: '/library/',
+          });
           break;
-          case "course":
-            this.profileMenuMap.push(
-              {
-                id: 'Course',
-                label: 'Course',
-                link: '/course/',
-              }
-            )
+        case 'course':
+          this.profileMenuMap.push({
+            id: 'Course',
+            label: 'Course',
+            link: '/course/',
+          });
           break;
-          case "documentation":
-            this.profileMenuMap.push(
-              {
-                id: 'Documentation',
-                label: 'Documentation',
-                link: '/docs/',
-              }
-            )
+        case 'documentation':
+          this.profileMenuMap.push({
+            id: 'Documentation',
+            label: 'Documentation',
+            link: '/docs/',
+          });
           break;
-          case "gradebook":
-            this.profileMenuMap.push(
-              {
-                id: 'Gradebook',
-                label: 'Gradebook',
-                link: '/gradebook/',
-              }
-            )
+        case 'gradebook':
+          this.profileMenuMap.push({
+            id: 'Gradebook',
+            label: 'Gradebook',
+            link: '/gradebook/',
+          });
           break;
-          case "account":
-            this.profileMenuMap.push(
-              {
-                id: 'Account',
-                label: 'Account Settings',
-                link: '/accountSettings/',
-              }
-            )
+        case 'account':
+          this.profileMenuMap.push({
+            id: 'Account',
+            label: 'Account Settings',
+            link: '/accountSettings/',
+          });
           break;
-        }
       }
+    }
 
-    if (this.props.profile.signedIn == "1") {
+    if (this.props.profile.signedIn == '1') {
       this.profileMenuMap.push({
         id: 'SignOut',
         label: 'Sign out',

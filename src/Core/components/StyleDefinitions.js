@@ -1,155 +1,146 @@
 import BaseComponent from './abstract/BaseComponent';
 
 let styleAttributes = {
-  lineColor: { componentType: "text" },
-  lineWidth: { componentType: "number" },
-  lineStyle: { componentType: "text" },
-  markerColor: { componentType: "text" },
-  markerStyle: { componentType: "text" },
-  markerSize: { componentType: "number" }
-}
+  lineColor: { componentType: 'text' },
+  lineWidth: { componentType: 'number' },
+  lineStyle: { componentType: 'text' },
+  markerColor: { componentType: 'text' },
+  markerStyle: { componentType: 'text' },
+  markerSize: { componentType: 'number' },
+};
 
 export class StyleDefinition extends BaseComponent {
-  static componentType = "styleDefinition";
+  static componentType = 'styleDefinition';
   static rendererType = undefined;
 
-  static get stateVariablesShadowedForReference() { return ["value"] };
+  static get stateVariablesShadowedForReference() {
+    return ['value'];
+  }
 
   static createAttributesObject(args) {
     let attributes = super.createAttributesObject(args);
 
     attributes.styleNumber = {
-      createPrimitiveOfType: "number"
-    }
+      createPrimitiveOfType: 'number',
+    };
 
     for (let styleAttr in styleAttributes) {
       attributes[styleAttr] = {
         createComponentOfType: styleAttributes[styleAttr].componentType,
         // copyComponentOnReference: true
-      }
+      };
     }
 
     return attributes;
   }
 
-
   static returnStateVariableDefinitions() {
-
     let stateVariableDefinitions = super.returnStateVariableDefinitions();
 
     stateVariableDefinitions.value = {
       returnDependencies: function () {
-
         let dependencies = {
           styleNumber: {
-            dependencyType: "attribute",
-            attributeName: "styleNumber",
+            dependencyType: 'attribute',
+            attributeName: 'styleNumber',
           },
         };
 
         for (let styleAttr in styleAttributes) {
           dependencies[styleAttr] = {
-            dependencyType: "attributeComponent",
+            dependencyType: 'attributeComponent',
             attributeName: styleAttr,
-            variableNames: ["value"]
-          }
+            variableNames: ['value'],
+          };
         }
         return dependencies;
       },
       definition: function ({ dependencyValues }) {
-
         let value = {
-          styleNumber: dependencyValues.styleNumber
+          styleNumber: dependencyValues.styleNumber,
         };
 
         for (let styleAttr in styleAttributes) {
           if (dependencyValues[styleAttr] !== null) {
-
-            value[styleAttr] =
-              dependencyValues[styleAttr].stateValues.value;
+            value[styleAttr] = dependencyValues[styleAttr].stateValues.value;
           }
         }
 
-        return { newValues: { value } }
-      }
-    }
+        return { newValues: { value } };
+      },
+    };
 
     return stateVariableDefinitions;
-
   }
 }
 
-
 export class StyleDefinitions extends BaseComponent {
-  static componentType = "styleDefinitions";
+  static componentType = 'styleDefinitions';
   static rendererType = undefined;
 
   static returnChildLogic(args) {
     let childLogic = super.returnChildLogic(args);
 
     let atLeastZeroStyleDefinitions = childLogic.newLeaf({
-      name: "atLeastZeroStyleDefinitions",
+      name: 'atLeastZeroStyleDefinitions',
       componentType: 'styleDefinition',
-      comparison: "atLeast",
+      comparison: 'atLeast',
       number: 0,
     });
 
-
     let atMostOneStyleDefinitions = childLogic.newLeaf({
-      name: "atMostOneStyleDefinitions",
+      name: 'atMostOneStyleDefinitions',
       componentType: 'styleDefinitions',
-      comparison: "atMost",
+      comparison: 'atMost',
       number: 1,
     });
 
     childLogic.newOperator({
-      name: "styleDefinitionsXorStyleDefinition",
-      operator: "xor",
+      name: 'styleDefinitionsXorStyleDefinition',
+      operator: 'xor',
       propositions: [atLeastZeroStyleDefinitions, atMostOneStyleDefinitions],
-      setAsBase: true
-    })
+      setAsBase: true,
+    });
 
-    return childLogic
-
+    return childLogic;
   }
 
-
   static returnStateVariableDefinitions() {
-
     let stateVariableDefinitions = super.returnStateVariableDefinitions();
 
     stateVariableDefinitions.nDefinitions = {
       returnDependencies: () => ({
         styleDefinitionChildren: {
-          dependencyType: "child",
-          childLogicName: "atLeastZeroStyleDefinitions",
+          dependencyType: 'child',
+          childLogicName: 'atLeastZeroStyleDefinitions',
         },
         styleDefinitionsChild: {
-          dependencyType: "child",
-          childLogicName: "atMostOneStyleDefinitions",
-          variableNames: ["nDefinitions"]
+          dependencyType: 'child',
+          childLogicName: 'atMostOneStyleDefinitions',
+          variableNames: ['nDefinitions'],
         },
       }),
       definition({ dependencyValues }) {
         let nDefinitions;
         if (dependencyValues.styleDefinitionsChild.length === 1) {
-          nDefinitions = dependencyValues.styleDefinitionsChild[0].stateValues.nDefinitions;
+          nDefinitions =
+            dependencyValues.styleDefinitionsChild[0].stateValues.nDefinitions;
         } else {
           nDefinitions = dependencyValues.styleDefinitionChildren.length;
         }
         return {
-          newValues: { nDefinitions }
-        }
-      }
-    }
+          newValues: { nDefinitions },
+        };
+      },
+    };
 
     stateVariableDefinitions.value = {
       isArray: true,
-      entryPrefixes: ["styleDefinition"],
+      entryPrefixes: ['styleDefinition'],
       returnArraySizeDependencies: () => ({
         nDefinitions: {
-          dependencyType: "stateVariable",
-          variableName: "nDefinitions",
+          dependencyType: 'stateVariable',
+          variableName: 'nDefinitions',
         },
       }),
       returnArraySize({ dependencyValues }) {
@@ -161,44 +152,45 @@ export class StyleDefinitions extends BaseComponent {
         for (let arrayKey of arrayKeys) {
           dependenciesByKey[arrayKey] = {
             styleDefinitionChild: {
-              dependencyType: "child",
-              childLogicName: "atLeastZeroStyleDefinitions",
-              variableNames: ["value"],
-              childIndices: [arrayKey]
+              dependencyType: 'child',
+              childLogicName: 'atLeastZeroStyleDefinitions',
+              variableNames: ['value'],
+              childIndices: [arrayKey],
             },
             styleDefinitionsChild: {
-              dependencyType: "child",
-              childLogicName: "atMostOneStyleDefinitions",
-              variableNames: ["styleDefinition" + (Number(arrayKey) + 1)],
-            }
+              dependencyType: 'child',
+              childLogicName: 'atMostOneStyleDefinitions',
+              variableNames: ['styleDefinition' + (Number(arrayKey) + 1)],
+            },
           };
         }
 
         return { dependenciesByKey };
       },
       arrayDefinitionByKey({ dependencyValuesByKey, arrayKeys }) {
-
         let value = {};
 
         for (let arrayKey of arrayKeys) {
-          let styleDefinitionChild = dependencyValuesByKey[arrayKey].styleDefinitionChild;
+          let styleDefinitionChild =
+            dependencyValuesByKey[arrayKey].styleDefinitionChild;
           if (styleDefinitionChild.length === 1) {
             value[arrayKey] = styleDefinitionChild[0].stateValues.value;
           } else {
-            let styleDefinitionsChild = dependencyValuesByKey[arrayKey].styleDefinitionsChild;
+            let styleDefinitionsChild =
+              dependencyValuesByKey[arrayKey].styleDefinitionsChild;
             if (styleDefinitionsChild.length === 1) {
-              value[arrayKey] = styleDefinitionsChild[0].stateValues["styleDefinition" + (Number(arrayKey) + 1)]
+              value[arrayKey] =
+                styleDefinitionsChild[0].stateValues[
+                  'styleDefinition' + (Number(arrayKey) + 1)
+                ];
             }
-
           }
         }
 
-        return { newValues: { value } }
-      }
-    }
+        return { newValues: { value } };
+      },
+    };
 
     return stateVariableDefinitions;
-
   }
-
 }

@@ -1,9 +1,8 @@
 import BaseComponent from './abstract/BaseComponent';
 
-
 export default class CellBlock extends BaseComponent {
-  static componentType = "cellBlock";
-  static rendererType = "container";
+  static componentType = 'cellBlock';
+  static rendererType = 'container';
 
   static createAttributesObject(args) {
     let attributes = super.createAttributesObject(args);
@@ -18,37 +17,42 @@ export default class CellBlock extends BaseComponent {
     let childLogic = super.returnChildLogic(args);
 
     let zeroOrMoreCells = childLogic.newLeaf({
-      name: "zeroOrMoreCells",
+      name: 'zeroOrMoreCells',
       componentType: 'cell',
       comparison: 'atLeast',
       number: 0,
     });
 
     let zeroOrMoreRows = childLogic.newLeaf({
-      name: "zeroOrMoreRows",
+      name: 'zeroOrMoreRows',
       componentType: 'row',
       comparison: 'atLeast',
       number: 0,
     });
 
     let zeroOrMoreColumns = childLogic.newLeaf({
-      name: "zeroOrMoreColumns",
+      name: 'zeroOrMoreColumns',
       componentType: 'column',
       comparison: 'atLeast',
       number: 0,
     });
 
     let zeroOrMoreCellblocks = childLogic.newLeaf({
-      name: "zeroOrMoreCellblocks",
+      name: 'zeroOrMoreCellblocks',
       componentType: 'cellblock',
       comparison: 'atLeast',
       number: 0,
     });
 
     childLogic.newOperator({
-      name: "cellsRowsColumnsBlocks",
+      name: 'cellsRowsColumnsBlocks',
       operator: 'and',
-      propositions: [zeroOrMoreCells, zeroOrMoreRows, zeroOrMoreColumns, zeroOrMoreCellblocks],
+      propositions: [
+        zeroOrMoreCells,
+        zeroOrMoreRows,
+        zeroOrMoreColumns,
+        zeroOrMoreCellblocks,
+      ],
       setAsBase: true,
     });
 
@@ -61,29 +65,28 @@ export default class CellBlock extends BaseComponent {
     stateVariableDefinitions.prescribedCellsRowsColumnsBlocks = {
       returnDependencies: () => ({
         cellRelatedChildren: {
-          dependencyType: "child",
-          childLogicName: "cellsRowsColumnsBlocks",
+          dependencyType: 'child',
+          childLogicName: 'cellsRowsColumnsBlocks',
           variableNames: [
-            "rowNum",
-            "colNum",
-            "prescribedCellsWithColNum",
-            "prescribedCellsWithRowNum",
-            "prescribedCellsRowsColumnsBlocks"
+            'rowNum',
+            'colNum',
+            'prescribedCellsWithColNum',
+            'prescribedCellsWithRowNum',
+            'prescribedCellsRowsColumnsBlocks',
           ],
           variablesOptional: true,
-        }
+        },
       }),
       definition({ dependencyValues }) {
         return {
           newValues: {
-            prescribedCellsRowsColumnsBlocks: dependencyValues.cellRelatedChildren
-          }
-        }
-      }
-    }
+            prescribedCellsRowsColumnsBlocks:
+              dependencyValues.cellRelatedChildren,
+          },
+        };
+      },
+    };
 
     return stateVariableDefinitions;
-
   }
-
 }

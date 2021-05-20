@@ -2,11 +2,10 @@ import BooleanComponent from '../Boolean';
 import { renameStateVariable } from '../../utils/stateVariables';
 
 export default class BooleanOperatorOneInput extends BooleanComponent {
-  static componentType = "_booleanOperatorOneInput";
-  static rendererType = "boolean";
+  static componentType = '_booleanOperatorOneInput';
+  static rendererType = 'boolean';
 
   static returnStateVariableDefinitions() {
-
     let stateVariableDefinitions = super.returnStateVariableDefinitions();
 
     let constructor = this;
@@ -14,35 +13,30 @@ export default class BooleanOperatorOneInput extends BooleanComponent {
     // rename value to valuePreOperator
     renameStateVariable({
       stateVariableDefinitions,
-      oldName: "value",
-      newName: "valuePreOperator"
+      oldName: 'value',
+      newName: 'valuePreOperator',
     });
 
     // create new version of value that applies operator
     stateVariableDefinitions.value = {
       public: true,
-      componentType: "boolean",
+      componentType: 'boolean',
       forRenderer: true,
       returnDependencies: () => ({
         value: {
-          dependencyType: "stateVariable",
-          variableName: "valuePreOperator"
+          dependencyType: 'stateVariable',
+          variableName: 'valuePreOperator',
         },
-
       }),
       definition: function ({ dependencyValues }) {
         return {
           newValues: {
-            value: constructor.applyBooleanOperator(
-              dependencyValues.value
-            )
-          }
-        }
-      }
-    }
+            value: constructor.applyBooleanOperator(dependencyValues.value),
+          },
+        };
+      },
+    };
 
     return stateVariableDefinitions;
-
   }
-
 }

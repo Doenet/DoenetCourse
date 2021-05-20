@@ -1,26 +1,26 @@
 import BaseComponent from './abstract/BaseComponent';
 
 export default class Markers extends BaseComponent {
-  static componentType = "markers";
+  static componentType = 'markers';
 
   static returnChildLogic(args) {
     let childLogic = super.returnChildLogic(args);
 
     let atLeastOneNumbers = childLogic.newLeaf({
-      name: "atLeastOneNumbers",
+      name: 'atLeastOneNumbers',
       componentType: 'number',
       comparison: 'atLeast',
       number: 1,
     });
     let atLeastOneTexts = childLogic.newLeaf({
-      name: "atLeastOneTexts",
+      name: 'atLeastOneTexts',
       componentType: 'text',
       comparison: 'atLeast',
       number: 1,
     });
 
     let noTexts = childLogic.newLeaf({
-      name: "noTexts",
+      name: 'noTexts',
       componentType: 'text',
       comparison: 'exactly',
       number: 0,
@@ -28,7 +28,7 @@ export default class Markers extends BaseComponent {
     });
 
     let noNumbers = childLogic.newLeaf({
-      name: "noNumbers",
+      name: 'noNumbers',
       componentType: 'number',
       comparison: 'exactly',
       number: 0,
@@ -36,96 +36,97 @@ export default class Markers extends BaseComponent {
     });
 
     let noTextAndNoNumbers = childLogic.newOperator({
-      name: "noTextAndNoNumbers",
+      name: 'noTextAndNoNumbers',
       operator: 'and',
       propositions: [noNumbers, noTexts],
     });
 
     childLogic.newOperator({
-      name: "MarkerLogic",
+      name: 'MarkerLogic',
       operator: 'xor',
       propositions: [atLeastOneNumbers, atLeastOneTexts, noTextAndNoNumbers],
       setAsBase: true,
     });
 
-
     return childLogic;
   }
 
-
-
   static returnStateVariableDefinitions() {
-
     let stateVariableDefinitions = super.returnStateVariableDefinitions();
 
     stateVariableDefinitions.markerType = {
       public: true,
-      componentType: "text",
+      componentType: 'text',
       returnDependencies: () => ({
         textChildren: {
-          dependencyType: "child",
-          childLogicName: "atLeastOneTexts",
+          dependencyType: 'child',
+          childLogicName: 'atLeastOneTexts',
         },
         numberChildren: {
-          dependencyType: "child",
-          childLogicName: "atLeastOneNumbers",
+          dependencyType: 'child',
+          childLogicName: 'atLeastOneNumbers',
         },
       }),
       definition: function ({ dependencyValues }) {
         let markerType;
         if (dependencyValues.textChildren.length > 0) {
-          markerType = "text";
+          markerType = 'text';
         } else if (dependencyValues.numberChildren.length > 0) {
-          markerType = "number";
+          markerType = 'number';
         } else {
-          markerType = "empty";
+          markerType = 'empty';
         }
-        return { newValues: { markerType } }
-      }
-    }
+        return { newValues: { markerType } };
+      },
+    };
 
     stateVariableDefinitions.markers = {
       public: true,
       isArray: true,
-      entryPrefixes: ["item"],
+      entryPrefixes: ['item'],
       hasVariableComponentType: true,
       returnDependencies: () => ({
         markerType: {
-          dependencyType: "stateVariable",
-          variableName: "markerType"
+          dependencyType: 'stateVariable',
+          variableName: 'markerType',
         },
         textChildren: {
-          dependencyType: "child",
-          childLogicName: "atLeastOneTexts",
-          variableNames: ["value"]
+          dependencyType: 'child',
+          childLogicName: 'atLeastOneTexts',
+          variableNames: ['value'],
         },
         numberChildren: {
-          dependencyType: "child",
-          childLogicName: "atLeastOneNumbers",
-          variableNames: ["value"],
+          dependencyType: 'child',
+          childLogicName: 'atLeastOneNumbers',
+          variableNames: ['value'],
         },
       }),
       definition: function ({ dependencyValues }) {
         let markers = [];
         let componentType = dependencyValues.markerType;
 
-        if (dependencyValues.markerType === "text") {
-          markers = dependencyValues.textChildren.map(x => x.stateValues.value);
-        } else if (dependencyValues.markerType === "number") {
-          markers = dependencyValues.numberChildren.map(x => x.stateValues.value);
-          markers.sort((a, b) => { return a - b; })  //sort in number order
+        if (dependencyValues.markerType === 'text') {
+          markers = dependencyValues.textChildren.map(
+            (x) => x.stateValues.value,
+          );
+        } else if (dependencyValues.markerType === 'number') {
+          markers = dependencyValues.numberChildren.map(
+            (x) => x.stateValues.value,
+          );
+          markers.sort((a, b) => {
+            return a - b;
+          }); //sort in number order
         } else {
-          componentType = "text"; // use "text" for case when "empty"
+          componentType = 'text'; // use "text" for case when "empty"
         }
 
         return {
           newValues: { markers },
           setComponentType: { markers: componentType },
-        }
-      }
-    }
+        };
+      },
+    };
 
     return stateVariableDefinitions;
   }
-
 }

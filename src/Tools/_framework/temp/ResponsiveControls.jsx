@@ -1,5 +1,5 @@
-import React, { useState, useEffect, useRef } from "react";
-import styled from "styled-components";
+import React, { useState, useEffect, useRef } from 'react';
+import styled from 'styled-components';
 
 const ControlGroupParent = styled.div`
   display: flex;
@@ -20,7 +20,7 @@ export default function ControlGroup(props) {
     if (ctrlGrpRef.current) {
       if (props.fromMaximize === undefined && props.getControlGroupsWidth) {
         props.getControlGroupsWidth(
-          ctrlGrpRef.current.getBoundingClientRect().width
+          ctrlGrpRef.current.getBoundingClientRect().width,
         );
       }
     }

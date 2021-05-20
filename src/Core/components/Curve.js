@@ -1,42 +1,43 @@
 import GraphicalComponent from './abstract/GraphicalComponent';
-import {
-  returnBreakStringsSugarFunction
-} from './commonsugar/breakstrings';
+import { returnBreakStringsSugarFunction } from './commonsugar/breakstrings';
 
 import me from 'math-expressions';
 
 export default class Curve extends GraphicalComponent {
-  static componentType = "curve";
-  static rendererType = "curve";
-
+  static componentType = 'curve';
+  static rendererType = 'curve';
 
   actions = {
     moveControlVector: this.moveControlVector.bind(
-      new Proxy(this, this.readOnlyProxyHandler)
+      new Proxy(this, this.readOnlyProxyHandler),
     ),
     moveThroughPoint: this.moveThroughPoint.bind(
-      new Proxy(this, this.readOnlyProxyHandler)
+      new Proxy(this, this.readOnlyProxyHandler),
     ),
     changeVectorControlDirection: this.changeVectorControlDirection.bind(
-      new Proxy(this, this.readOnlyProxyHandler)
-    )
+      new Proxy(this, this.readOnlyProxyHandler),
+    ),
   };
 
-  static primaryStateVariableForDefinition = "fShadow";
+  static primaryStateVariableForDefinition = 'fShadow';
   static get stateVariablesShadowedForReference() {
     return [
-      "variableForChild", "parMin", "parMax",
-      "curveType", "nThroughPoints", "nDimensions", "throughPoints"
-    ]
-  };
-
+      'variableForChild',
+      'parMin',
+      'parMax',
+      'curveType',
+      'nThroughPoints',
+      'nDimensions',
+      'throughPoints',
+    ];
+  }
 
   static createAttributesObject(args) {
     let attributes = super.createAttributesObject(args);
 
     attributes.draggable = {
-      createComponentOfType: "boolean",
-      createStateVariable: "draggable",
+      createComponentOfType: 'boolean',
+      createStateVariable: 'draggable',
       defaultValue: true,
       public: true,
       forRenderer: true,
@@ -47,69 +48,68 @@ export default class Curve extends GraphicalComponent {
     attributes.layer.propagateToDescendants = true;
 
     attributes.flipFunction = {
-      createComponentOfType: "boolean",
-      createStateVariable: "flipFunction",
+      createComponentOfType: 'boolean',
+      createStateVariable: 'flipFunction',
       defaultValue: false,
       public: true,
       forRenderer: true,
     };
     attributes.nDiscretizationPoints = {
-      createComponentOfType: "number",
-      createStateVariable: "nDiscretizationPoints",
+      createComponentOfType: 'number',
+      createStateVariable: 'nDiscretizationPoints',
       defaultValue: 100,
       public: true,
     };
     attributes.periodic = {
-      createComponentOfType: "boolean",
-      createStateVariable: "periodic",
+      createComponentOfType: 'boolean',
+      createStateVariable: 'periodic',
       defaultValue: false,
       public: true,
     };
     attributes.splineTension = {
-      createComponentOfType: "number",
-      createStateVariable: "splineTension",
+      createComponentOfType: 'number',
+      createStateVariable: 'splineTension',
       defaultValue: 0.8,
       clamp: [0, 1],
       public: true,
     };
     attributes.extrapolateBackward = {
-      createComponentOfType: "boolean",
-      createStateVariable: "extrapolateBackward",
+      createComponentOfType: 'boolean',
+      createStateVariable: 'extrapolateBackward',
       defaultValue: false,
       public: true,
       forRenderer: true,
     };
     attributes.extrapolateForward = {
-      createComponentOfType: "boolean",
-      createStateVariable: "extrapolateForward",
+      createComponentOfType: 'boolean',
+      createStateVariable: 'extrapolateForward',
       defaultValue: false,
       public: true,
       forRenderer: true,
     };
     attributes.splineForm = {
-      createComponentOfType: "text",
-      createStateVariable: "splineForm",
-      defaultValue: "centripetal",
+      createComponentOfType: 'text',
+      createStateVariable: 'splineForm',
+      defaultValue: 'centripetal',
       public: true,
       toLowerCase: true,
-      validValues: ["centripetal", "uniform"]
+      validValues: ['centripetal', 'uniform'],
     };
     attributes.variable = {
-      createComponentOfType: "variable",
-      createStateVariable: "variableForChild",
-      defaultValue: me.fromAst("x"),
-    }
+      createComponentOfType: 'variable',
+      createStateVariable: 'variableForChild',
+      defaultValue: me.fromAst('x'),
+    };
 
     attributes.through = {
-      createComponentOfType: "_pointListComponent"
-    }
+      createComponentOfType: '_pointListComponent',
+    };
     attributes.parMin = {
-      createComponentOfType: "math"
-    }
+      createComponentOfType: 'math',
+    };
     attributes.parMax = {
-      createComponentOfType: "math"
-    }
-
+      createComponentOfType: 'math',
+    };
 
     return attributes;
   }
@@ -118,14 +118,15 @@ export default class Curve extends GraphicalComponent {
     let sugarInstructions = super.returnSugarInstructions();
 
     let breakIntoFunctionsByCommas = function ({ matchedChildren }) {
-      let childrenToComponentFunction = x => ({
-        componentType: "function", children: x
+      let childrenToComponentFunction = (x) => ({
+        componentType: 'function',
+        children: x,
       });
 
       let breakFunction = returnBreakStringsSugarFunction({
         childrenToComponentFunction,
-        mustStripOffOuterParentheses: true
-      })
+        mustStripOffOuterParentheses: true,
+      });
 
       let result = breakFunction({ matchedChildren });
 
@@ -134,113 +135,109 @@ export default class Curve extends GraphicalComponent {
         // then just wrap string with a function
         return {
           success: true,
-          newChildren: [{
-            componentType: "function",
-            children: matchedChildren
-          }]
-        }
-
+          newChildren: [
+            {
+              componentType: 'function',
+              children: matchedChildren,
+            },
+          ],
+        };
       }
 
       return result;
-
     };
 
     sugarInstructions.push({
       childrenRegex: /s/,
-      replacementFunction: breakIntoFunctionsByCommas
-    })
+      replacementFunction: breakIntoFunctionsByCommas,
+    });
 
     return sugarInstructions;
-
   }
-
 
   static returnChildLogic(args) {
     let childLogic = super.returnChildLogic(args);
 
     let atLeastZeroFunctions = childLogic.newLeaf({
-      name: "atLeastZeroFunctions",
-      componentType: "function",
-      comparison: "atLeast",
-      number: 0
-    })
+      name: 'atLeastZeroFunctions',
+      componentType: 'function',
+      comparison: 'atLeast',
+      number: 0,
+    });
 
     let atMostOneBezierControls = childLogic.newLeaf({
-      name: "atMostOneBezierControls",
+      name: 'atMostOneBezierControls',
       componentType: 'bezierControls',
       comparison: 'atMost',
-      number: 1
+      number: 1,
     });
 
     childLogic.newOperator({
-      name: "functionsXorControl",
+      name: 'functionsXorControl',
       operator: 'xor',
       propositions: [atLeastZeroFunctions, atMostOneBezierControls],
-      setAsBase: true
+      setAsBase: true,
     });
 
     return childLogic;
   }
 
-
   static returnStateVariableDefinitions({ numerics }) {
-
-    let stateVariableDefinitions = super.returnStateVariableDefinitions({ numerics });
+    let stateVariableDefinitions = super.returnStateVariableDefinitions({
+      numerics,
+    });
 
     stateVariableDefinitions.styleDescription = {
       public: true,
-      componentType: "text",
+      componentType: 'text',
       returnDependencies: () => ({
         selectedStyle: {
-          dependencyType: "stateVariable",
-          variableName: "selectedStyle",
+          dependencyType: 'stateVariable',
+          variableName: 'selectedStyle',
         },
       }),
       definition: function ({ dependencyValues }) {
-
-
-        let curveDescription = "";
+        let curveDescription = '';
         if (dependencyValues.selectedStyle.lineWidth >= 4) {
-          curveDescription += "thick ";
+          curveDescription += 'thick ';
         } else if (dependencyValues.selectedStyle.lineWidth <= 1) {
-          curveDescription += "thin ";
+          curveDescription += 'thin ';
         }
-        if (dependencyValues.selectedStyle.lineStyle === "dashed") {
-          curveDescription += "dashed ";
-        } else if (dependencyValues.selectedStyle.lineStyle === "dotted") {
-          curveDescription += "dotted ";
+        if (dependencyValues.selectedStyle.lineStyle === 'dashed') {
+          curveDescription += 'dashed ';
+        } else if (dependencyValues.selectedStyle.lineStyle === 'dotted') {
+          curveDescription += 'dotted ';
         }
 
         curveDescription += dependencyValues.selectedStyle.lineColor;
 
         return { newValues: { styleDescription: curveDescription } };
-      }
-    }
+      },
+    };
 
     stateVariableDefinitions.curveType = {
       forRenderer: true,
       returnDependencies: () => ({
         functionChildren: {
-          dependencyType: "child",
-          childLogicName: "atLeastZeroFunctions"
+          dependencyType: 'child',
+          childLogicName: 'atLeastZeroFunctions',
         },
         through: {
-          dependencyType: "attributeComponent",
-          attributeName: "through"
-        }
+          dependencyType: 'attributeComponent',
+          attributeName: 'through',
+        },
       }),
       definition({ dependencyValues }) {
-        let curveType = "function"
+        let curveType = 'function';
         if (dependencyValues.through !== null) {
-          curveType = "bezier"
+          curveType = 'bezier';
         } else if (dependencyValues.functionChildren.length > 1) {
-          curveType = "parameterization"
+          curveType = 'parameterization';
         }
 
-        return { newValues: { curveType } }
-      }
-    }
+        return { newValues: { curveType } };
+      },
+    };
 
     // fShadow will be null unless curve was created via an adapter
     // In case of adapter,
@@ -252,177 +249,175 @@ export default class Curve extends GraphicalComponent {
       returnDependencies: () => ({}),
       definition: () => ({
         useEssentialOrDefaultValue: {
-          fShadow: { variablesToCheck: ["fShadow"] }
-        }
+          fShadow: { variablesToCheck: ['fShadow'] },
+        },
       }),
-    }
-
-
+    };
 
     stateVariableDefinitions.parMax = {
       public: true,
-      componentType: "number",
+      componentType: 'number',
       forRenderer: true,
       defaultValue: 10,
       returnDependencies: () => ({
         curveType: {
-          dependencyType: "stateVariable",
-          variableName: "curveType",
+          dependencyType: 'stateVariable',
+          variableName: 'curveType',
         },
         parMaxAttr: {
-          dependencyType: "attributeComponent",
-          attributeName: "parMax",
-          variableNames: ["value"]
+          dependencyType: 'attributeComponent',
+          attributeName: 'parMax',
+          variableNames: ['value'],
         },
         nThroughPoints: {
-          dependencyType: "stateVariable",
-          variableName: "nThroughPoints",
+          dependencyType: 'stateVariable',
+          variableName: 'nThroughPoints',
         },
         extrapolateForward: {
-          dependencyType: "stateVariable",
-          variableName: "extrapolateForward"
-        }
+          dependencyType: 'stateVariable',
+          variableName: 'extrapolateForward',
+        },
       }),
       definition: function ({ dependencyValues }) {
         let parMax;
-        if (dependencyValues.curveType === "bezier") {
+        if (dependencyValues.curveType === 'bezier') {
           parMax = dependencyValues.nThroughPoints - 1;
           if (dependencyValues.extrapolateForward) {
             parMax *= 2;
           }
         } else if (dependencyValues.parMaxAttr !== null) {
-          parMax = dependencyValues.parMaxAttr.stateValues.value.evaluate_to_constant();
+          parMax =
+            dependencyValues.parMaxAttr.stateValues.value.evaluate_to_constant();
           if (!Number.isFinite(parMax)) {
             parMax = NaN;
           }
         } else {
           return {
             useEssentialOrDefaultValue: {
-              parMax: { variablesToCheck: ["parMax"] }
-            }
-          }
+              parMax: { variablesToCheck: ['parMax'] },
+            },
+          };
         }
 
-        return { newValues: { parMax } }
-      }
-    }
+        return { newValues: { parMax } };
+      },
+    };
 
     stateVariableDefinitions.parMin = {
       forRenderer: true,
       public: true,
-      componentType: "number",
+      componentType: 'number',
       defaultValue: -10,
       returnDependencies: () => ({
         curveType: {
-          dependencyType: "stateVariable",
-          variableName: "curveType",
+          dependencyType: 'stateVariable',
+          variableName: 'curveType',
         },
         parMinAttr: {
-          dependencyType: "attributeComponent",
-          attributeName: "parMin",
-          variableNames: ["value"]
+          dependencyType: 'attributeComponent',
+          attributeName: 'parMin',
+          variableNames: ['value'],
         },
         nThroughPoints: {
-          dependencyType: "stateVariable",
-          variableName: "nThroughPoints",
+          dependencyType: 'stateVariable',
+          variableName: 'nThroughPoints',
         },
         extrapolateBackward: {
-          dependencyType: "stateVariable",
-          variableName: "extrapolateBackward"
-        }
+          dependencyType: 'stateVariable',
+          variableName: 'extrapolateBackward',
+        },
       }),
       definition: function ({ dependencyValues }) {
         let parMin;
-        if (dependencyValues.curveType === "bezier") {
+        if (dependencyValues.curveType === 'bezier') {
           parMin = 0;
           if (dependencyValues.extrapolateBackward) {
             parMin = -(dependencyValues.nThroughPoints - 1);
           }
         } else if (dependencyValues.parMinAttr !== null) {
-          parMin = dependencyValues.parMinAttr.stateValues.value.evaluate_to_constant();
+          parMin =
+            dependencyValues.parMinAttr.stateValues.value.evaluate_to_constant();
           if (!Number.isFinite(parMin)) {
             parMin = NaN;
           }
         } else {
           return {
             useEssentialOrDefaultValue: {
-              parMin: { variablesToCheck: ["parMin"] }
-            }
-          }
+              parMin: { variablesToCheck: ['parMin'] },
+            },
+          };
         }
-        return { newValues: { parMin } }
-      }
-    }
+        return { newValues: { parMin } };
+      },
+    };
 
     stateVariableDefinitions.nThroughPoints = {
       returnDependencies: () => ({
         through: {
-          dependencyType: "attributeComponent",
-          attributeName: "through",
-          variableNames: ["nPoints"]
-        }
+          dependencyType: 'attributeComponent',
+          attributeName: 'through',
+          variableNames: ['nPoints'],
+        },
       }),
       definition({ dependencyValues }) {
         let nThroughPoints = 0;
         if (dependencyValues.through !== null) {
-          nThroughPoints = dependencyValues.through.stateValues.nPoints
+          nThroughPoints = dependencyValues.through.stateValues.nPoints;
         }
-        return { newValues: { nThroughPoints } }
-      }
-    }
+        return { newValues: { nThroughPoints } };
+      },
+    };
 
     stateVariableDefinitions.nDimensions = {
       public: true,
-      componentType: "number",
+      componentType: 'number',
       returnDependencies() {
         return {
           through: {
-            dependencyType: "attributeComponent",
-            attributeName: "through",
-            variableNames: ["nDimensions"]
-          }
-        }
+            dependencyType: 'attributeComponent',
+            attributeName: 'through',
+            variableNames: ['nDimensions'],
+          },
+        };
       },
       definition: function ({ dependencyValues }) {
-
         if (dependencyValues.through !== null) {
           let nDimensions = dependencyValues.through.stateValues.nDimensions;
           return {
             newValues: { nDimensions },
-            checkForActualChange: { nDimensions: true }
-          }
+            checkForActualChange: { nDimensions: true },
+          };
         } else {
           // curve through zero points
-          return { newValues: { nDimensions: 2 } }
+          return { newValues: { nDimensions: 2 } };
         }
-
-      }
-    }
-
+      },
+    };
 
     stateVariableDefinitions.throughPoints = {
       public: true,
-      componentType: "math",
+      componentType: 'math',
       isArray: true,
       nDimensions: 2,
-      entryPrefixes: ["throughPointX", "throughPoint"],
+      entryPrefixes: ['throughPointX', 'throughPoint'],
       returnWrappingComponents(prefix) {
-        if (prefix === "throughPointX") {
+        if (prefix === 'throughPointX') {
           return [];
         } else {
           // throughPoint or entire array
           // wrap inner dimension by both <point> and <xs>
           // don't wrap outer dimension (for entire array)
-          return [["point", { componentType: "mathList", isAttribute: "xs" }]];
+          return [['point', { componentType: 'mathList', isAttribute: 'xs' }]];
         }
       },
       getArrayKeysFromVarName({ arrayEntryPrefix, varEnding, arraySize }) {
-        if (arrayEntryPrefix === "throughPointX") {
+        if (arrayEntryPrefix === 'throughPointX') {
           // throughPointX1_2 is the 2nd component of the first throughPoint
-          let indices = varEnding.split('_').map(x => Number(x) - 1)
-          if (indices.length === 2 && indices.every(
-            (x, i) => Number.isInteger(x) && x >= 0
-          )) {
+          let indices = varEnding.split('_').map((x) => Number(x) - 1);
+          if (
+            indices.length === 2 &&
+            indices.every((x, i) => Number.isInteger(x) && x >= 0)
+          ) {
             if (arraySize) {
               if (indices.every((x, i) => x < arraySize[i])) {
                 return [String(indices)];
@@ -444,23 +439,29 @@ export default class Curve extends GraphicalComponent {
             return [];
           }
           let throughPointInd = Number(varEnding) - 1;
-          if (Number.isInteger(throughPointInd) && throughPointInd >= 0 && throughPointInd < arraySize[0]) {
+          if (
+            Number.isInteger(throughPointInd) &&
+            throughPointInd >= 0 &&
+            throughPointInd < arraySize[0]
+          ) {
             // array of "throughPointInd,i", where i=0, ..., arraySize[1]-1
-            return Array.from(Array(arraySize[1]), (_, i) => throughPointInd + "," + i)
+            return Array.from(
+              Array(arraySize[1]),
+              (_, i) => throughPointInd + ',' + i,
+            );
           } else {
             return [];
           }
         }
-
       },
       returnArraySizeDependencies: () => ({
         nThroughPoints: {
-          dependencyType: "stateVariable",
-          variableName: "nThroughPoints",
+          dependencyType: 'stateVariable',
+          variableName: 'nThroughPoints',
         },
         nDimensions: {
-          dependencyType: "stateVariable",
-          variableName: "nDimensions",
+          dependencyType: 'stateVariable',
+          variableName: 'nDimensions',
         },
       }),
       returnArraySize({ dependencyValues }) {
@@ -469,21 +470,20 @@ export default class Curve extends GraphicalComponent {
       returnArrayDependenciesByKey({ arrayKeys }) {
         let dependenciesByKey = {};
         for (let arrayKey of arrayKeys) {
-          let [pointInd, dim] = arrayKey.split(",");
-          let varEnding = (Number(pointInd) + 1) + "_" + (Number(dim) + 1)
+          let [pointInd, dim] = arrayKey.split(',');
+          let varEnding = Number(pointInd) + 1 + '_' + (Number(dim) + 1);
 
           dependenciesByKey[arrayKey] = {
             through: {
-              dependencyType: "attributeComponent",
-              attributeName: "through",
-              variableNames: ["pointX" + varEnding]
-            }
-          }
+              dependencyType: 'attributeComponent',
+              attributeName: 'through',
+              variableNames: ['pointX' + varEnding],
+            },
+          };
         }
-        return { dependenciesByKey }
+        return { dependenciesByKey };
       },
       arrayDefinitionByKey({ dependencyValuesByKey, arrayKeys }) {
-
         // console.log('array definition of curve throughPoints');
         // console.log(JSON.parse(JSON.stringify(dependencyValuesByKey)))
         // console.log(arrayKeys);
@@ -491,140 +491,136 @@ export default class Curve extends GraphicalComponent {
         let throughPoints = {};
 
         for (let arrayKey of arrayKeys) {
-
-          let [pointInd, dim] = arrayKey.split(",");
-          let varEnding = (Number(pointInd) + 1) + "_" + (Number(dim) + 1)
+          let [pointInd, dim] = arrayKey.split(',');
+          let varEnding = Number(pointInd) + 1 + '_' + (Number(dim) + 1);
 
           let through = dependencyValuesByKey[arrayKey].through;
-          if (through !== null
-            && through.stateValues["pointX" + varEnding]
-          ) {
-            throughPoints[arrayKey] = through.stateValues["pointX" + varEnding];
+          if (through !== null && through.stateValues['pointX' + varEnding]) {
+            throughPoints[arrayKey] = through.stateValues['pointX' + varEnding];
           } else {
             throughPoints[arrayKey] = me.fromAst(0);
           }
         }
 
-        return { newValues: { throughPoints } }
+        return { newValues: { throughPoints } };
       },
-      inverseArrayDefinitionByKey({ desiredStateVariableValues,
-        dependencyValuesByKey, dependencyNamesByKey,
-        initialChange, stateValues,
+      inverseArrayDefinitionByKey({
+        desiredStateVariableValues,
+        dependencyValuesByKey,
+        dependencyNamesByKey,
+        initialChange,
+        stateValues,
       }) {
-
         // console.log(`inverseArrayDefinition of throughPoints of curve`);
         // console.log(desiredStateVariableValues)
         // console.log(JSON.parse(JSON.stringify(stateValues)))
         // console.log(dependencyValuesByKey);
 
-
-        // if not draggable, then disallow initial change 
+        // if not draggable, then disallow initial change
         if (initialChange && !stateValues.draggable) {
           return { success: false };
         }
 
         let instructions = [];
         for (let arrayKey in desiredStateVariableValues.throughPoints) {
-          let [pointInd, dim] = arrayKey.split(",");
-          let varEnding = (Number(pointInd) + 1) + "_" + (Number(dim) + 1)
+          let [pointInd, dim] = arrayKey.split(',');
+          let varEnding = Number(pointInd) + 1 + '_' + (Number(dim) + 1);
 
-          if (dependencyValuesByKey[arrayKey].through !== null
-            && dependencyValuesByKey[arrayKey].through.stateValues["pointX" + varEnding]
+          if (
+            dependencyValuesByKey[arrayKey].through !== null &&
+            dependencyValuesByKey[arrayKey].through.stateValues[
+              'pointX' + varEnding
+            ]
           ) {
             instructions.push({
               setDependency: dependencyNamesByKey[arrayKey].through,
               desiredValue: desiredStateVariableValues.throughPoints[arrayKey],
               childIndex: 0,
               variableIndex: 0,
-            })
-
+            });
           } else {
             return { success: false };
           }
-
         }
 
         return {
           success: true,
-          instructions
-        }
-
-      }
-    }
-
+          instructions,
+        };
+      },
+    };
 
     stateVariableDefinitions.numericalThroughPoints = {
       isArray: true,
-      entryPrefixes: ["numericalThroughPoint"],
+      entryPrefixes: ['numericalThroughPoint'],
       forRenderer: true,
       returnArraySizeDependencies: () => ({
         nThroughPoints: {
-          dependencyType: "stateVariable",
-          variableName: "nThroughPoints",
+          dependencyType: 'stateVariable',
+          variableName: 'nThroughPoints',
         },
       }),
       returnArraySize({ dependencyValues }) {
         return [dependencyValues.nThroughPoints];
       },
       returnArrayDependenciesByKey({ arrayKeys }) {
-
         let dependenciesByKey = {};
 
         for (let arrayKey of arrayKeys) {
           dependenciesByKey[arrayKey] = {
             throughPoint: {
-              dependencyType: "stateVariable",
-              variableName: "throughPoint" + (Number(arrayKey) + 1)
-            }
-          }
+              dependencyType: 'stateVariable',
+              variableName: 'throughPoint' + (Number(arrayKey) + 1),
+            },
+          };
         }
 
-        return { dependenciesByKey }
+        return { dependenciesByKey };
       },
       arrayDefinitionByKey({ dependencyValuesByKey, arrayKeys }) {
-
         let numericalThroughPoints = {};
 
         for (let arrayKey of arrayKeys) {
-          let pt = dependencyValuesByKey[arrayKey].throughPoint.map(x => x.evaluate_to_constant())
-          if (!pt.every(x => Number.isFinite(x))) {
-            pt = Array(pt.length).fill(NaN)
+          let pt = dependencyValuesByKey[arrayKey].throughPoint.map((x) =>
+            x.evaluate_to_constant(),
+          );
+          if (!pt.every((x) => Number.isFinite(x))) {
+            pt = Array(pt.length).fill(NaN);
           }
           numericalThroughPoints[arrayKey] = pt;
         }
 
-        return { newValues: { numericalThroughPoints } }
-      }
-    }
+        return { newValues: { numericalThroughPoints } };
+      },
+    };
 
     stateVariableDefinitions.haveBezierControls = {
       forRenderer: true,
       returnDependencies: () => ({
         controlChild: {
-          dependencyType: "child",
-          childLogicName: "atMostOneBezierControls"
-        }
+          dependencyType: 'child',
+          childLogicName: 'atMostOneBezierControls',
+        },
       }),
       definition({ dependencyValues }) {
         return {
           newValues: {
-            haveBezierControls: dependencyValues.controlChild.length === 1
-          }
-        }
-      }
-
-    }
+            haveBezierControls: dependencyValues.controlChild.length === 1,
+          },
+        };
+      },
+    };
 
     stateVariableDefinitions.vectorControlDirections = {
       public: true,
-      componentType: "text",
+      componentType: 'text',
       isArray: true,
-      entryPrefixes: ["vectorControlDirection"],
+      entryPrefixes: ['vectorControlDirection'],
       forRenderer: true,
       returnArraySizeDependencies: () => ({
         nThroughPoints: {
-          dependencyType: "stateVariable",
-          variableName: "nThroughPoints",
+          dependencyType: 'stateVariable',
+          variableName: 'nThroughPoints',
         },
       }),
       returnArraySize({ dependencyValues }) {
@@ -635,49 +631,50 @@ export default class Curve extends GraphicalComponent {
         for (let arrayKey of arrayKeys) {
           dependenciesByKey[arrayKey] = {
             controlChild: {
-              dependencyType: "child",
-              childLogicName: "atMostOneBezierControls",
-              variableNames: ["direction" + (Number(arrayKey) + 1)],
-            }
-          }
+              dependencyType: 'child',
+              childLogicName: 'atMostOneBezierControls',
+              variableNames: ['direction' + (Number(arrayKey) + 1)],
+            },
+          };
         }
 
         let globalDependencies = {
           haveBezierControls: {
-            dependencyType: "stateVariable",
-            variableName: "haveBezierControls"
-          }
-        }
+            dependencyType: 'stateVariable',
+            variableName: 'haveBezierControls',
+          },
+        };
 
-        return { dependenciesByKey, globalDependencies }
+        return { dependenciesByKey, globalDependencies };
       },
       arrayDefinitionByKey({ dependencyValuesByKey, arrayKeys }) {
-
         let vectorControlDirections = {};
 
         for (let arrayKey of arrayKeys) {
-
           let controlChild = dependencyValuesByKey[arrayKey].controlChild;
 
           if (controlChild && controlChild.length === 1) {
-            vectorControlDirections[arrayKey] = controlChild[0].stateValues["direction" + (Number(arrayKey) + 1)];
+            vectorControlDirections[arrayKey] =
+              controlChild[0].stateValues['direction' + (Number(arrayKey) + 1)];
           } else {
-            vectorControlDirections[arrayKey] = "none";
+            vectorControlDirections[arrayKey] = 'none';
           }
         }
 
         return {
           newValues: { vectorControlDirections },
-        }
+        };
       },
-      inverseArrayDefinitionByKey({ desiredStateVariableValues,
-        dependencyNamesByKey, dependencyValuesByKey, globalDependencyValues
+      inverseArrayDefinitionByKey({
+        desiredStateVariableValues,
+        dependencyNamesByKey,
+        dependencyValuesByKey,
+        globalDependencyValues,
       }) {
-
         // if don't have bezier controls, cannot change directions,
         // they all stay at none so that have a spline
         if (!globalDependencyValues.haveBezierControls) {
-          return { success: false }
+          return { success: false };
         }
 
         let instructions = [];
@@ -688,57 +685,60 @@ export default class Curve extends GraphicalComponent {
           if (controlChild && controlChild.length === 1) {
             instructions.push({
               setDependency: dependencyNamesByKey[arrayKey].controlChild,
-              desiredValue: desiredStateVariableValues.vectorControlDirections[arrayKey],
+              desiredValue:
+                desiredStateVariableValues.vectorControlDirections[arrayKey],
               childIndex: 0,
-              variableIndex: 0
-            })
-
+              variableIndex: 0,
+            });
           } else {
-            newDirectionValues[arrayKey] = desiredStateVariableValues.vectorControlDirections[arrayKey]
+            newDirectionValues[arrayKey] =
+              desiredStateVariableValues.vectorControlDirections[arrayKey];
           }
-
         }
 
         if (Object.keys(newDirectionValues).length > 0) {
           instructions.push({
-            setStateVariable: "vectorControlDirections",
-            value: newDirectionValues
-          })
+            setStateVariable: 'vectorControlDirections',
+            value: newDirectionValues,
+          });
         }
 
         return {
           success: true,
-          instructions
-        }
-
-      }
-    }
+          instructions,
+        };
+      },
+    };
 
     stateVariableDefinitions.controlVectors = {
       isArray: true,
       public: true,
-      componentType: "math",
-      entryPrefixes: ["controlVectorX", "controlVector"],
+      componentType: 'math',
+      entryPrefixes: ['controlVectorX', 'controlVector'],
       nDimensions: 3,
-      stateVariablesDeterminingDependencies: ["vectorControlDirections", "nThroughPoints"],
+      stateVariablesDeterminingDependencies: [
+        'vectorControlDirections',
+        'nThroughPoints',
+      ],
       returnWrappingComponents(prefix) {
-        if (prefix === "controlVectorX") {
+        if (prefix === 'controlVectorX') {
           return [];
         } else {
           // controlVector or entire array
           // wrap inner dimension by both <vector> and <xs>
           // don't wrap outer dimension (for entire array)
-          return [["vector", { componentType: "mathList", isAttribute: "xs" }]];
+          return [['vector', { componentType: 'mathList', isAttribute: 'xs' }]];
         }
       },
       getArrayKeysFromVarName({ arrayEntryPrefix, varEnding, arraySize }) {
-        if (arrayEntryPrefix === "controlVectorX") {
+        if (arrayEntryPrefix === 'controlVectorX') {
           // controlVectorX3_2_1 is the first component of the second control vector
           // controlling the third point
-          let indices = varEnding.split('_').map(x => Number(x) - 1)
-          if (indices.length === 3 && indices.every(
-            (x, i) => Number.isInteger(x) && x >= 0
-          )) {
+          let indices = varEnding.split('_').map((x) => Number(x) - 1);
+          if (
+            indices.length === 3 &&
+            indices.every((x, i) => Number.isInteger(x) && x >= 0)
+          ) {
             if (arraySize) {
               if (indices.every((x, i) => x < arraySize[i])) {
                 return [String(indices)];
@@ -760,100 +760,110 @@ export default class Curve extends GraphicalComponent {
           if (!arraySize) {
             return [];
           }
-          let indices = varEnding.split('_').map(x => Number(x) - 1)
-          if (indices.length === 2 && indices.every(
-            (x, i) => Number.isInteger(x) && x >= 0 && x < arraySize[i]
-          )) {
-            return Array.from(Array(arraySize[2]), (_, i) => String(indices) + "," + i)
+          let indices = varEnding.split('_').map((x) => Number(x) - 1);
+          if (
+            indices.length === 2 &&
+            indices.every(
+              (x, i) => Number.isInteger(x) && x >= 0 && x < arraySize[i],
+            )
+          ) {
+            return Array.from(
+              Array(arraySize[2]),
+              (_, i) => String(indices) + ',' + i,
+            );
           } else {
             return [];
           }
         }
-
       },
       returnArraySizeDependencies: () => ({
         nThroughPoints: {
-          dependencyType: "stateVariable",
-          variableName: "nThroughPoints",
+          dependencyType: 'stateVariable',
+          variableName: 'nThroughPoints',
         },
         nDimensions: {
-          dependencyType: "stateVariable",
-          variableName: "nDimensions",
+          dependencyType: 'stateVariable',
+          variableName: 'nDimensions',
         },
       }),
       returnArraySize({ dependencyValues }) {
-        return [dependencyValues.nThroughPoints, 2, dependencyValues.nDimensions];
+        return [
+          dependencyValues.nThroughPoints,
+          2,
+          dependencyValues.nDimensions,
+        ];
       },
       returnArrayDependenciesByKey({ arrayKeys, stateValues }) {
-
         let globalDependencies = {
           haveBezierControls: {
-            dependencyType: "stateVariable",
-            variableName: "haveBezierControls"
+            dependencyType: 'stateVariable',
+            variableName: 'haveBezierControls',
           },
           nThroughPoints: {
-            dependencyType: "stateVariable",
-            variableName: "nThroughPoints"
+            dependencyType: 'stateVariable',
+            variableName: 'nThroughPoints',
           },
           nDimensions: {
-            dependencyType: "stateVariable",
-            variableName: "nDimensions"
+            dependencyType: 'stateVariable',
+            variableName: 'nDimensions',
           },
           splineTension: {
-            dependencyType: "stateVariable",
-            variableName: "splineTension"
+            dependencyType: 'stateVariable',
+            variableName: 'splineTension',
           },
           splineForm: {
-            dependencyType: "stateVariable",
-            variableName: "splineForm"
+            dependencyType: 'stateVariable',
+            variableName: 'splineForm',
           },
-        }
+        };
 
         let dependenciesByKey = {};
 
         for (let arrayKey of arrayKeys) {
-          let arrayIndices = arrayKey.split(",").map(x => Number(x));
-          let varEndings = arrayIndices.map(x => x + 1);
+          let arrayIndices = arrayKey.split(',').map((x) => Number(x));
+          let varEndings = arrayIndices.map((x) => x + 1);
           let jointVarEnding = varEndings.join('_');
 
           dependenciesByKey[arrayKey] = {
             direction: {
-              dependencyType: "stateVariable",
-              variableName: "vectorControlDirection" + varEndings[0]
+              dependencyType: 'stateVariable',
+              variableName: 'vectorControlDirection' + varEndings[0],
             },
             controlChild: {
-              dependencyType: "child",
-              childLogicName: "atMostOneBezierControls",
-              variableNames: ["control" + jointVarEnding]
-            }
-          }
+              dependencyType: 'child',
+              childLogicName: 'atMostOneBezierControls',
+              variableNames: ['control' + jointVarEnding],
+            },
+          };
 
           let pointInd = arrayIndices[0];
           let direction = stateValues.vectorControlDirections[pointInd];
-          let indsToCheck = []
-          if (direction === "none") {
+          let indsToCheck = [];
+          if (direction === 'none') {
             indsToCheck = [pointInd - 1, pointInd, pointInd + 1];
-          } else if (direction === "previous") {
+          } else if (direction === 'previous') {
             indsToCheck = [pointInd, pointInd + 1];
-          } else if (direction === "next") {
+          } else if (direction === 'next') {
             indsToCheck = [pointInd - 1, pointInd];
           }
 
           for (let ind of indsToCheck) {
             if (ind >= 0 && ind < stateValues.nThroughPoints) {
-              dependenciesByKey[arrayKey]["throughPoint" + (ind + 1)] = {
-                dependencyType: "stateVariable",
-                variableName: "throughPoint" + (ind + 1)
-              }
+              dependenciesByKey[arrayKey]['throughPoint' + (ind + 1)] = {
+                dependencyType: 'stateVariable',
+                variableName: 'throughPoint' + (ind + 1),
+              };
             }
           }
-
         }
 
         return { globalDependencies, dependenciesByKey };
       },
-      arrayDefinitionByKey({ globalDependencyValues, dependencyValuesByKey, arrayKeys }) {
-
+      arrayDefinitionByKey({
+        globalDependencyValues,
+        dependencyValuesByKey,
+        arrayKeys,
+      }) {
         // console.log('definition of controlVectors for curve')
         // console.log(JSON.parse(JSON.stringify(dependencyValuesByKey)));
         // console.log(JSON.parse(JSON.stringify(globalDependencyValues)));
@@ -862,7 +872,6 @@ export default class Curve extends GraphicalComponent {
         let newControlValues = {};
 
         for (let arrayKey of arrayKeys) {
-
           // we have calculated this only for 2D
           if (globalDependencyValues.nDimensions !== 2) {
             newControlValues[arrayKey] = me.fromAst(NaN);
@@ -876,8 +885,8 @@ export default class Curve extends GraphicalComponent {
             continue;
           }
 
-          let arrayIndices = arrayKey.split(",").map(x => Number(x));
-          let varEndings = arrayIndices.map(x => x + 1);
+          let arrayIndices = arrayKey.split(',').map((x) => Number(x));
+          let varEndings = arrayIndices.map((x) => x + 1);
           let jointVarEnding = varEndings.join('_');
 
           let pointInd = arrayIndices[0];
@@ -888,211 +897,227 @@ export default class Curve extends GraphicalComponent {
           //   direction = "none";
           // }
 
-
-          if (direction === "none") {
+          if (direction === 'none') {
             // if direction is none, then determine both first and second control vector
             // via spline (they will be symmetric)
 
-
-            let point2 = dependencyValuesByKey[arrayKey]["throughPoint" + (pointInd + 1)]
+            let point2 =
+              dependencyValuesByKey[arrayKey]['throughPoint' + (pointInd + 1)];
 
             let point1, point3;
             if (pointInd > 0) {
-              point1 = dependencyValuesByKey[arrayKey]["throughPoint" + pointInd]
+              point1 =
+                dependencyValuesByKey[arrayKey]['throughPoint' + pointInd];
             }
             if (pointInd < globalDependencyValues.nThroughPoints) {
-              point3 = dependencyValuesByKey[arrayKey]["throughPoint" + (pointInd + 2)]
+              point3 =
+                dependencyValuesByKey[arrayKey][
+                  'throughPoint' + (pointInd + 2)
+                ];
             }
 
-
-            let { coordsNumeric, numericEntries } = calculateControlVectorFromSpline({
-              tau: globalDependencyValues.splineTension,
-              eps: numerics.eps,
-              splineForm: globalDependencyValues.splineForm,
-              point1,
-              point2,
-              point3,
-            });
+            let { coordsNumeric, numericEntries } =
+              calculateControlVectorFromSpline({
+                tau: globalDependencyValues.splineTension,
+                eps: numerics.eps,
+                splineForm: globalDependencyValues.splineForm,
+                point1,
+                point2,
+                point3,
+              });
 
             for (let dim = 0; dim < 2; dim++) {
-              let arrayKeyDim = pointInd + "," + vectorInd + "," + dim;
-              let flippedArrayKeyDim = pointInd + "," + (1 - vectorInd) + "," + dim;
+              let arrayKeyDim = pointInd + ',' + vectorInd + ',' + dim;
+              let flippedArrayKeyDim =
+                pointInd + ',' + (1 - vectorInd) + ',' + dim;
 
               if (vectorInd === 0) {
                 // arrayKey corresponds to first vector
                 newControlValues[arrayKeyDim] = coordsNumeric[dim];
-                newControlValues[flippedArrayKeyDim] = me.fromAst(-coordsNumeric[dim].tree);
+                newControlValues[flippedArrayKeyDim] = me.fromAst(
+                  -coordsNumeric[dim].tree,
+                );
               } else {
                 // arrayKey corresponds to second vector
-                newControlValues[arrayKeyDim] = me.fromAst(-coordsNumeric[dim].tree);
+                newControlValues[arrayKeyDim] = me.fromAst(
+                  -coordsNumeric[dim].tree,
+                );
                 newControlValues[flippedArrayKeyDim] = coordsNumeric[dim];
               }
             }
-
-
-          } else if ((arrayIndices[1] === 0 && direction === "next") ||
-            (arrayIndices[1] === 0 && direction === "next")
+          } else if (
+            (arrayIndices[1] === 0 && direction === 'next') ||
+            (arrayIndices[1] === 0 && direction === 'next')
           ) {
             // calculate control vector from spline
 
             // only two of these three will be defined
-            let point1 = dependencyValuesByKey[arrayKey]["throughPoint" + pointInd]
-            let point2 = dependencyValuesByKey[arrayKey]["throughPoint" + (pointInd + 1)]
-            let point3 = dependencyValuesByKey[arrayKey]["throughPoint" + (pointInd + 2)]
+            let point1 =
+              dependencyValuesByKey[arrayKey]['throughPoint' + pointInd];
+            let point2 =
+              dependencyValuesByKey[arrayKey]['throughPoint' + (pointInd + 1)];
+            let point3 =
+              dependencyValuesByKey[arrayKey]['throughPoint' + (pointInd + 2)];
 
-
-            let { coordsNumeric, numericEntries } = calculateControlVectorFromSpline({
-              tau: globalDependencyValues.splineTension,
-              eps: numerics.eps,
-              splineForm: globalDependencyValues.splineForm,
-              point1: point1 ? point1 : point3,
-              point2,
-              point3: undefined,
-            });
+            let { coordsNumeric, numericEntries } =
+              calculateControlVectorFromSpline({
+                tau: globalDependencyValues.splineTension,
+                eps: numerics.eps,
+                splineForm: globalDependencyValues.splineForm,
+                point1: point1 ? point1 : point3,
+                point2,
+                point3: undefined,
+              });
 
             for (let dim = 0; dim < 2; dim++) {
-              let arrayKeyDim = pointInd + "," + vectorInd + "," + dim;
+              let arrayKeyDim = pointInd + ',' + vectorInd + ',' + dim;
               newControlValues[arrayKeyDim] = coordsNumeric[dim];
             }
-
           } else {
             // if have a vector from control child, use that
-            newControlValues[arrayKey] = dependencyValuesByKey[arrayKey].controlChild[0]
-              .stateValues["control" + jointVarEnding];
+            newControlValues[arrayKey] =
+              dependencyValuesByKey[arrayKey].controlChild[0].stateValues[
+                'control' + jointVarEnding
+              ];
           }
-
         }
 
         return {
           newValues: {
-            controlVectors: newControlValues
+            controlVectors: newControlValues,
           },
           // useEssentialOrDefaultValue: {
           //   controlVectors: essentialControls,
           // },
           // makeEssential: ["controlVectors"],
-        }
+        };
       },
-      inverseArrayDefinitionByKey({ desiredStateVariableValues,
-        dependencyNamesByKey, dependencyValuesByKey, globalDependencyValues
+      inverseArrayDefinitionByKey({
+        desiredStateVariableValues,
+        dependencyNamesByKey,
+        dependencyValuesByKey,
+        globalDependencyValues,
       }) {
-
         // console.log('inverse definition of controlVectors for curve')
         // console.log(JSON.parse(JSON.stringify(desiredStateVariableValues)));
         // console.log(JSON.parse(JSON.stringify(dependencyValuesByKey)));
         // console.log(JSON.parse(JSON.stringify(globalDependencyValues)));
 
-
         // if don't have bezier controls, cannot change control vectors,
         // they all stay at those calculated from spline
         // Also can't change if aren't in 2D
-        if (!globalDependencyValues.haveBezierControls || globalDependencyValues.nDimensions !== 2) {
-          return { success: false }
+        if (
+          !globalDependencyValues.haveBezierControls ||
+          globalDependencyValues.nDimensions !== 2
+        ) {
+          return { success: false };
         }
 
         let instructions = [];
         for (let arrayKey in desiredStateVariableValues.controlVectors) {
-          let arrayIndices = arrayKey.split(",").map(x => Number(x));
-          let varEndings = arrayIndices.map(x => x + 1);
+          let arrayIndices = arrayKey.split(',').map((x) => Number(x));
+          let varEndings = arrayIndices.map((x) => x + 1);
           let jointVarEnding = varEndings.join('_');
 
           // if find the control on the control child,
           // set its value to the desired value
           let controlChild = dependencyValuesByKey[arrayKey].controlChild;
           if (controlChild.length === 1) {
-            let control = controlChild[0].stateValues["control" + jointVarEnding];
+            let control =
+              controlChild[0].stateValues['control' + jointVarEnding];
             if (control) {
               instructions.push({
                 setDependency: dependencyNamesByKey[arrayKey].controlChild,
-                desiredValue: desiredStateVariableValues.controlVectors[arrayKey],
+                desiredValue:
+                  desiredStateVariableValues.controlVectors[arrayKey],
                 childIndex: 0,
-                variableIndex: 0
-              })
+                variableIndex: 0,
+              });
             }
           }
         }
 
         return {
           success: true,
-          instructions
-        }
-      }
-
-    }
+          instructions,
+        };
+      },
+    };
 
     stateVariableDefinitions.numericalControlVectors = {
       isArray: true,
-      entryPrefixes: ["numericalControlVector"],
+      entryPrefixes: ['numericalControlVector'],
       forRenderer: true,
       nDimensions: 2,
       returnArraySizeDependencies: () => ({
         nThroughPoints: {
-          dependencyType: "stateVariable",
-          variableName: "nThroughPoints",
+          dependencyType: 'stateVariable',
+          variableName: 'nThroughPoints',
         },
       }),
       returnArraySize({ dependencyValues }) {
         return [dependencyValues.nThroughPoints, 2];
       },
       returnArrayDependenciesByKey({ arrayKeys }) {
-
         let dependenciesByKey = {};
 
         for (let arrayKey of arrayKeys) {
-          let arrayIndices = arrayKey.split(",").map(x => Number(x));
-          let varEndings = arrayIndices.map(x => x + 1);
+          let arrayIndices = arrayKey.split(',').map((x) => Number(x));
+          let varEndings = arrayIndices.map((x) => x + 1);
           let jointVarEnding = varEndings.join('_');
 
           dependenciesByKey[arrayKey] = {
             controlVector: {
-              dependencyType: "stateVariable",
-              variableName: "controlVector" + jointVarEnding
+              dependencyType: 'stateVariable',
+              variableName: 'controlVector' + jointVarEnding,
             },
-          }
+          };
         }
 
-        return { dependenciesByKey }
+        return { dependenciesByKey };
       },
       arrayDefinitionByKey({ dependencyValuesByKey, arrayKeys }) {
-
         // control vectors already have numerical entries,
         // so just need to take tree from math expressions
 
         let numericalControlVectors = {};
 
         for (let arrayKey of arrayKeys) {
-          let vect = dependencyValuesByKey[arrayKey].controlVector.map(x => x.tree)
+          let vect = dependencyValuesByKey[arrayKey].controlVector.map(
+            (x) => x.tree,
+          );
           numericalControlVectors[arrayKey] = vect;
         }
 
-        return { newValues: { numericalControlVectors } }
-      }
-    }
+        return { newValues: { numericalControlVectors } };
+      },
+    };
 
     stateVariableDefinitions.controlPoints = {
       isArray: true,
       public: true,
-      componentType: "math",
-      entryPrefixes: ["controlPointX", "controlPoint"],
+      componentType: 'math',
+      entryPrefixes: ['controlPointX', 'controlPoint'],
       nDimensions: 3,
       returnWrappingComponents(prefix) {
-        if (prefix === "controlPointX") {
+        if (prefix === 'controlPointX') {
           return [];
         } else {
           // controlPoint or entire array
           // wrap inner dimension by both <point> and <xs>
           // don't wrap outer dimension (for entire array)
-          return [["point", { componentType: "mathList", isAttribute: "xs" }]];
+          return [['point', { componentType: 'mathList', isAttribute: 'xs' }]];
         }
       },
       getArrayKeysFromVarName({ arrayEntryPrefix, varEnding, arraySize }) {
-        if (arrayEntryPrefix === "controlPointX") {
+        if (arrayEntryPrefix === 'controlPointX') {
           // controlPointX3_2_1 is the first component of the second control point
           // controlling the third point
-          let indices = varEnding.split('_').map(x => Number(x) - 1)
-          if (indices.length === 3 && indices.every(
-            (x, i) => Number.isInteger(x) && x >= 0
-          )) {
+          let indices = varEnding.split('_').map((x) => Number(x) - 1);
+          if (
+            indices.length === 3 &&
+            indices.every((x, i) => Number.isInteger(x) && x >= 0)
+          ) {
             if (arraySize) {
               if (indices.every((x, i) => x < arraySize[i])) {
                 return [String(indices)];
@@ -1114,67 +1139,78 @@ export default class Curve extends GraphicalComponent {
           if (!arraySize) {
             return [];
           }
-          let indices = varEnding.split('_').map(x => Number(x) - 1)
-          if (indices.length === 2 && indices.every(
-            (x, i) => Number.isInteger(x) && x >= 0 && x < arraySize[i]
-          )) {
-            return Array.from(Array(arraySize[2]), (_, i) => String(indices) + "," + i)
+          let indices = varEnding.split('_').map((x) => Number(x) - 1);
+          if (
+            indices.length === 2 &&
+            indices.every(
+              (x, i) => Number.isInteger(x) && x >= 0 && x < arraySize[i],
+            )
+          ) {
+            return Array.from(
+              Array(arraySize[2]),
+              (_, i) => String(indices) + ',' + i,
+            );
           } else {
             return [];
           }
         }
-
       },
       returnArraySizeDependencies: () => ({
         nThroughPoints: {
-          dependencyType: "stateVariable",
-          variableName: "nThroughPoints",
+          dependencyType: 'stateVariable',
+          variableName: 'nThroughPoints',
         },
         nDimensions: {
-          dependencyType: "stateVariable",
-          variableName: "nDimensions",
+          dependencyType: 'stateVariable',
+          variableName: 'nDimensions',
         },
       }),
       returnArraySize({ dependencyValues }) {
-        return [dependencyValues.nThroughPoints, 2, dependencyValues.nDimensions];
+        return [
+          dependencyValues.nThroughPoints,
+          2,
+          dependencyValues.nDimensions,
+        ];
       },
       returnArrayDependenciesByKey({ arrayKeys }) {
-
         let globalDependencies = {
           haveBezierControls: {
-            dependencyType: "stateVariable",
-            variableName: "haveBezierControls"
+            dependencyType: 'stateVariable',
+            variableName: 'haveBezierControls',
           },
           nDimensions: {
-            dependencyType: "stateVariable",
-            variableName: "nDimensions",
+            dependencyType: 'stateVariable',
+            variableName: 'nDimensions',
           },
-        }
+        };
 
         let dependenciesByKey = {};
 
         for (let arrayKey of arrayKeys) {
-          let arrayIndices = arrayKey.split(",").map(x => Number(x));
-          let varEndings = arrayIndices.map(x => x + 1);
+          let arrayIndices = arrayKey.split(',').map((x) => Number(x));
+          let varEndings = arrayIndices.map((x) => x + 1);
           let jointVarEnding = varEndings.join('_');
 
           dependenciesByKey[arrayKey] = {
             throughPointX: {
-              dependencyType: "stateVariable",
-              variableName: "throughPointX" + varEndings[0] + "_" + varEndings[2]
+              dependencyType: 'stateVariable',
+              variableName:
+                'throughPointX' + varEndings[0] + '_' + varEndings[2],
             },
             controlVectorX: {
-              dependencyType: "stateVariable",
-              variableName: "controlVectorX" + jointVarEnding
-            }
-          }
-
+              dependencyType: 'stateVariable',
+              variableName: 'controlVectorX' + jointVarEnding,
+            },
+          };
         }
 
         return { globalDependencies, dependenciesByKey };
       },
-      arrayDefinitionByKey({ globalDependencyValues, dependencyValuesByKey, arrayKeys }) {
-
+      arrayDefinitionByKey({
+        globalDependencyValues,
+        dependencyValuesByKey,
+        arrayKeys,
+      }) {
         // console.log('definition of controlPoints for curve')
         // console.log(JSON.parse(JSON.stringify(dependencyValuesByKey)));
         // console.log(JSON.parse(JSON.stringify(globalDependencyValues)));
@@ -1183,7 +1219,6 @@ export default class Curve extends GraphicalComponent {
         let newControlValues = {};
 
         for (let arrayKey of arrayKeys) {
-
           // we have calculated this only for 2D
           if (globalDependencyValues.nDimensions !== 2) {
             newControlValues[arrayKey] = me.fromAst(NaN);
@@ -1191,127 +1226,133 @@ export default class Curve extends GraphicalComponent {
             let vectorX = dependencyValuesByKey[arrayKey].controlVectorX;
 
             if (vectorX) {
-              let pointX = dependencyValuesByKey[arrayKey].throughPointX.evaluate_to_constant();
+              let pointX =
+                dependencyValuesByKey[
+                  arrayKey
+                ].throughPointX.evaluate_to_constant();
               if (!Number.isFinite(pointX)) {
-                pointX = NaN
+                pointX = NaN;
               }
-              newControlValues[arrayKey] = me.fromAst(pointX + vectorX.tree)
+              newControlValues[arrayKey] = me.fromAst(pointX + vectorX.tree);
             } else {
               newControlValues[arrayKey] = null;
             }
-
           }
-
-
         }
         return {
           newValues: {
-            controlPoints: newControlValues
+            controlPoints: newControlValues,
           },
-        }
+        };
       },
-      inverseArrayDefinitionByKey({ desiredStateVariableValues,
-        dependencyNamesByKey, dependencyValuesByKey, globalDependencyValues
+      inverseArrayDefinitionByKey({
+        desiredStateVariableValues,
+        dependencyNamesByKey,
+        dependencyValuesByKey,
+        globalDependencyValues,
       }) {
-
-
         // if don't have bezier controls, cannot change control vectors,
         // they all stay at those calculated from spline
         // Also can't change if aren't in 2D
-        if (!globalDependencyValues.haveBezierControls || globalDependencyValues.nDimensions !== 2) {
-          return { success: false }
+        if (
+          !globalDependencyValues.haveBezierControls ||
+          globalDependencyValues.nDimensions !== 2
+        ) {
+          return { success: false };
         }
 
         let instructions = [];
         for (let arrayKey in desiredStateVariableValues.controlPoints) {
-
           // if find the control on the control child,
           // set its value to the desired value
           let vectorX = dependencyValuesByKey[arrayKey].controlVectorX;
           if (vectorX) {
             let pointX = dependencyValuesByKey[arrayKey].throughPointX;
 
-            let desiredPoint = desiredStateVariableValues.controlPoints[arrayKey];
+            let desiredPoint =
+              desiredStateVariableValues.controlPoints[arrayKey];
             if (desiredPoint.tree) {
               desiredPoint = desiredPoint.tree;
             }
-            let desiredValue = me.fromAst(['+', desiredPoint, ['-', pointX.tree]]);
+            let desiredValue = me.fromAst([
+              '+',
+              desiredPoint,
+              ['-', pointX.tree],
+            ]);
 
             instructions.push({
               setDependency: dependencyNamesByKey[arrayKey].controlVectorX,
               desiredValue,
-            })
+            });
           }
         }
 
         return {
           success: true,
-          instructions
-        }
-      }
-
-    }
+          instructions,
+        };
+      },
+    };
 
     stateVariableDefinitions.numericalControlPoints = {
       isArray: true,
-      entryPrefixes: ["numericalControlPoint"],
+      entryPrefixes: ['numericalControlPoint'],
       forRenderer: true,
       nDimensions: 2,
       returnArraySizeDependencies: () => ({
         nThroughPoints: {
-          dependencyType: "stateVariable",
-          variableName: "nThroughPoints",
+          dependencyType: 'stateVariable',
+          variableName: 'nThroughPoints',
         },
       }),
       returnArraySize({ dependencyValues }) {
         return [dependencyValues.nThroughPoints, 2];
       },
       returnArrayDependenciesByKey({ arrayKeys }) {
-
         let dependenciesByKey = {};
 
         for (let arrayKey of arrayKeys) {
-          let arrayIndices = arrayKey.split(",").map(x => Number(x));
-          let varEndings = arrayIndices.map(x => x + 1);
+          let arrayIndices = arrayKey.split(',').map((x) => Number(x));
+          let varEndings = arrayIndices.map((x) => x + 1);
           let jointVarEnding = varEndings.join('_');
 
           dependenciesByKey[arrayKey] = {
             controlPoint: {
-              dependencyType: "stateVariable",
-              variableName: "controlPoint" + jointVarEnding
+              dependencyType: 'stateVariable',
+              variableName: 'controlPoint' + jointVarEnding,
             },
-          }
+          };
         }
 
-        return { dependenciesByKey }
+        return { dependenciesByKey };
       },
       arrayDefinitionByKey({ dependencyValuesByKey, arrayKeys }) {
-
         // control points have numerical entries, to just take expression trees
         let numericalControlPoints = {};
 
         for (let arrayKey of arrayKeys) {
-          let pt = dependencyValuesByKey[arrayKey].controlPoint.map(x => x.tree)
+          let pt = dependencyValuesByKey[arrayKey].controlPoint.map(
+            (x) => x.tree,
+          );
           numericalControlPoints[arrayKey] = pt;
         }
 
-        return { newValues: { numericalControlPoints } }
-      }
-    }
+        return { newValues: { numericalControlPoints } };
+      },
+    };
 
     stateVariableDefinitions.splineCoeffs = {
       isArray: true,
       returnArraySizeDependencies: () => ({
         nThroughPoints: {
-          dependencyType: "stateVariable",
-          variableName: "nThroughPoints",
+          dependencyType: 'stateVariable',
+          variableName: 'nThroughPoints',
         },
       }),
       returnArraySize({ dependencyValues }) {
         return [dependencyValues.nThroughPoints - 1];
       },
       returnArrayDependenciesByKey({ arrayKeys }) {
-
         let dependenciesByKey = {};
 
         for (let arrayKey of arrayKeys) {
@@ -1320,32 +1361,30 @@ export default class Curve extends GraphicalComponent {
 
           dependenciesByKey[arrayKey] = {
             previousPoint: {
-              dependencyType: "stateVariable",
-              variableName: "numericalThroughPoint" + ind1
+              dependencyType: 'stateVariable',
+              variableName: 'numericalThroughPoint' + ind1,
             },
             nextPoint: {
-              dependencyType: "stateVariable",
-              variableName: "numericalThroughPoint" + ind2
+              dependencyType: 'stateVariable',
+              variableName: 'numericalThroughPoint' + ind2,
             },
             previousVector: {
-              dependencyType: "stateVariable",
-              variableName: "numericalControlVector" + ind1 + "_2"
+              dependencyType: 'stateVariable',
+              variableName: 'numericalControlVector' + ind1 + '_2',
             },
             nextVector: {
-              dependencyType: "stateVariable",
-              variableName: "numericalControlVector" + ind2 + "_1"
+              dependencyType: 'stateVariable',
+              variableName: 'numericalControlVector' + ind2 + '_1',
             },
-          }
+          };
         }
 
-        return { dependenciesByKey }
+        return { dependenciesByKey };
       },
       arrayDefinitionByKey({ dependencyValuesByKey, arrayKeys }) {
-
         let newSpineCoeffs = {};
 
         for (let arrayKey of arrayKeys) {
-
           let p1 = dependencyValuesByKey[arrayKey].previousPoint;
           let p2 = dependencyValuesByKey[arrayKey].nextPoint;
           let cv1 = dependencyValuesByKey[arrayKey].previousVector;
@@ -1353,51 +1392,45 @@ export default class Curve extends GraphicalComponent {
 
           let c = [];
           for (let dim = 0; dim < 2; dim++) {
-            c.push(initCubicPoly(
-              p1[dim],
-              p2[dim],
-              3 * cv1[dim],
-              -3 * cv2[dim]
-            ));
+            c.push(
+              initCubicPoly(p1[dim], p2[dim], 3 * cv1[dim], -3 * cv2[dim]),
+            );
           }
 
           newSpineCoeffs[arrayKey] = c;
-
         }
 
         return {
           newValues: {
             splineCoeffs: newSpineCoeffs,
-          }
-        }
-
+          },
+        };
       },
-    }
+    };
 
     stateVariableDefinitions.extrapolateBackwardCoeffs = {
       returnDependencies: () => ({
         extrapolateBackward: {
-          dependencyType: "stateVariable",
-          variableName: "extrapolateBackward"
+          dependencyType: 'stateVariable',
+          variableName: 'extrapolateBackward',
         },
         throughPoint1: {
-          dependencyType: "stateVariable",
-          variableName: "numericalThroughPoint1"
+          dependencyType: 'stateVariable',
+          variableName: 'numericalThroughPoint1',
         },
         throughPoint2: {
-          dependencyType: "stateVariable",
-          variableName: "numericalThroughPoint2"
+          dependencyType: 'stateVariable',
+          variableName: 'numericalThroughPoint2',
         },
         controlVector: {
-          dependencyType: "stateVariable",
-          variableName: "numericalControlVector1_1"
-        }
+          dependencyType: 'stateVariable',
+          variableName: 'numericalControlVector1_1',
+        },
       }),
       definition({ dependencyValues }) {
         if (!dependencyValues.extrapolateBackward) {
-          return { newValues: { extrapolateBackwardCoeffs: null } }
+          return { newValues: { extrapolateBackwardCoeffs: null } };
         }
-
 
         // coefficicents to extrapolate beyond the first
         // if extrapolateBackward is true
@@ -1415,15 +1448,11 @@ export default class Curve extends GraphicalComponent {
         let cv1 = dependencyValues.controlVector;
 
         if (!(p1 && p2 && cv1)) {
-          return { newValues: { extrapolateBackwardCoeffs: null } }
+          return { newValues: { extrapolateBackwardCoeffs: null } };
         }
 
         let c = [];
-        c[0] = [
-          p1[0],
-          -3 * cv1[0] * 4,
-          0
-        ];
+        c[0] = [p1[0], -3 * cv1[0] * 4, 0];
 
         let c2 = (p2[0] - p1[0] - 3 * cv1[0]) * -16;
         if (c2 !== 0) {
@@ -1432,11 +1461,7 @@ export default class Curve extends GraphicalComponent {
           }
         }
 
-        c[1] = [
-          p1[1],
-          -3 * cv1[1] * 4,
-          0
-        ];
+        c[1] = [p1[1], -3 * cv1[1] * 4, 0];
 
         c2 = (p2[1] - p1[1] - 3 * cv1[1]) * -16;
         if (c2 !== 0) {
@@ -1445,44 +1470,42 @@ export default class Curve extends GraphicalComponent {
           }
         }
 
-        return { newValues: { extrapolateBackwardCoeffs: c } }
-
-      }
-    }
-
+        return { newValues: { extrapolateBackwardCoeffs: c } };
+      },
+    };
 
     stateVariableDefinitions.extrapolateForwardCoeffs = {
-      stateVariablesDeterminingDependencies: ["nThroughPoints"],
+      stateVariablesDeterminingDependencies: ['nThroughPoints'],
       returnDependencies({ stateValues }) {
-
         let dependencies = {
           extrapolateForward: {
-            dependencyType: "stateVariable",
-            variableName: "extrapolateForward"
+            dependencyType: 'stateVariable',
+            variableName: 'extrapolateForward',
           },
-        }
+        };
 
         if (stateValues.nThroughPoints >= 2) {
           dependencies.throughPoint1 = {
-            dependencyType: "stateVariable",
-            variableName: "numericalThroughPoint" + (stateValues.nThroughPoints - 1)
+            dependencyType: 'stateVariable',
+            variableName:
+              'numericalThroughPoint' + (stateValues.nThroughPoints - 1),
           };
-          dependencies.throughPoint2 = {
-            dependencyType: "stateVariable",
-            variableName: "numericalThroughPoint" + stateValues.nThroughPoints
-          },
-            dependencies.controlVector = {
-              dependencyType: "stateVariable",
-              variableName: "numericalControlVector" + stateValues.nThroughPoints + "_2"
-            }
+          (dependencies.throughPoint2 = {
+            dependencyType: 'stateVariable',
+            variableName: 'numericalThroughPoint' + stateValues.nThroughPoints,
+          }),
+            (dependencies.controlVector = {
+              dependencyType: 'stateVariable',
+              variableName:
+                'numericalControlVector' + stateValues.nThroughPoints + '_2',
+            });
         }
         return dependencies;
       },
       definition({ dependencyValues }) {
         if (!dependencyValues.extrapolateForward) {
-          return { newValues: { extrapolateForwardCoeffs: null } }
+          return { newValues: { extrapolateForwardCoeffs: null } };
         }
-
 
         // coefficicents to extrapolate beyond the last
         // if extrapolateForward is true
@@ -1500,28 +1523,20 @@ export default class Curve extends GraphicalComponent {
         let cv2 = dependencyValues.controlVector;
 
         if (!(p1 && p2 && cv2)) {
-          return { newValues: { extrapolateForwardCoeffs: null } }
+          return { newValues: { extrapolateForwardCoeffs: null } };
         }
 
         let c = [];
-        c[0] = [
-          p2[0],
-          3 * cv2[0] * 4,
-          0
-        ];
+        c[0] = [p2[0], 3 * cv2[0] * 4, 0];
 
-        let c2 = (p1[0] - p2[0] - 3 * cv2[0]) * -16
+        let c2 = (p1[0] - p2[0] - 3 * cv2[0]) * -16;
         if (c2 !== 0) {
           if (cv2[0] / c2 > 0) {
             c[0][2] = c2;
           }
         }
 
-        c[1] = [
-          p2[1],
-          3 * cv2[1] * 4,
-          0
-        ];
+        c[1] = [p2[1], 3 * cv2[1] * 4, 0];
 
         c2 = (p1[1] - p2[1] - 3 * cv2[1]) * -16;
         if (c2 !== 0) {
@@ -1530,95 +1545,98 @@ export default class Curve extends GraphicalComponent {
           }
         }
 
-        return { newValues: { extrapolateForwardCoeffs: c } }
-
-      }
-    }
+        return { newValues: { extrapolateForwardCoeffs: c } };
+      },
+    };
 
     stateVariableDefinitions.fs = {
       forRenderer: true,
       isArray: true,
-      entryPrefixes: ["f"],
+      entryPrefixes: ['f'],
       defaultEntryValue: () => 0,
       returnArraySizeDependencies: () => ({
         functionChildren: {
-          dependencyType: "child",
-          childLogicName: "atLeastZeroFunctions",
+          dependencyType: 'child',
+          childLogicName: 'atLeastZeroFunctions',
         },
         curveType: {
-          dependencyType: "stateVariable",
-          variableName: "curveType"
+          dependencyType: 'stateVariable',
+          variableName: 'curveType',
         },
       }),
       returnArraySize({ dependencyValues }) {
-        if (dependencyValues.curveType === "bezier") {
-          return [2]
+        if (dependencyValues.curveType === 'bezier') {
+          return [2];
         } else {
           return [Math.max(1, dependencyValues.functionChildren.length)];
         }
       },
       returnArrayDependenciesByKey({ arrayKeys }) {
-
         let globalDependencies = {
           curveType: {
-            dependencyType: "stateVariable",
-            variableName: "curveType"
+            dependencyType: 'stateVariable',
+            variableName: 'curveType',
           },
           numericalThroughPoints: {
-            dependencyType: "stateVariable",
-            variableName: "numericalThroughPoints"
+            dependencyType: 'stateVariable',
+            variableName: 'numericalThroughPoints',
           },
           splineCoeffs: {
-            dependencyType: "stateVariable",
-            variableName: "splineCoeffs"
+            dependencyType: 'stateVariable',
+            variableName: 'splineCoeffs',
           },
           nThroughPoints: {
-            dependencyType: "stateVariable",
-            variableName: "nThroughPoints"
+            dependencyType: 'stateVariable',
+            variableName: 'nThroughPoints',
           },
           extrapolateBackward: {
-            dependencyType: "stateVariable",
-            variableName: "extrapolateBackward"
+            dependencyType: 'stateVariable',
+            variableName: 'extrapolateBackward',
           },
           extrapolateBackwardCoeffs: {
-            dependencyType: "stateVariable",
-            variableName: "extrapolateBackwardCoeffs"
+            dependencyType: 'stateVariable',
+            variableName: 'extrapolateBackwardCoeffs',
           },
           extrapolateForward: {
-            dependencyType: "stateVariable",
-            variableName: "extrapolateForward"
+            dependencyType: 'stateVariable',
+            variableName: 'extrapolateForward',
           },
           extrapolateForwardCoeffs: {
-            dependencyType: "stateVariable",
-            variableName: "extrapolateForwardCoeffs"
+            dependencyType: 'stateVariable',
+            variableName: 'extrapolateForwardCoeffs',
           },
-        }
+        };
 
         let dependenciesByKey = {};
         for (let arrayKey of arrayKeys) {
           dependenciesByKey[arrayKey] = {
             functionChild: {
-              dependencyType: "child",
-              childLogicName: "atLeastZeroFunctions",
-              variableNames: ["numericalf"],
-              childIndices: [arrayKey]
-            }
+              dependencyType: 'child',
+              childLogicName: 'atLeastZeroFunctions',
+              variableNames: ['numericalf'],
+              childIndices: [arrayKey],
+            },
           };
           if (Number(arrayKey) === 0) {
             dependenciesByKey[arrayKey].fShadow = {
-              dependencyType: "stateVariable",
-              variableName: "fShadow"
-            }
+              dependencyType: 'stateVariable',
+              variableName: 'fShadow',
+            };
           }
         }
         return { globalDependencies, dependenciesByKey };
       },
-      arrayDefinitionByKey({ globalDependencyValues, dependencyValuesByKey, arrayKeys }) {
-
-        if (globalDependencyValues.curveType === "bezier") {
+      arrayDefinitionByKey({
+        globalDependencyValues,
+        dependencyValuesByKey,
+        arrayKeys,
+      }) {
+        if (globalDependencyValues.curveType === 'bezier') {
           return {
-            newValues: { fs: returnBezierFunctions({ globalDependencyValues, arrayKeys }) }
-          }
+            newValues: {
+              fs: returnBezierFunctions({ globalDependencyValues, arrayKeys }),
+            },
+          };
         }
 
         let fs = {};
@@ -1628,14 +1646,17 @@ export default class Curve extends GraphicalComponent {
           if (functionChild.length === 1) {
             fs[arrayKey] = functionChild[0].stateValues.numericalf;
           } else {
-            if (Number(arrayKey) === 0 && dependencyValuesByKey[arrayKey].fShadow) {
+            if (
+              Number(arrayKey) === 0 &&
+              dependencyValuesByKey[arrayKey].fShadow
+            ) {
               fs[arrayKey] = dependencyValuesByKey[arrayKey].fShadow;
             } else {
               essentialFs[arrayKey] = {
                 variablesToCheck: [
-                  { variableName: "fs", arrayIndex: arrayKey }
+                  { variableName: 'fs', arrayIndex: arrayKey },
                 ],
-              }
+              };
             }
           }
         }
@@ -1644,164 +1665,170 @@ export default class Curve extends GraphicalComponent {
           useEssentialOrDefaultValue: {
             fs: essentialFs,
           },
-        }
-
-      }
-    }
+        };
+      },
+    };
 
     stateVariableDefinitions.f = {
       isAlias: true,
-      targetVariableName: "f1"
+      targetVariableName: 'f1',
     };
-
 
     stateVariableDefinitions.nearestPoint = {
       returnDependencies: () => ({
         curveType: {
-          dependencyType: "stateVariable",
-          variableName: "curveType"
+          dependencyType: 'stateVariable',
+          variableName: 'curveType',
         },
         fs: {
-          dependencyType: "stateVariable",
-          variableName: "fs"
+          dependencyType: 'stateVariable',
+          variableName: 'fs',
         },
         flipFunction: {
-          dependencyType: "stateVariable",
-          variableName: "flipFunction"
+          dependencyType: 'stateVariable',
+          variableName: 'flipFunction',
         },
         nDiscretizationPoints: {
-          dependencyType: "stateVariable",
-          variableName: "nDiscretizationPoints"
+          dependencyType: 'stateVariable',
+          variableName: 'nDiscretizationPoints',
         },
         parMin: {
-          dependencyType: "stateVariable",
-          variableName: "parMin"
+          dependencyType: 'stateVariable',
+          variableName: 'parMin',
         },
         parMax: {
-          dependencyType: "stateVariable",
-          variableName: "parMax"
+          dependencyType: 'stateVariable',
+          variableName: 'parMax',
         },
         periodic: {
-          dependencyType: "stateVariable",
-          variableName: "periodic"
-        }
+          dependencyType: 'stateVariable',
+          variableName: 'periodic',
+        },
       }),
       definition({ dependencyValues }) {
         let nearestPointFunction = null;
 
-        if (dependencyValues.curveType === "function") {
-          nearestPointFunction = getNearestPointFunctionCurve({ dependencyValues, numerics });
-        } else if (["parameterization", "bezier"].includes(dependencyValues.curveType)) {
-          nearestPointFunction = getNearestPointParametrizedCurve({ dependencyValues, numerics });
+        if (dependencyValues.curveType === 'function') {
+          nearestPointFunction = getNearestPointFunctionCurve({
+            dependencyValues,
+            numerics,
+          });
+        } else if (
+          ['parameterization', 'bezier'].includes(dependencyValues.curveType)
+        ) {
+          nearestPointFunction = getNearestPointParametrizedCurve({
+            dependencyValues,
+            numerics,
+          });
         }
 
         return {
-          newValues: { nearestPoint: nearestPointFunction }
-        }
-
-      }
-    }
-
+          newValues: { nearestPoint: nearestPointFunction },
+        };
+      },
+    };
 
     return stateVariableDefinitions;
   }
 
-
-
   moveControlVector({ controlVector, controlVectorInds, transient }) {
-
     let desiredVector = {
-      [controlVectorInds + ",0"]: me.fromAst(controlVector[0]),
-      [controlVectorInds + ",1"]: me.fromAst(controlVector[1]),
-    }
+      [controlVectorInds + ',0']: me.fromAst(controlVector[0]),
+      [controlVectorInds + ',1']: me.fromAst(controlVector[1]),
+    };
 
     if (transient) {
       this.coreFunctions.requestUpdate({
-        updateInstructions: [{
-          updateType: "updateValue",
-          componentName: this.componentName,
-          stateVariable: "controlVectors",
-          value: desiredVector,
-          sourceInformation: { controlVectorMoved: controlVectorInds }
-        }],
-        transient
+        updateInstructions: [
+          {
+            updateType: 'updateValue',
+            componentName: this.componentName,
+            stateVariable: 'controlVectors',
+            value: desiredVector,
+            sourceInformation: { controlVectorMoved: controlVectorInds },
+          },
+        ],
+        transient,
       });
     } else {
       this.coreFunctions.requestUpdate({
-        updateInstructions: [{
-          updateType: "updateValue",
-          componentName: this.componentName,
-          stateVariable: "controlVectors",
-          value: desiredVector,
-          sourceInformation: { controlVectorMoved: controlVectorInds }
-        }],
+        updateInstructions: [
+          {
+            updateType: 'updateValue',
+            componentName: this.componentName,
+            stateVariable: 'controlVectors',
+            value: desiredVector,
+            sourceInformation: { controlVectorMoved: controlVectorInds },
+          },
+        ],
         event: {
-          verb: "interacted",
+          verb: 'interacted',
           object: {
             componentId: this.componentName,
           },
           result: {
-            ["controlVector" + controlVectorInds.join('_')]: controlVector,
-          }
-        }
+            ['controlVector' + controlVectorInds.join('_')]: controlVector,
+          },
+        },
       });
     }
-
   }
 
   moveThroughPoint({ throughPoint, throughPointInd, transient }) {
-
     let desiredPoint = {
-      [throughPointInd + ",0"]: me.fromAst(throughPoint[0]),
-      [throughPointInd + ",1"]: me.fromAst(throughPoint[1]),
-    }
+      [throughPointInd + ',0']: me.fromAst(throughPoint[0]),
+      [throughPointInd + ',1']: me.fromAst(throughPoint[1]),
+    };
 
     if (transient) {
       this.coreFunctions.requestUpdate({
-        updateInstructions: [{
-          updateType: "updateValue",
-          componentName: this.componentName,
-          stateVariable: "throughPoints",
-          value: desiredPoint,
-          sourceInformation: { throughPointMoved: throughPointInd }
-        }],
-        transient
+        updateInstructions: [
+          {
+            updateType: 'updateValue',
+            componentName: this.componentName,
+            stateVariable: 'throughPoints',
+            value: desiredPoint,
+            sourceInformation: { throughPointMoved: throughPointInd },
+          },
+        ],
+        transient,
       });
     } else {
       this.coreFunctions.requestUpdate({
-        updateInstructions: [{
-          updateType: "updateValue",
-          componentName: this.componentName,
-          stateVariable: "throughPoints",
-          value: desiredPoint,
-          sourceInformation: { throughPointMoved: throughPointInd }
-        }],
+        updateInstructions: [
+          {
+            updateType: 'updateValue',
+            componentName: this.componentName,
+            stateVariable: 'throughPoints',
+            value: desiredPoint,
+            sourceInformation: { throughPointMoved: throughPointInd },
+          },
+        ],
         event: {
-          verb: "interacted",
+          verb: 'interacted',
           object: {
             componentId: this.componentName,
           },
           result: {
-            ["throughPoint" + throughPointInd]: throughPoint,
-          }
-        }
+            ['throughPoint' + throughPointInd]: throughPoint,
+          },
+        },
       });
     }
-
   }
 
   changeVectorControlDirection({ direction, throughPointInd }) {
     this.coreFunctions.requestUpdate({
-      updateInstructions: [{
-        updateType: "updateValue",
-        componentName: this.componentName,
-        stateVariable: "vectorControlDirection",
-        value: { [throughPointInd]: direction },
-      }]
+      updateInstructions: [
+        {
+          updateType: 'updateValue',
+          componentName: this.componentName,
+          stateVariable: 'vectorControlDirection',
+          value: { [throughPointInd]: direction },
+        },
+      ],
     });
   }
-
-
 }
 
 function getNearestPointFunctionCurve({ dependencyValues, numerics }) {
@@ -1810,7 +1837,6 @@ function getNearestPointFunctionCurve({ dependencyValues, numerics }) {
   let nDiscretizationPoints = dependencyValues.nDiscretizationPoints;
 
   return function (variables) {
-
     // first find nearest point when treating a function
     // (or an inverse function)
     // which finds a the nearest point vertically
@@ -1826,7 +1852,6 @@ function getNearestPointFunctionCurve({ dependencyValues, numerics }) {
       x2AsFunction = f(x1AsFunction);
     }
 
-
     // next, find the nearest point over all
 
     let x1 = variables.x1.evaluate_to_constant();
@@ -1836,8 +1861,8 @@ function getNearestPointFunctionCurve({ dependencyValues, numerics }) {
       if (Number.isFinite(x1AsFunction) && Number.isFinite(x2AsFunction)) {
         result = {
           x1: x1AsFunction,
-          x2: x2Asx1AsFunction
-        }
+          x2: x2Asx1AsFunction,
+        };
         if (variables.x3 !== undefined) {
           result.x3 = 0;
         }
@@ -1845,7 +1870,6 @@ function getNearestPointFunctionCurve({ dependencyValues, numerics }) {
       } else {
         return {};
       }
-
     }
 
     let minfunc = function (t) {
@@ -1863,7 +1887,7 @@ function getNearestPointFunctionCurve({ dependencyValues, numerics }) {
       }
 
       return dx1 * dx1 + dx2 * dx2;
-    }
+    };
 
     let minT = 0;
     let maxT = 1;
@@ -1871,7 +1895,7 @@ function getNearestPointFunctionCurve({ dependencyValues, numerics }) {
     let Nsteps = nDiscretizationPoints;
     let delta = (maxT - minT) / Nsteps;
 
-    // sample Nsteps values of x between  [minT, maxT] 
+    // sample Nsteps values of x between  [minT, maxT]
     // and find one where the value of minfunc is smallest
     // Will create an interval [tIntervalMin, tIntervalMax]
     // around that point (unless that point is minT or maxT)
@@ -1895,53 +1919,49 @@ function getNearestPointFunctionCurve({ dependencyValues, numerics }) {
           tIntervalMax = tnew + delta;
         }
       }
-
     }
-
 
     let result = numerics.fminbr(minfunc, [tIntervalMin, tIntervalMax]);
     tAtMin = result.x;
 
     let x1AtMin = -10 * Math.log(1 / tAtMin - 1);
-    let x2AtMin = f(x1AtMin)
+    let x2AtMin = f(x1AtMin);
     if (flipFunction) {
-      [x1AtMin, x2AtMin] = [x2AtMin, x1AtMin]
+      [x1AtMin, x2AtMin] = [x2AtMin, x1AtMin];
     }
-
 
     // choose the nearest point treating as a function
     // if that point exists and isn't 10 times further
     // that the actual nearest point
     if (Number.isFinite(x1AsFunction) && Number.isFinite(x2AsFunction)) {
-      let funD2 = Math.pow(x1AsFunction - x1, 2) + Math.pow(x2AsFunction - x2, 2);
+      let funD2 =
+        Math.pow(x1AsFunction - x1, 2) + Math.pow(x2AsFunction - x2, 2);
       let d2 = Math.pow(x1AtMin - x1, 2) + Math.pow(x2AtMin - x2, 2);
 
       // 100 is 10 times distance, as working with squared distance
       if (funD2 < 100 * d2) {
         result = {
           x1: x1AsFunction,
-          x2: x2AsFunction
-        }
+          x2: x2AsFunction,
+        };
         if (variables.x3 !== undefined) {
           result.x3 = 0;
         }
         return result;
       }
-
     }
 
     result = {
       x1: x1AtMin,
-      x2: x2AtMin
-    }
+      x2: x2AtMin,
+    };
 
     if (variables.x3 !== undefined) {
       result.x3 = 0;
     }
 
     return result;
-
-  }
+  };
 }
 
 function getNearestPointParametrizedCurve({ dependencyValues, numerics }) {
@@ -1952,7 +1972,6 @@ function getNearestPointParametrizedCurve({ dependencyValues, numerics }) {
   let periodic = dependencyValues.periodic;
 
   return function (variables) {
-
     // TODO: extend to dimensions other than N=2
 
     if (dependencyValues.fs.length !== 2) {
@@ -1967,12 +1986,11 @@ function getNearestPointParametrizedCurve({ dependencyValues, numerics }) {
     }
 
     let minfunc = function (t) {
-
       let dx1 = x1 - fs[0](t);
       let dx2 = x2 - fs[1](t);
 
       return dx1 * dx1 + dx2 * dx2;
-    }
+    };
 
     let minT = parMin;
     let maxT = parMax;
@@ -1980,7 +1998,7 @@ function getNearestPointParametrizedCurve({ dependencyValues, numerics }) {
     let Nsteps = nDiscretizationPoints;
     let delta = (maxT - minT) / Nsteps;
 
-    // sample Nsteps values of x between  [minT, maxT] 
+    // sample Nsteps values of x between  [minT, maxT]
     // and find one where the value of minfunc is smallest
     // Will create an interval [tIntervalMin, tIntervalMax]
     // around that point (unless that point is minT or maxT)
@@ -2004,9 +2022,7 @@ function getNearestPointParametrizedCurve({ dependencyValues, numerics }) {
           tIntervalMax = tnew + delta;
         }
       }
-
     }
-
 
     if (periodic) {
       // if have periodic
@@ -2028,60 +2044,59 @@ function getNearestPointParametrizedCurve({ dependencyValues, numerics }) {
 
     result = {
       x1: x1AtMin,
-      x2: x2AtMin
-    }
+      x2: x2AtMin,
+    };
 
     if (variables.x3 !== undefined) {
       result.x3 = 0;
     }
 
     return result;
-
-  }
+  };
 }
 
-function calculateControlVectorFromSpline({ tau, eps, point1, point2, point3, splineForm }) {
-
+function calculateControlVectorFromSpline({
+  tau,
+  eps,
+  point1,
+  point2,
+  point3,
+  splineForm,
+}) {
   let dist = function (p1, p2) {
     let dx = p1[0] - p2[0];
     let dy = p1[1] - p2[1];
     return Math.sqrt(dx * dx + dy * dy);
-  }
+  };
 
   let p1, p2, p3;
 
   if (point2) {
-    p2 = point2.map(x => x.evaluate_to_constant());
+    p2 = point2.map((x) => x.evaluate_to_constant());
   } else {
     return {
       coordsNumeric: [me.fromAst(NaN), me.fromAst(NaN)],
-      numericEntries: false
-    }
+      numericEntries: false,
+    };
   }
 
   if (point3) {
-    p3 = point3.map(x => x.evaluate_to_constant());
+    p3 = point3.map((x) => x.evaluate_to_constant());
 
     if (point1) {
-      p1 = point1.map(x => x.evaluate_to_constant());
+      p1 = point1.map((x) => x.evaluate_to_constant());
     } else {
-      p1 = [
-        2 * p2[0] - p3[0],
-        2 * p2[1] - p3[1]
-      ];
+      p1 = [2 * p2[0] - p3[0], 2 * p2[1] - p3[1]];
     }
   } else {
     if (point1) {
-      p1 = point1.map(x => x.evaluate_to_constant());
-      p3 = [
-        2 * p2[0] - p1[0],
-        2 * p2[1] - p1[1]
-      ];
+      p1 = point1.map((x) => x.evaluate_to_constant());
+      p3 = [2 * p2[0] - p1[0], 2 * p2[1] - p1[1]];
     } else {
       return {
         coordsNumeric: [me.fromAst(NaN), me.fromAst(NaN)],
-        numericEntries: false
-      }
+        numericEntries: false,
+      };
     }
   }
 
@@ -2094,12 +2109,16 @@ function calculateControlVectorFromSpline({ tau, eps, point1, point2, point3, sp
     dt0 = Math.sqrt(dt0);
     dt1 = Math.sqrt(dt1);
 
-    if (dt1 < eps) { dt1 = 1.0; }
-    if (dt0 < eps) { dt0 = dt1; }
+    if (dt1 < eps) {
+      dt1 = 1.0;
+    }
+    if (dt0 < eps) {
+      dt0 = dt1;
+    }
 
     for (let dim = 0; dim < 2; dim++) {
-
-      let t1 = (p2[dim] - p1[dim]) / dt0 -
+      let t1 =
+        (p2[dim] - p1[dim]) / dt0 -
         (p3[dim] - p1[dim]) / (dt1 + dt0) +
         (p3[dim] - p2[dim]) / dt1;
 
@@ -2124,17 +2143,15 @@ function calculateControlVectorFromSpline({ tau, eps, point1, point2, point3, sp
       // if (i === 0) {
       //   cv.push(tau * (p3[dim] - p1[dim]) / 3);
       // } else {
-      cv.push(-tau * (p3[dim] - p1[dim]) / 3);
+      cv.push((-tau * (p3[dim] - p1[dim])) / 3);
       // }
     }
   }
-  let coordsNumeric = cv.map(x => me.fromAst(x));
-  let numericEntries = Number.isFinite(cv[0]) && Number.isFinite(cv[1])
+  let coordsNumeric = cv.map((x) => me.fromAst(x));
+  let numericEntries = Number.isFinite(cv[0]) && Number.isFinite(cv[1]);
 
   return { coordsNumeric, numericEntries };
-
 }
-
 
 // Compute coefficients for a cubic polynomial
 //   p(s) = c0 + c1*s + c2*s^2 + c3*s^3
@@ -2143,16 +2160,10 @@ function calculateControlVectorFromSpline({ tau, eps, point1, point2, point3, sp
 // and
 //   p'(0) = t1, p'(1) = t2
 function initCubicPoly(x1, x2, t1, t2) {
-  return [
-    x1,
-    t1,
-    -3 * x1 + 3 * x2 - 2 * t1 - t2,
-    2 * x1 - 2 * x2 + t1 + t2
-  ];
+  return [x1, t1, -3 * x1 + 3 * x2 - 2 * t1 - t2, 2 * x1 - 2 * x2 + t1 + t2];
 }
 
 function returnBezierFunctions({ globalDependencyValues, arrayKeys }) {
-
   if (globalDependencyValues.nThroughPoints < 1) {
     let fs = {};
     for (let arrayKey of arrayKeys) {
@@ -2160,7 +2171,6 @@ function returnBezierFunctions({ globalDependencyValues, arrayKeys }) {
     }
     return fs;
   }
-
 
   let len = globalDependencyValues.nThroughPoints - 1;
 
@@ -2170,10 +2180,12 @@ function returnBezierFunctions({ globalDependencyValues, arrayKeys }) {
   let extrapolateForward = globalDependencyValues.extrapolateForward;
 
   for (let arrayKey of arrayKeys) {
-    let firstPointX = globalDependencyValues.numericalThroughPoints[0][arrayKey];
-    let lastPointX = globalDependencyValues.numericalThroughPoints[len][arrayKey];
+    let firstPointX =
+      globalDependencyValues.numericalThroughPoints[0][arrayKey];
+    let lastPointX =
+      globalDependencyValues.numericalThroughPoints[len][arrayKey];
 
-    let cs = globalDependencyValues.splineCoeffs.map(x => x[arrayKey])
+    let cs = globalDependencyValues.splineCoeffs.map((x) => x[arrayKey]);
     let cB;
     if (extrapolateBackward) {
       cB = globalDependencyValues.extrapolateBackwardCoeffs[arrayKey];
@@ -2208,12 +2220,9 @@ function returnBezierFunctions({ globalDependencyValues, arrayKeys }) {
       let z = Math.floor(t);
       t -= z;
       let c = cs[z];
-      return (((c[3] * t + c[2]) * t + c[1]) * t + c[0]);
-    }
-
+      return ((c[3] * t + c[2]) * t + c[1]) * t + c[0];
+    };
   }
 
   return fs;
-
-
 }

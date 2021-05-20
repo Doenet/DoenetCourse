@@ -1,21 +1,21 @@
 import BlockComponent from './abstract/BlockComponent';
 
 export default class Feedback extends BlockComponent {
-  static componentType = "feedback";
+  static componentType = 'feedback';
   static renderChildren = true;
 
-  static primaryStateVariableForDefinition = "feedbackText";
+  static primaryStateVariableForDefinition = 'feedbackText';
 
   static get stateVariablesShadowedForReference() {
-    return ["hide"]
+    return ['hide'];
   }
 
   static createAttributesObject(args) {
     let attributes = super.createAttributesObject(args);
     delete attributes.hide;
     attributes.condition = {
-      createComponentOfType: "boolean"
-    }
+      createComponentOfType: 'boolean',
+    };
 
     return attributes;
   }
@@ -24,7 +24,7 @@ export default class Feedback extends BlockComponent {
     let childLogic = super.returnChildLogic(args);
 
     childLogic.newLeaf({
-      name: "atLeastZeroAnything",
+      name: 'atLeastZeroAnything',
       componentType: '_base',
       comparison: 'atLeast',
       number: 0,
@@ -35,33 +35,34 @@ export default class Feedback extends BlockComponent {
   }
 
   static returnStateVariableDefinitions() {
-
     let stateVariableDefinitions = super.returnStateVariableDefinitions();
 
     stateVariableDefinitions.hide = {
       forRenderer: true,
       returnDependencies: () => ({
         condition: {
-          dependencyType: "attributeComponent",
-          attributeName: "condition",
-          variableNames: ["value"],
+          dependencyType: 'attributeComponent',
+          attributeName: 'condition',
+          variableNames: ['value'],
         },
         showFeedback: {
-          dependencyType: "flag",
-          flagName: "showFeedback",
-        }
+          dependencyType: 'flag',
+          flagName: 'showFeedback',
+        },
       }),
       definition: function ({ dependencyValues }) {
-
         let hide;
         if (dependencyValues.condition === null) {
           hide = false;
         } else {
-          hide = !(dependencyValues.showFeedback && dependencyValues.condition.stateValues.value);
+          hide = !(
+            dependencyValues.showFeedback &&
+            dependencyValues.condition.stateValues.value
+          );
         }
 
-        return { newValues: { hide } }
-      }
+        return { newValues: { hide } };
+      },
     };
 
     // for case when created from a copy prop
@@ -71,13 +72,11 @@ export default class Feedback extends BlockComponent {
       returnDependencies: () => ({}),
       definition: () => ({
         useEssentialOrDefaultValue: {
-          feedbackText: { variablesToCheck: ["feedbackText"] }
-        }
-      })
-    }
-
+          feedbackText: { variablesToCheck: ['feedbackText'] },
+        },
+      }),
+    };
 
     return stateVariableDefinitions;
   }
-
 }

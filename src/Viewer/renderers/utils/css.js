@@ -1,15 +1,13 @@
 export function sizeToCSS(size) {
-
   let cssSize = null;
 
   if (size) {
     cssSize = size.size;
     if (size.isAbsolute) {
-      cssSize += "px"
+      cssSize += 'px';
     } else {
-      cssSize += "%"
+      cssSize += '%';
     }
   }
   return cssSize;
-
 }

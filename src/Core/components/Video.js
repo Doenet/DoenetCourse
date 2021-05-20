@@ -1,35 +1,35 @@
 import BlockComponent from './abstract/BlockComponent';
 
 export default class Video extends BlockComponent {
-  static componentType = "video";
+  static componentType = 'video';
 
   static createAttributesObject(args) {
     let attributes = super.createAttributesObject(args);
 
     attributes.width = {
-      createComponentOfType: "_componentSize",
-      createStateVariable: "width",
+      createComponentOfType: '_componentSize',
+      createStateVariable: 'width',
       defaultValue: null,
       public: true,
       forRenderer: true,
     };
     attributes.height = {
-      createComponentOfType: "_componentSize",
-      createStateVariable: "height",
+      createComponentOfType: '_componentSize',
+      createStateVariable: 'height',
       defaultValue: null,
       public: true,
       forRenderer: true,
     };
     attributes.youtube = {
-      createComponentOfType: "text",
-      createStateVariable: "youtube",
+      createComponentOfType: 'text',
+      createStateVariable: 'youtube',
       defaultValue: null,
       public: true,
       forRenderer: true,
     };
     attributes.source = {
-      createComponentOfType: "text",
-      createStateVariable: "source",
+      createComponentOfType: 'text',
+      createStateVariable: 'source',
       defaultValue: null,
       public: true,
       forRenderer: true,
@@ -44,78 +44,76 @@ export default class Video extends BlockComponent {
     recordVideoPaused: this.recordVideoPaused.bind(this),
     recordVideoSkipped: this.recordVideoSkipped.bind(this),
     recordVideoCompleted: this.recordVideoCompleted.bind(this),
-  }
+  };
 
   recordVideoStarted({ beginTime, duration, rate }) {
     this.coreFunctions.requestRecordEvent({
-      verb: "played",
+      verb: 'played',
       object: {
         componentName: this.componentName,
         componentType: this.componentType,
-        duration: duration
+        duration: duration,
       },
       context: {
         startingPoint: beginTime,
-        rate: rate
-      }
-    })
+        rate: rate,
+      },
+    });
   }
 
   recordVideoWatched({ beginTime, endTime, duration, rates }) {
     this.coreFunctions.requestRecordEvent({
-      verb: "watched",
+      verb: 'watched',
       object: {
         componentName: this.componentName,
         componentType: this.componentType,
-        duration: duration
+        duration: duration,
       },
       context: {
         startingPoint: beginTime,
         endingPoint: endTime,
-        rates
-      }
-    })
+        rates,
+      },
+    });
   }
 
   recordVideoPaused({ endTime, duration }) {
     this.coreFunctions.requestRecordEvent({
-      verb: "paused",
+      verb: 'paused',
       object: {
         componentName: this.componentName,
         componentType: this.componentType,
-        duration: duration
+        duration: duration,
       },
       context: {
-        endingPoint: endTime
-      }
-    })
+        endingPoint: endTime,
+      },
+    });
   }
 
   recordVideoSkipped({ beginTime, endTime, duration }) {
     this.coreFunctions.requestRecordEvent({
-      verb: "skipped",
+      verb: 'skipped',
       object: {
         componentName: this.componentName,
         componentType: this.componentType,
-        duration: duration
+        duration: duration,
       },
       context: {
         startingPoint: beginTime,
-        endingPoint: endTime
-      }
-    })
+        endingPoint: endTime,
+      },
+    });
   }
-
 
   recordVideoCompleted({ duration }) {
     this.coreFunctions.requestRecordEvent({
-      verb: "completed",
+      verb: 'completed',
       object: {
         componentName: this.componentName,
         componentType: this.componentType,
-        duration: duration
+        duration: duration,
       },
-    })
+    });
   }
-
 }

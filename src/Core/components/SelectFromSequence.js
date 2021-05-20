@@ -3,77 +3,81 @@ import me from 'math-expressions';
 import { enumerateSelectionCombinations } from '../utils/enumeration';
 import { processAssignNames } from '../utils/serializedStateProcessing';
 import { textToAst } from '../utils/math';
-import { calculateSequenceParameters, numberToLetters, lettersToNumber } from '../utils/sequence';
+import {
+  calculateSequenceParameters,
+  numberToLetters,
+  lettersToNumber,
+} from '../utils/sequence';
 
 export default class SelectFromSequence extends Sequence {
-  static componentType = "selectFromSequence";
+  static componentType = 'selectFromSequence';
 
   static assignNamesToReplacements = true;
 
   static createsVariants = true;
 
   static get stateVariablesShadowedForReference() {
-    return [...super.stateVariablesShadowedForReference, "excludedCombinations"]
+    return [
+      ...super.stateVariablesShadowedForReference,
+      'excludedCombinations',
+    ];
   }
 
   static createAttributesObject(args) {
     let attributes = super.createAttributesObject(args);
     attributes.numberToSelect = {
-      createComponentOfType: "number",
-      createStateVariable: "numberToSelect",
+      createComponentOfType: 'number',
+      createStateVariable: 'numberToSelect',
       defaultValue: 1,
       public: true,
-    }
+    };
     attributes.withReplacement = {
-      createComponentOfType: "boolean",
-      createStateVariable: "withReplacement",
+      createComponentOfType: 'boolean',
+      createStateVariable: 'withReplacement',
       defaultValue: false,
       public: true,
-    }
+    };
     attributes.sortResults = {
-      createComponentOfType: "boolean",
-      createStateVariable: "sortResults",
+      createComponentOfType: 'boolean',
+      createStateVariable: 'sortResults',
       defaultValue: false,
       public: true,
-    }
+    };
     attributes.excludeCombinations = {
-      createComponentOfType: "_componentListOfListsWithSelectableType"
-    }
+      createComponentOfType: '_componentListOfListsWithSelectableType',
+    };
     return attributes;
   }
 
   static returnStateVariableDefinitions() {
-
     let stateVariableDefinitions = super.returnStateVariableDefinitions();
 
     stateVariableDefinitions.excludedCombinations = {
       returnDependencies: () => ({
         excludeCombinations: {
-          dependencyType: "attributeComponent",
-          attributeName: "excludeCombinations",
-          variableNames: ["lists"]
-        }
+          dependencyType: 'attributeComponent',
+          attributeName: 'excludeCombinations',
+          variableNames: ['lists'],
+        },
       }),
       definition: function ({ dependencyValues }) {
         if (dependencyValues.excludeCombinations !== null) {
           return {
-            newValues:
-            {
+            newValues: {
               excludedCombinations:
-                dependencyValues.excludeCombinations.stateValues.lists
-            }
-          }
+                dependencyValues.excludeCombinations.stateValues.lists,
+            },
+          };
         } else {
-          return { newValues: { excludedCombinations: [] } }
+          return { newValues: { excludedCombinations: [] } };
         }
-
-      }
-    }
+      },
+    };
 
     stateVariableDefinitions.variants = {
       returnDependencies: () => ({
         variants: {
-          dependencyType: "variants",
+          dependencyType: 'variants',
         },
       }),
       definition: function ({ dependencyValues }) {
@@ -83,122 +87,119 @@ export default class SelectFromSequence extends Sequence {
 
     stateVariableDefinitions.selectedValues = {
       immutable: true,
-      additionalStateVariablesDefined: ["selectedIndices"],
+      additionalStateVariablesDefined: ['selectedIndices'],
       returnDependencies: ({ sharedParameters }) => ({
         // essentialSelectedValues: {
         //   dependencyType: "potentialEssentialVariable",
         //   variableName: "selectedValues",
         // },
         numberToSelect: {
-          dependencyType: "stateVariable",
-          variableName: "numberToSelect",
+          dependencyType: 'stateVariable',
+          variableName: 'numberToSelect',
         },
         withReplacement: {
-          dependencyType: "stateVariable",
-          variableName: "withReplacement"
+          dependencyType: 'stateVariable',
+          variableName: 'withReplacement',
         },
         length: {
-          dependencyType: "stateVariable",
-          variableName: "length"
+          dependencyType: 'stateVariable',
+          variableName: 'length',
         },
         from: {
-          dependencyType: "stateVariable",
-          variableName: "from"
+          dependencyType: 'stateVariable',
+          variableName: 'from',
         },
         step: {
-          dependencyType: "stateVariable",
-          variableName: "step"
+          dependencyType: 'stateVariable',
+          variableName: 'step',
         },
         exclude: {
-          dependencyType: "stateVariable",
-          variableName: "exclude"
+          dependencyType: 'stateVariable',
+          variableName: 'exclude',
         },
         excludedCombinations: {
-          dependencyType: "stateVariable",
-          variableName: "excludedCombinations"
+          dependencyType: 'stateVariable',
+          variableName: 'excludedCombinations',
         },
         type: {
-          dependencyType: "stateVariable",
-          variableName: "type"
+          dependencyType: 'stateVariable',
+          variableName: 'type',
         },
         lowercase: {
-          dependencyType: "stateVariable",
-          variableName: "lowercase"
+          dependencyType: 'stateVariable',
+          variableName: 'lowercase',
         },
         sortResults: {
-          dependencyType: "stateVariable",
-          variableName: "sortResults"
+          dependencyType: 'stateVariable',
+          variableName: 'sortResults',
         },
         variants: {
-          dependencyType: "stateVariable",
-          variableName: "variants"
+          dependencyType: 'stateVariable',
+          variableName: 'variants',
         },
         selectRng: {
-          dependencyType: "value",
+          dependencyType: 'value',
           value: sharedParameters.selectRng,
           doNotProxy: true,
         },
-
-
       }),
       definition: makeSelection,
-    }
+    };
 
     stateVariableDefinitions.isVariantComponent = {
       returnDependencies: () => ({}),
-      definition: () => ({ newValues: { isVariantComponent: true } })
-    }
+      definition: () => ({ newValues: { isVariantComponent: true } }),
+    };
 
     stateVariableDefinitions.isVariantComponent = {
       returnDependencies: () => ({}),
-      definition: () => ({ newValues: { isVariantComponent: true } })
-    }
+      definition: () => ({ newValues: { isVariantComponent: true } }),
+    };
 
     stateVariableDefinitions.selectedVariantInfo = {
       returnDependencies: () => ({
         selectedIndices: {
-          dependencyType: "stateVariable",
-          variableName: "selectedIndices"
+          dependencyType: 'stateVariable',
+          variableName: 'selectedIndices',
         },
       }),
       definition({ dependencyValues }) {
-
         let selectedVariantInfo = {
-          indices: dependencyValues.selectedIndices
+          indices: dependencyValues.selectedIndices,
         };
 
-        return { newValues: { selectedVariantInfo } }
+        return { newValues: { selectedVariantInfo } };
+      },
+    };
 
-      }
-    }
+    let originalReturnDependencies =
+      stateVariableDefinitions.readyToExpandWhenResolved.returnDependencies;
+    stateVariableDefinitions.readyToExpandWhenResolved.returnDependencies =
+      function () {
+        let deps = originalReturnDependencies();
 
-    let originalReturnDependencies = stateVariableDefinitions.readyToExpandWhenResolved.returnDependencies;
-    stateVariableDefinitions.readyToExpandWhenResolved.returnDependencies = function () {
-      let deps = originalReturnDependencies();
+        deps.selectedValues = {
+          dependencyType: 'stateVariable',
+          variableName: 'selectedValues',
+        };
 
-      deps.selectedValues = {
-        dependencyType: "stateVariable",
-        variableName: "selectedValues"
+        return deps;
       };
-
-      return deps;
-
-    }
 
     return stateVariableDefinitions;
   }
 
   static createSerializedReplacements({ component, componentInfoObjects }) {
-
     let replacements = [];
 
     for (let value of component.stateValues.selectedValues) {
-
       replacements.push({
-        componentType: component.stateValues.type === "letters" ? "text" : component.stateValues.type,
-        state: { value }
+        componentType:
+          component.stateValues.type === 'letters'
+            ? 'text'
+            : component.stateValues.type,
+        state: { value },
       });
-
     }
 
     let processResult = processAssignNames({
@@ -210,17 +211,15 @@ export default class SelectFromSequence extends Sequence {
     });
 
     return { replacements: processResult.serializedComponents };
-
   }
 
   static calculateReplacementChanges() {
-
     return [];
-
   }
 
   static determineNumberOfUniqueVariants({ serializedComponent }) {
-    let numberToSelect = 1, withReplacement = false;
+    let numberToSelect = 1,
+      withReplacement = false;
     if (serializedComponent.state !== undefined) {
       if (serializedComponent.state.numberToSelect !== undefined) {
         numberToSelect = serializedComponent.state.numberToSelect;
@@ -233,7 +232,7 @@ export default class SelectFromSequence extends Sequence {
       }
     }
     if (serializedComponent.children === undefined) {
-      return { succes: false }
+      return { succes: false };
     }
 
     let stringChild;
@@ -241,8 +240,8 @@ export default class SelectFromSequence extends Sequence {
     let excludes = [];
     for (let child of serializedComponent.children) {
       let componentType = child.componentType;
-      if (componentType === "numberToSelect") {
-        // calculate numberToSelect only if has its value set directly 
+      if (componentType === 'numberToSelect') {
+        // calculate numberToSelect only if has its value set directly
         // or if has a child that is a string
         let foundValid = false;
         if (child.state !== undefined && child.state.value !== undefined) {
@@ -252,7 +251,7 @@ export default class SelectFromSequence extends Sequence {
         // children overwrite state
         if (child.children !== undefined) {
           for (let grandchild of child.children) {
-            if (grandchild.componentType === "string") {
+            if (grandchild.componentType === 'string') {
               numberToSelect = Math.round(Number(grandchild.state.value));
               foundValid = true;
               break;
@@ -260,10 +259,10 @@ export default class SelectFromSequence extends Sequence {
           }
         }
         if (!foundValid) {
-          return { success: false }
+          return { success: false };
         }
-      } else if (componentType === "withReplacement") {
-        // calculate withReplacement only if has its implicitValue or value set directly 
+      } else if (componentType === 'withReplacement') {
+        // calculate withReplacement only if has its implicitValue or value set directly
         // or if has a child that is a string
         let foundValid = false;
         if (child.state !== undefined) {
@@ -279,9 +278,9 @@ export default class SelectFromSequence extends Sequence {
         // children overwrite state
         if (child.children !== undefined) {
           for (let grandchild of child.children) {
-            if (grandchild.componentType === "string") {
+            if (grandchild.componentType === 'string') {
               foundValid = true;
-              if (grandchild.state.value.trim().toLowerCase() === "true") {
+              if (grandchild.state.value.trim().toLowerCase() === 'true') {
                 withReplacement = true;
               } else {
                 withReplacement = false;
@@ -291,10 +290,12 @@ export default class SelectFromSequence extends Sequence {
           }
         }
         if (!foundValid) {
-          return { success: false }
+          return { success: false };
         }
-      } else if (["type", "to", "from", "step", "length"].includes(componentType)) {
-        // calculate sequencePars only if has its value set directly 
+      } else if (
+        ['type', 'to', 'from', 'step', 'length'].includes(componentType)
+      ) {
+        // calculate sequencePars only if has its value set directly
         // or if has a child that is a string
         let foundValid = false;
         if (child.state !== undefined && child.state.value !== undefined) {
@@ -304,7 +305,7 @@ export default class SelectFromSequence extends Sequence {
         // children overwrite state
         if (child.children !== undefined) {
           for (let grandchild of child.children) {
-            if (grandchild.componentType === "string") {
+            if (grandchild.componentType === 'string') {
               sequencePars[componentType] = grandchild.state.value;
               foundValid = true;
               break;
@@ -312,92 +313,95 @@ export default class SelectFromSequence extends Sequence {
           }
         }
         if (!foundValid) {
-          return { success: false }
+          return { success: false };
         }
-      } else if (componentType === "exclude") {
+      } else if (componentType === 'exclude') {
         // calculate exclude if has a string child
         let foundValid = false;
         if (child.children !== undefined) {
           for (let grandchild of child.children) {
-            if (grandchild.componentType === "string") {
+            if (grandchild.componentType === 'string') {
               foundValid = true;
-              let stringPieces = grandchild.state.value.split(",").map(x => x.trim());
+              let stringPieces = grandchild.state.value
+                .split(',')
+                .map((x) => x.trim());
               excludes.push(...stringPieces);
               break;
             }
           }
         }
         if (!foundValid) {
-          return { success: false }
+          return { success: false };
         }
-
-      } else if (componentType === "string") {
+      } else if (componentType === 'string') {
         stringChild = child;
       }
     }
 
     if (stringChild !== undefined) {
       if (sequencePars.to !== undefined || sequencePars.from !== undefined) {
-        return { success: false }
+        return { success: false };
       }
-      let stringPieces = stringChild.state.value.split(",");
+      let stringPieces = stringChild.state.value.split(',');
       if (stringPieces.length === 1) {
         sequencePars.to = stringPieces[0].trim();
       } else if (stringPieces.length === 2) {
         sequencePars.from = stringPieces[0].trim();
         sequencePars.to = stringPieces[1].trim();
       } else {
-        return { success: false }
+        return { success: false };
       }
     }
 
-    for (let par of ["to", "from", "step"]) {
+    for (let par of ['to', 'from', 'step']) {
       if (sequencePars[par] !== undefined) {
-        if (sequencePars.type === "math") {
-          if (typeof sequencePars[par] === "string") {
-            sequencePars[par] = me.fromAst(textToAst.convert(sequencePars[par]));
+        if (sequencePars.type === 'math') {
+          if (typeof sequencePars[par] === 'string') {
+            sequencePars[par] = me.fromAst(
+              textToAst.convert(sequencePars[par]),
+            );
           } else if (sequencePars[par].tree === undefined) {
-            return { success: false }
+            return { success: false };
           }
-        } else if (sequencePars.type === "letters" && par !== "step") {
+        } else if (sequencePars.type === 'letters' && par !== 'step') {
           sequencePars[par] = lettersToNumber(sequencePars[par]);
           if (sequencePars[par] === undefined) {
-            return { success: false }
+            return { success: false };
           }
         } else {
           sequencePars[par] = Number(sequencePars[par]);
           if (!Number.isFinite(sequencePars[par])) {
-            return { success: false }
+            return { success: false };
           }
         }
       }
     }
 
     if (sequencePars.length !== undefined) {
-      if (typeof sequencePars.length === "string") {
+      if (typeof sequencePars.length === 'string') {
         sequencePars.length = Number(sequencePars.length);
       }
       if (!Number.isInteger(sequencePars.length) || sequencePars.length < 0) {
-        return { success: false }
+        return { success: false };
       }
     }
 
     for (let [ind, exc] of excludes.entries()) {
-      if (sequencePars.type === "math") {
-        if (typeof exc === "string") {
+      if (sequencePars.type === 'math') {
+        if (typeof exc === 'string') {
           exc = me.fromAst(textToAst.convert(exc));
         } else if (exc.tree === undefined) {
-          return { success: false }
+          return { success: false };
         }
-      } else if (sequencePars.type === "letters" && par !== "step") {
+      } else if (sequencePars.type === 'letters' && par !== 'step') {
         exc = lettersToNumber(exc);
         if (exc === undefined) {
-          return { success: false }
+          return { success: false };
         }
       } else {
         exc = Number(exc);
         if (!Number.isFinite(exc)) {
-          return { success: false }
+          return { success: false };
         }
       }
       excludes[ind] = exc;
@@ -406,7 +410,7 @@ export default class SelectFromSequence extends Sequence {
     // TODO: this presumably does not work anymore since
     // calculateSequenceParameters returns results rather
     // than modifying input parameters
-    calculateSequenceParameters(sequencePars)
+    calculateSequenceParameters(sequencePars);
 
     let nOptions = sequencePars.length;
     let excludeIndices = [];
@@ -419,10 +423,10 @@ export default class SelectFromSequence extends Sequence {
             continue;
           }
           let ind = (item - sequencePars.from) / sequencePars.step;
-          if (ind > sequencePars.length - 1 + 1E-10) {
+          if (ind > sequencePars.length - 1 + 1e-10) {
             break;
           }
-          if (Math.abs(ind - Math.round(ind)) < 1E-10) {
+          if (Math.abs(ind - Math.round(ind)) < 1e-10) {
             nOptions--;
             excludeIndices.push(ind);
           }
@@ -431,7 +435,7 @@ export default class SelectFromSequence extends Sequence {
     }
 
     if (nOptions <= 0) {
-      return { success: false }
+      return { success: false };
     }
 
     let uniqueVariantData = {
@@ -439,15 +443,15 @@ export default class SelectFromSequence extends Sequence {
       nOptions: nOptions,
       numberToSelect: numberToSelect,
       withReplacement: withReplacement,
-    }
+    };
 
     if (withReplacement || numberToSelect === 1) {
       let numberOfVariants = Math.pow(nOptions, numberToSelect);
       return {
         success: true,
         numberOfVariants: numberOfVariants,
-        uniqueVariantData: uniqueVariantData
-      }
+        uniqueVariantData: uniqueVariantData,
+      };
     }
 
     let numberOfVariants = nOptions;
@@ -457,23 +461,25 @@ export default class SelectFromSequence extends Sequence {
     return {
       success: true,
       numberOfVariants: numberOfVariants,
-      uniqueVariantData: uniqueVariantData
-    }
-
+      uniqueVariantData: uniqueVariantData,
+    };
   }
 
   static getUniqueVariant({ serializedComponent, variantNumber }) {
-
     if (serializedComponent.variants === undefined) {
-      return { succes: false }
+      return { succes: false };
     }
     let numberOfVariants = serializedComponent.variants.numberOfVariants;
     if (numberOfVariants === undefined) {
-      return { success: false }
+      return { success: false };
     }
 
-    if (!Number.isInteger(variantNumber) || variantNumber < 0 || variantNumber >= numberOfVariants) {
-      return { success: false }
+    if (
+      !Number.isInteger(variantNumber) ||
+      variantNumber < 0 ||
+      variantNumber >= numberOfVariants
+    ) {
+      return { success: false };
     }
 
     let uniqueVariantData = serializedComponent.variants.uniqueVariantData;
@@ -490,10 +496,13 @@ export default class SelectFromSequence extends Sequence {
         }
       }
       return ind;
-    }
+    };
 
     if (numberToSelect === 1) {
-      return { success: true, desiredVariant: { indices: [getSingleIndex(variantNumber)] } }
+      return {
+        success: true,
+        desiredVariant: { indices: [getSingleIndex(variantNumber)] },
+      };
     }
 
     let numbers = enumerateSelectionCombinations({
@@ -502,14 +511,10 @@ export default class SelectFromSequence extends Sequence {
       maxNumber: variantNumber + 1,
       withReplacement: withReplacement,
     })[variantNumber];
-    let indices = numbers.map(getSingleIndex)
-    return { success: true, desiredVariant: { indices: indices } }
-
+    let indices = numbers.map(getSingleIndex);
+    return { success: true, desiredVariant: { indices: indices } };
   }
-
-
 }
-
 
 function makeSelection({ dependencyValues }) {
   // console.log(`make selection`)
@@ -530,8 +535,8 @@ function makeSelection({ dependencyValues }) {
       newValues: {
         selectedValues: [],
         selectedIndices: [],
-      }
-    }
+      },
+    };
   }
 
   let numberUniqueRequired = 1;
@@ -540,25 +545,34 @@ function makeSelection({ dependencyValues }) {
   }
 
   if (numberUniqueRequired > dependencyValues.length) {
-    throw Error("Cannot select " + numberUniqueRequired +
-      " values from a sequence of length " + dependencyValues.length);
+    throw Error(
+      'Cannot select ' +
+        numberUniqueRequired +
+        ' values from a sequence of length ' +
+        dependencyValues.length,
+    );
   }
 
   // if desiredIndices is specfied, use those
-  if (dependencyValues.variants && dependencyValues.variants.desiredVariant !== undefined) {
+  if (
+    dependencyValues.variants &&
+    dependencyValues.variants.desiredVariant !== undefined
+  ) {
     let desiredIndices = dependencyValues.variants.desiredVariant.indices;
     if (desiredIndices !== undefined) {
       if (desiredIndices.length !== dependencyValues.numberToSelect) {
-        throw Error("Number of indices specified for select must match number to select");
+        throw Error(
+          'Number of indices specified for select must match number to select',
+        );
       }
       desiredIndices = desiredIndices.map(Number);
       if (!desiredIndices.every(Number.isInteger)) {
-        throw Error("All indices specified for select must be integers");
+        throw Error('All indices specified for select must be integers');
       }
       let n = dependencyValues.length;
-      desiredIndices = desiredIndices.map(x => ((x % n) + n) % n);
+      desiredIndices = desiredIndices.map((x) => ((x % n) + n) % n);
 
-      // assume that we have an excluded combination 
+      // assume that we have an excluded combination
       // until we determine that we aren't matching an excluded combination
       let isExcludedCombination = true;
 
@@ -566,36 +580,54 @@ function makeSelection({ dependencyValues }) {
       for (let index of desiredIndices) {
         let componentValue = dependencyValues.from;
         if (index > 0) {
-          if (dependencyValues.type === "math") {
-            componentValue = componentValue.add(dependencyValues.step.multiply(me.fromAst(index))).expand().simplify();
+          if (dependencyValues.type === 'math') {
+            componentValue = componentValue
+              .add(dependencyValues.step.multiply(me.fromAst(index)))
+              .expand()
+              .simplify();
           } else {
             componentValue += dependencyValues.step * index;
           }
         }
 
-        if (dependencyValues.type === "letters") {
-          componentValue = numberToLetters(componentValue, dependencyValues.lowercase);
+        if (dependencyValues.type === 'letters') {
+          componentValue = numberToLetters(
+            componentValue,
+            dependencyValues.lowercase,
+          );
         }
 
         // throw error if asked for an excluded value
-        if (dependencyValues.type === "math") {
-          if (dependencyValues.exclude.some(x => x.equals(componentValue))) {
-            throw Error("Specified index of selectfromsequence that was excluded")
+        if (dependencyValues.type === 'math') {
+          if (dependencyValues.exclude.some((x) => x.equals(componentValue))) {
+            throw Error(
+              'Specified index of selectfromsequence that was excluded',
+            );
           }
         } else {
           if (dependencyValues.exclude.includes(componentValue)) {
-            throw Error("Specified index of selectfromsequence that was excluded")
+            throw Error(
+              'Specified index of selectfromsequence that was excluded',
+            );
           }
         }
 
         // check if matches the corresponding component of an excluded combination
-        let matchedExcludedCombinationIndex = false
-        if (dependencyValues.type === "math") {
-          if (dependencyValues.excludedCombinations.some(x => [x, index].equals(componentValue))) {
+        let matchedExcludedCombinationIndex = false;
+        if (dependencyValues.type === 'math') {
+          if (
+            dependencyValues.excludedCombinations.some((x) =>
+              [x, index].equals(componentValue),
+            )
+          ) {
             matchedExcludedCombinationIndex = true;
           }
         } else {
-          if (dependencyValues.excludedCombinations.some(x => x[index] === componentValue)) {
+          if (
+            dependencyValues.excludedCombinations.some(
+              (x) => x[index] === componentValue,
+            )
+          ) {
             matchedExcludedCombinationIndex = true;
           }
         }
@@ -608,13 +640,15 @@ function makeSelection({ dependencyValues }) {
       }
 
       if (isExcludedCombination) {
-        throw Error("Specified indices of selectfromsequence that was an excluded combination")
+        throw Error(
+          'Specified indices of selectfromsequence that was an excluded combination',
+        );
       }
 
       return {
         makeEssential: { selectedValues: true, selectedIndices: true },
-        newValues: { selectedValues, selectedIndices: desiredIndices }
-      }
+        newValues: { selectedValues, selectedIndices: desiredIndices },
+      };
     }
   }
 
@@ -633,13 +667,15 @@ function makeSelection({ dependencyValues }) {
 
     selectedValues = selectedObj.selectedValues;
     selectedIndices = selectedObj.selectedIndices;
-
   } else {
-
-    let numberPossibilities = dependencyValues.length - dependencyValues.exclude.length;
+    let numberPossibilities =
+      dependencyValues.length - dependencyValues.exclude.length;
 
     if (dependencyValues.withReplacement) {
-      numberPossibilities = Math.pow(numberPossibilities, dependencyValues.numberToSelect);
+      numberPossibilities = Math.pow(
+        numberPossibilities,
+        dependencyValues.numberToSelect,
+      );
     } else {
       let n = numberPossibilities;
       for (let i = 1; i < dependencyValues.numberToSelect; i++) {
@@ -650,14 +686,13 @@ function makeSelection({ dependencyValues }) {
     // console.log(`numberPossibilities: ${numberPossibilities}`)
 
     if (numberCombinationsExcluded > 0.7 * numberPossibilities) {
-      throw Error("Excluded over 70% of combinations in selectFromSequence");
+      throw Error('Excluded over 70% of combinations in selectFromSequence');
     }
 
     // with 200 chances with at least 70% success,
     // prob of failure less than 10^(-30)
     let foundValidCombination = false;
     for (let sampnum = 0; sampnum < 200; sampnum++) {
-
       let selectedObj = selectValuesAndIndices({
         stateValues: dependencyValues,
         numberUniqueRequired: numberUniqueRequired,
@@ -669,79 +704,90 @@ function makeSelection({ dependencyValues }) {
       selectedValues = selectedObj.selectedValues;
       selectedIndices = selectedObj.selectedIndices;
 
-
       // try again if hit excluded combination
-      if (dependencyValues.type === "math") {
-        if (dependencyValues.excludedCombinations.some(x => x.every((v, i) => v.equals(selectedValues[i])))) {
+      if (dependencyValues.type === 'math') {
+        if (
+          dependencyValues.excludedCombinations.some((x) =>
+            x.every((v, i) => v.equals(selectedValues[i])),
+          )
+        ) {
           continue;
         }
       } else {
-        if (dependencyValues.excludedCombinations.some(x => x.every((v, i) => v === selectedValues[i]))) {
+        if (
+          dependencyValues.excludedCombinations.some((x) =>
+            x.every((v, i) => v === selectedValues[i]),
+          )
+        ) {
           continue;
         }
       }
 
       foundValidCombination = true;
       break;
-
     }
 
     if (!foundValidCombination) {
       // this won't happen, as occurs with prob < 10^(-30)
-      throw Error("By extremely unlikely fluke, couldn't select combination of random values");
+      throw Error(
+        "By extremely unlikely fluke, couldn't select combination of random values",
+      );
     }
-
   }
 
   if (dependencyValues.sortResults) {
-
     // combine selectedIndices and selectedValues to sort together
     let combinedList = [];
     for (let [ind, val] of selectedValues.entries()) {
-      combinedList.push({ value: val, index: selectedIndices[ind] })
+      combinedList.push({ value: val, index: selectedIndices[ind] });
     }
 
-    if (dependencyValues.type === "number") {
+    if (dependencyValues.type === 'number') {
       combinedList.sort((a, b) => a.value - b.value);
     } else if (dependencyValues.type === 'letters') {
       // sort according to their numerical value, not as words
-      combinedList.sort((a, b) => lettersToNumber(a.value) - lettersToNumber(b.value));
+      combinedList.sort(
+        (a, b) => lettersToNumber(a.value) - lettersToNumber(b.value),
+      );
     }
 
-    selectedValues = combinedList.map(x => x.value);
-    selectedIndices = combinedList.map(x => x.index);
+    selectedValues = combinedList.map((x) => x.value);
+    selectedIndices = combinedList.map((x) => x.index);
 
     // don't sort type math
   }
 
   return {
     makeEssential: { selectedValues: true, selectedIndices: true },
-    newValues: { selectedValues, selectedIndices }
-  }
-
+    newValues: { selectedValues, selectedIndices },
+  };
 }
 
-
-function selectValuesAndIndices({ stateValues, numberUniqueRequired = 1, numberToSelect = 1,
-  withReplacement = false, rng }) {
-
+function selectValuesAndIndices({
+  stateValues,
+  numberUniqueRequired = 1,
+  numberToSelect = 1,
+  withReplacement = false,
+  rng,
+}) {
   let selectedValues = [];
   let selectedIndices = [];
 
-  if (stateValues.exclude.length + numberUniqueRequired < 0.5 * stateValues.length) {
+  if (
+    stateValues.exclude.length + numberUniqueRequired <
+    0.5 * stateValues.length
+  ) {
     // the simplest case where the likelihood of getting excluded is less than 50%
     // just randomly select from all possibilities
     // and use rejection method to resample if an excluded is hit
 
     for (let ind = 0; ind < numberToSelect; ind++) {
-
       // with 100 chances with at least 50% success,
       // prob of failure less than 10^(-30)
       let foundValid = false;
       let componentValue;
       let selectedIndex;
       for (let sampnum = 0; sampnum < 100; sampnum++) {
-
         // random number in [0, 1)
         let rand = rng();
         // random integer from 0 to length-1
@@ -753,16 +799,19 @@ function selectValuesAndIndices({ stateValues, numberUniqueRequired = 1, numberT
 
         componentValue = stateValues.from;
         if (selectedIndex > 0) {
-          if (stateValues.type === "math") {
-            componentValue = componentValue.add(stateValues.step.multiply(me.fromAst(selectedIndex))).expand().simplify();
+          if (stateValues.type === 'math') {
+            componentValue = componentValue
+              .add(stateValues.step.multiply(me.fromAst(selectedIndex)))
+              .expand()
+              .simplify();
           } else {
             componentValue += stateValues.step * selectedIndex;
           }
         }
 
         // try again if hit excluded value
-        if (stateValues.type === "math") {
-          if (stateValues.exclude.some(x => x.equals(componentValue))) {
+        if (stateValues.type === 'math') {
+          if (stateValues.exclude.some((x) => x.equals(componentValue))) {
             continue;
           }
         } else {
@@ -777,10 +826,12 @@ function selectValuesAndIndices({ stateValues, numberUniqueRequired = 1, numberT
 
       if (!foundValid) {
         // this won't happen, as occurs with prob < 10^(-30)
-        throw Error("By extremely unlikely fluke, couldn't select random value");
+        throw Error(
+          "By extremely unlikely fluke, couldn't select random value",
+        );
       }
 
-      if (stateValues.type === "letters") {
+      if (stateValues.type === 'letters') {
         componentValue = numberToLetters(componentValue, stateValues.lowercase);
       }
       selectedValues.push(componentValue);
@@ -788,7 +839,6 @@ function selectValuesAndIndices({ stateValues, numberUniqueRequired = 1, numberT
     }
 
     return { selectedValues, selectedIndices };
-
   }
 
   // for cases when a large fraction might be excluded
@@ -799,15 +849,18 @@ function selectValuesAndIndices({ stateValues, numberUniqueRequired = 1, numberT
   for (let ind = 0; ind < stateValues.length; ind++) {
     let componentValue = stateValues.from;
     if (ind > 0) {
-      if (stateValues.type === "math") {
-        componentValue = componentValue.add(stateValues.step.multiply(me.fromAst(ind))).expand().simplify();
+      if (stateValues.type === 'math') {
+        componentValue = componentValue
+          .add(stateValues.step.multiply(me.fromAst(ind)))
+          .expand()
+          .simplify();
       } else {
         componentValue += stateValues.step * ind;
       }
     }
 
-    if (stateValues.type === "math") {
-      if (stateValues.exclude.some(x => x.equals(componentValue))) {
+    if (stateValues.type === 'math') {
+      if (stateValues.exclude.some((x) => x.equals(componentValue))) {
         continue;
       }
     } else {
@@ -816,36 +869,36 @@ function selectValuesAndIndices({ stateValues, numberUniqueRequired = 1, numberT
       }
     }
 
-    if (stateValues.type === "letters") {
+    if (stateValues.type === 'letters') {
       componentValue = numberToLetters(componentValue, stateValues.lowercase);
     }
 
     possibleValues.push(componentValue);
-
   }
 
   let numPossibleValues = possibleValues.length;
 
   if (numberUniqueRequired > numPossibleValues) {
-    throw Error("Cannot select " + numberUniqueRequired +
-      " unique values from sequence of length " + numPossibleValues);
+    throw Error(
+      'Cannot select ' +
+        numberUniqueRequired +
+        ' unique values from sequence of length ' +
+        numPossibleValues,
+    );
   }
 
   if (numberUniqueRequired === 1) {
-
     for (let ind = 0; ind < numberToSelect; ind++) {
-
       // random number in [0, 1)
       let rand = rng();
       // random integer from 0 to numPossibleValues-1
       let selectedIndex = Math.floor(rand * numPossibleValues);
 
-      selectedIndices.push(selectedIndex)
+      selectedIndices.push(selectedIndex);
       selectedValues.push(possibleValues[selectedIndex]);
     }
 
     return { selectedValues, selectedIndices };
-
   }
 
   // need to select more than one value without replacement
@@ -855,12 +908,17 @@ function selectValuesAndIndices({ stateValues, numberUniqueRequired = 1, numberT
   for (let i = possibleValues.length - 1; i > 0; i--) {
     const rand = rng();
     const j = Math.floor(rand * (i + 1));
-    [possibleValues[i], possibleValues[j]] = [possibleValues[j], possibleValues[i]];
-    [possibleIndices[i], possibleIndices[j]] = [possibleIndices[j], possibleIndices[i]];
+    [possibleValues[i], possibleValues[j]] = [
+      possibleValues[j],
+      possibleValues[i],
+    ];
+    [possibleIndices[i], possibleIndices[j]] = [
+      possibleIndices[j],
+      possibleIndices[i],
+    ];
   }
 
-  selectedValues = possibleValues.slice(0, numberToSelect)
-  selectedIndices = possibleIndices.slice(0, numberToSelect)
+  selectedValues = possibleValues.slice(0, numberToSelect);
+  selectedIndices = possibleIndices.slice(0, numberToSelect);
   return { selectedValues, selectedIndices };
-
 }

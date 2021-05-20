@@ -1,40 +1,45 @@
-import React, { useEffect } from "react";
-import {specificAttemptData} from "../../gradebook/Gradebook"
+import React, { useEffect } from 'react';
+import { specificAttemptData } from '../../gradebook/Gradebook';
 import {
-    atom,
-    RecoilRoot,
-    useSetRecoilState,
-    useRecoilState,
-    useRecoilValue,
-    selector,
-    atomFamily,
-    selectorFamily,
-    useRecoilValueLoadable,
-    useRecoilStateLoadable,
-  } from "recoil";
+  atom,
+  RecoilRoot,
+  useSetRecoilState,
+  useRecoilState,
+  useRecoilValue,
+  selector,
+  atomFamily,
+  selectorFamily,
+  useRecoilValueLoadable,
+  useRecoilStateLoadable,
+} from 'recoil';
 
-import Tool from "../Tool";
+import Tool from '../Tool';
 
-export default function GradebookDoenetMLView(props){
-    let assignmentId = props.assignmentId;
-    let userId = props.userId;
-    let attemptNumber = props.attemptNumber;
-    //console.log(assignmentId, userId, attemptNumber);
-    
-    let specificAttempt = useRecoilValueLoadable(specificAttemptData({assignmentId, userId, attemptNumber}))
-    console.log(specificAttempt.state, specificAttempt.contents)
-    specificAttempt.state
+export default function GradebookDoenetMLView(props) {
+  let assignmentId = props.assignmentId;
+  let userId = props.userId;
+  let attemptNumber = props.attemptNumber;
+  //console.log(assignmentId, userId, attemptNumber);
 
-    return(
-        <Tool>
-            <headerPanel></headerPanel>
+  let specificAttempt = useRecoilValueLoadable(
+    specificAttemptData({ assignmentId, userId, attemptNumber }),
+  );
+  console.log(specificAttempt.state, specificAttempt.contents);
+  specificAttempt.state;
 
-            <mainPanel>
-    {specificAttempt.state == 'hasValue' ? <p>{specificAttempt.contents.doenetML}</p>
-    :<p>{specificAttempt.state}</p>}
-            </mainPanel>
+  return (
+    <Tool>
+      <headerPanel></headerPanel>
 
-            <supportPanel></supportPanel>
-        </Tool>
-    )
+      <mainPanel>
+        {specificAttempt.state == 'hasValue' ? (
+          <p>{specificAttempt.contents.doenetML}</p>
+        ) : (
+          <p>{specificAttempt.state}</p>
+        )}
+      </mainPanel>
+
+      <supportPanel></supportPanel>
+    </Tool>
+  );
 }

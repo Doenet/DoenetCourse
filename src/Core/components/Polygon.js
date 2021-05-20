@@ -1,12 +1,12 @@
 import Polyline from './Polyline';
 
 export default class Polygon extends Polyline {
-  static componentType = "polygon";
+  static componentType = 'polygon';
 
   actions = {
     movePolygon: this.movePolygon.bind(
-      new Proxy(this, this.readOnlyProxyHandler)
-    )
+      new Proxy(this, this.readOnlyProxyHandler),
+    ),
   };
 
   get movePolygon() {
@@ -14,30 +14,28 @@ export default class Polygon extends Polyline {
   }
 
   static returnStateVariableDefinitions() {
-
     let stateVariableDefinitions = super.returnStateVariableDefinitions();
 
-    // overwrite nearestPoint so that it includes 
+    // overwrite nearestPoint so that it includes
     // segement between first and last vertex
     stateVariableDefinitions.nearestPoint = {
       returnDependencies: () => ({
         nDimensions: {
-          dependencyType: "stateVariable",
-          variableName: "nDimensions"
+          dependencyType: 'stateVariable',
+          variableName: 'nDimensions',
         },
         vertices: {
-          dependencyType: "stateVariable",
-          variableName: "vertices"
+          dependencyType: 'stateVariable',
+          variableName: 'vertices',
         },
         nVertices: {
-          dependencyType: "stateVariable",
-          variableName: "nVertices"
+          dependencyType: 'stateVariable',
+          variableName: 'nVertices',
         },
       }),
       definition: ({ dependencyValues }) => ({
         newValues: {
           nearestPoint: function (variables) {
-
             // only implemented in 2D for now
             if (dependencyValues.nDimensions !== 2) {
               return {};
@@ -50,8 +48,14 @@ export default class Polygon extends Polyline {
             let x2 = variables.x2.evaluate_to_constant();
 
             let prevPtx, prevPty;
-            let nextPtx = dependencyValues.vertices[dependencyValues.nVertices - 1][0].evaluate_to_constant();
-            let nextPty = dependencyValues.vertices[dependencyValues.nVertices - 1][1].evaluate_to_constant();
+            let nextPtx =
+              dependencyValues.vertices[
+                dependencyValues.nVertices - 1
+              ][0].evaluate_to_constant();
+            let nextPty =
+              dependencyValues.vertices[
+                dependencyValues.nVertices - 1
+              ][1].evaluate_to_constant();
 
             for (let i = 0; i < dependencyValues.nVertices; i++) {
               prevPtx = nextPtx;
@@ -61,14 +65,20 @@ export default class Polygon extends Polyline {
               nextPty = dependencyValues.vertices[i][1].evaluate_to_constant();
 
               // only implement for constants
-              if (!(Number.isFinite(prevPtx) && Number.isFinite(prevPty) &&
-                Number.isFinite(nextPtx) && Number.isFinite(nextPty))) {
+              if (
+                !(
+                  Number.isFinite(prevPtx) &&
+                  Number.isFinite(prevPty) &&
+                  Number.isFinite(nextPtx) &&
+                  Number.isFinite(nextPty)
+                )
+              ) {
                 continue;
               }
 
               let BA1 = nextPtx - prevPtx;
               let BA2 = nextPty - prevPty;
-              let denom = (BA1 * BA1 + BA2 * BA2);
+              let denom = BA1 * BA1 + BA2 * BA2;
 
               if (denom === 0) {
                 continue;
@@ -89,26 +99,27 @@ export default class Polygon extends Polyline {
                 };
               }
 
-              let distance2 = Math.pow(x1 - result.x1, 2) + Math.pow(x2 - result.x2, 2);
+              let distance2 =
+                Math.pow(x1 - result.x1, 2) + Math.pow(x2 - result.x2, 2);
 
               if (distance2 < closestDistance2) {
                 closestDistance2 = distance2;
                 closestResult = result;
               }
-
             }
 
-            if (variables.x3 !== undefined && Object.keys(closestResult).length > 0) {
+            if (
+              variables.x3 !== undefined &&
+              Object.keys(closestResult).length > 0
+            ) {
               closestResult.x3 = 0;
             }
 
             return closestResult;
-
-          }
-        }
-      })
-    }
+          },
+        },
+      }),
+    };
     return stateVariableDefinitions;
   }
-
 }

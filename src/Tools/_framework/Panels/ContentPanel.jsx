@@ -45,10 +45,12 @@ const panelsInfoAtom = atomFamily({
 
 const panelPropotion = selectorFamily({
   key: 'panelPropotion',
-  get: (id) => ({ get }) => {
-    const info = get(panelsInfoAtom(id));
-    return info.isActive ? info.propotion : 1;
-  },
+  get:
+    (id) =>
+    ({ get }) => {
+      const info = get(panelsInfoAtom(id));
+      return info.isActive ? info.propotion : 1;
+    },
 });
 
 const calcInfo = (num) =>
@@ -57,16 +59,17 @@ const calcInfo = (num) =>
 export const useSupportDividerController = () => {
   const stackId = useStackId();
   const supportController = useRecoilCallback(
-    ({ set }) => (newIsActive, newProportion) => {
-      set(panelsInfoAtom(stackId), (oldInfo) => ({
-        isActive:
-          newProportion === 1 ? false : newIsActive ?? !oldInfo.isActive,
-        propotion:
-          (newProportion ?? 1) === 1
-            ? oldInfo.propotion
-            : calcInfo(newProportion),
-      }));
-    },
+    ({ set }) =>
+      (newIsActive, newProportion) => {
+        set(panelsInfoAtom(stackId), (oldInfo) => ({
+          isActive:
+            newProportion === 1 ? false : newIsActive ?? !oldInfo.isActive,
+          propotion:
+            (newProportion ?? 1) === 1
+              ? oldInfo.propotion
+              : calcInfo(newProportion),
+        }));
+      },
     [stackId],
   );
   return supportController;

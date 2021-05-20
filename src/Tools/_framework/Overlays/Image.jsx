@@ -1,5 +1,5 @@
-import React from "react";
-import Tool from "../Tool";
+import React from 'react';
+import Tool from '../Tool';
 
 export default function Image({ contentId, branchId }) {
   return (
@@ -12,7 +12,7 @@ export default function Image({ contentId, branchId }) {
 
       <supportPanel></supportPanel>
 
-      <menuPanel title={"actions"}></menuPanel>
+      <menuPanel title={'actions'}></menuPanel>
     </Tool>
   );
 }

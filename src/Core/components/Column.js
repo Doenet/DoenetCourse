@@ -1,8 +1,8 @@
 import BaseComponent from './abstract/BaseComponent';
 
 export default class Column extends BaseComponent {
-  static componentType = "column";
-  static rendererType = "container";
+  static componentType = 'column';
+  static rendererType = 'container';
   static renderChildren = true;
 
   static createAttributesObject(args) {
@@ -17,7 +17,7 @@ export default class Column extends BaseComponent {
     let childLogic = super.returnChildLogic(args);
 
     childLogic.newLeaf({
-      name: "atLeastZeroCells",
+      name: 'atLeastZeroCells',
       componentType: 'cell',
       comparison: 'atLeast',
       number: 0,
@@ -27,27 +27,25 @@ export default class Column extends BaseComponent {
     return childLogic;
   }
 
-
-
   static returnStateVariableDefinitions() {
     let stateVariableDefinitions = super.returnStateVariableDefinitions();
 
     stateVariableDefinitions.prescribedCellsWithRowNum = {
       returnDependencies: () => ({
         cellChildren: {
-          dependencyType: "child",
-          childLogicName: "atLeastZeroCells",
-          variableNames: ["rowNum"]
-        }
+          dependencyType: 'child',
+          childLogicName: 'atLeastZeroCells',
+          variableNames: ['rowNum'],
+        },
       }),
       definition({ dependencyValues }) {
         return {
           newValues: {
-            prescribedCellsWithRowNum: dependencyValues.cellChildren
-          }
-        }
-      }
-    }
+            prescribedCellsWithRowNum: dependencyValues.cellChildren,
+          },
+        };
+      },
+    };
 
     // stateVariableDefinitions.cellMaths = {
     //   isArray: true,
@@ -107,7 +105,7 @@ export default class Column extends BaseComponent {
     //         return { fresh: { cellMaths: false } }
     //       } else {
     //         // asked for entire array, but it has some fresh elements
-    //         // (we don't know here how many elements cellMaths has, 
+    //         // (we don't know here how many elements cellMaths has,
     //         // so can't determine if completely fresh)
     //         return { partiallyFresh: { cellMaths: true } }
     //       }
@@ -293,7 +291,7 @@ export default class Column extends BaseComponent {
     //         return { fresh: { cellNumbers: false } }
     //       } else {
     //         // asked for entire array, but it has some fresh elements
-    //         // (we don't know here how many elements cellNumbers has, 
+    //         // (we don't know here how many elements cellNumbers has,
     //         // so can't determine if completely fresh)
     //         return { partiallyFresh: { cellNumbers: true } }
     //       }
@@ -479,7 +477,7 @@ export default class Column extends BaseComponent {
     //         return { fresh: { cellTexts: false } }
     //       } else {
     //         // asked for entire array, but it has some fresh elements
-    //         // (we don't know here how many elements cellTexts has, 
+    //         // (we don't know here how many elements cellTexts has,
     //         // so can't determine if completely fresh)
     //         return { partiallyFresh: { cellTexts: true } }
     //       }
@@ -609,5 +607,4 @@ export default class Column extends BaseComponent {
 
     return stateVariableDefinitions;
   }
-
 }

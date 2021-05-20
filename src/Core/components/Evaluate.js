@@ -3,32 +3,31 @@ import me from 'math-expressions';
 import { func } from 'prop-types';
 
 export default class Evaluate extends MathComponent {
-  static componentType = "evaluate";
-  static rendererType = "math";
+  static componentType = 'evaluate';
+  static rendererType = 'math';
 
   static createAttributesObject(args) {
     let attributes = super.createAttributesObject(args);
     attributes.forceSymbolic = {
-      createComponentOfType: "boolean",
-      createStateVariable: "forceSymbolic",
+      createComponentOfType: 'boolean',
+      createStateVariable: 'forceSymbolic',
       defaultValue: false,
       public: true,
     };
     attributes.forceNumeric = {
-      createComponentOfType: "boolean",
-      createStateVariable: "forceNumeric",
+      createComponentOfType: 'boolean',
+      createStateVariable: 'forceNumeric',
       defaultValue: false,
       public: true,
     };
 
     attributes.function = {
-      createComponentOfType: "function"
-    }
+      createComponentOfType: 'function',
+    };
 
     attributes.input = {
-      createComponentOfType: "mathList",
-    }
-
+      createComponentOfType: 'mathList',
+    };
 
     return attributes;
   }
@@ -42,7 +41,6 @@ export default class Evaluate extends MathComponent {
   }
 
   static returnStateVariableDefinitions() {
-
     let stateVariableDefinitions = super.returnStateVariableDefinitions();
 
     delete stateVariableDefinitions.codePre;
@@ -52,50 +50,48 @@ export default class Evaluate extends MathComponent {
 
     stateVariableDefinitions.canBeModified = {
       returnDependencies: () => ({}),
-      definition: () => ({ newValues: { canBeModified: false } })
-    }
+      definition: () => ({ newValues: { canBeModified: false } }),
+    };
 
     stateVariableDefinitions.unnormalizedValue = {
       public: true,
-      componentType: "math",
+      componentType: 'math',
       returnDependencies() {
         return {
           inputAttr: {
-            dependencyType: "attributeComponent",
-            attributeName: "input",
-            variableNames: ["nComponents", "maths"]
+            dependencyType: 'attributeComponent',
+            attributeName: 'input',
+            variableNames: ['nComponents', 'maths'],
           },
           functionAttr: {
-            dependencyType: "attributeComponent",
-            attributeName: "function",
-            variableNames: ["symbolicf", "numericalf", "symbolic"],
+            dependencyType: 'attributeComponent',
+            attributeName: 'function',
+            variableNames: ['symbolicf', 'numericalf', 'symbolic'],
           },
           forceSymbolic: {
-            dependencyType: "stateVariable",
-            variableName: "forceSymbolic"
+            dependencyType: 'stateVariable',
+            variableName: 'forceSymbolic',
           },
           forceNumeric: {
-            dependencyType: "stateVariable",
-            variableName: "forceNumeric"
-          }
-        }
-
+            dependencyType: 'stateVariable',
+            variableName: 'forceNumeric',
+          },
+        };
       },
       definition({ dependencyValues }) {
-
-        if (!(dependencyValues.functionAttr
-          && dependencyValues.inputAttr
-          && dependencyValues.inputAttr.stateValues.nComponents > 0
-        )) {
-
+        if (
+          !(
+            dependencyValues.functionAttr &&
+            dependencyValues.inputAttr &&
+            dependencyValues.inputAttr.stateValues.nComponents > 0
+          )
+        ) {
           return {
             newValues: {
-              unnormalizedValue: me.fromAst('\uFF3F')
-            }
-          }
-
+              unnormalizedValue: me.fromAst('\uFF3F'),
+            },
+          };
         }
-
 
         // TODO: for now just take the first input
         // generalize to functions of multiple variables
@@ -105,7 +101,8 @@ export default class Evaluate extends MathComponent {
         let unnormalizedValue;
 
         let functionComp = dependencyValues.functionAttr;
-        if (!dependencyValues.forceNumeric &&
+        if (
+          !dependencyValues.forceNumeric &&
           (functionComp.stateValues.symbolic || dependencyValues.forceSymbolic)
         ) {
           unnormalizedValue = functionComp.stateValues.symbolicf(input);
@@ -115,22 +112,20 @@ export default class Evaluate extends MathComponent {
             numericInput = NaN;
           }
 
-          unnormalizedValue = me.fromAst(functionComp.stateValues.numericalf(numericInput))
-
+          unnormalizedValue = me.fromAst(
+            functionComp.stateValues.numericalf(numericInput),
+          );
         }
 
         // console.log("unnormalizedValue")
         // console.log(unnormalizedValue)
 
         return {
-          newValues: { unnormalizedValue }
-        }
-
-      }
-    }
+          newValues: { unnormalizedValue },
+        };
+      },
+    };
 
     return stateVariableDefinitions;
-
   }
-
 }

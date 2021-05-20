@@ -1,13 +1,13 @@
 import ConstraintComponent from './abstract/ConstraintComponent';
 
 export default class ConstrainTo extends ConstraintComponent {
-  static componentType = "constrainTo";
+  static componentType = 'constrainTo';
 
   static returnChildLogic(args) {
     let childLogic = super.returnChildLogic(args);
 
     childLogic.newLeaf({
-      name: "atLeastOneGraphical",
+      name: 'atLeastOneGraphical',
       componentType: '_graphical',
       comparison: 'atLeast',
       number: 1,
@@ -18,52 +18,50 @@ export default class ConstrainTo extends ConstraintComponent {
   }
 
   static returnStateVariableDefinitions() {
-
     let stateVariableDefinitions = super.returnStateVariableDefinitions();
 
     stateVariableDefinitions.nearestPointFunctions = {
       returnDependencies: () => ({
         graphicalChildren: {
-          dependencyType: "child",
-          childLogicName: "atLeastOneGraphical",
-          variableNames: ["nearestPoint"],
-          variablesOptional: true
-        }
+          dependencyType: 'child',
+          childLogicName: 'atLeastOneGraphical',
+          variableNames: ['nearestPoint'],
+          variablesOptional: true,
+        },
       }),
       definition: function ({ dependencyValues }) {
         let nearestPointFunctions = [];
 
         for (let child of dependencyValues.graphicalChildren) {
           if (!child.stateValues.nearestPoint) {
-            console.warn(`cannot attract to ${child.componentName} as it doesn't have a nearestPoint state variable`);
+            console.warn(
+              `cannot attract to ${child.componentName} as it doesn't have a nearestPoint state variable`,
+            );
             continue;
           }
           nearestPointFunctions.push(child.stateValues.nearestPoint);
         }
 
         return { newValues: { nearestPointFunctions } };
-
-      }
-    }
+      },
+    };
 
     stateVariableDefinitions.applyConstraint = {
       returnDependencies: () => ({
         nearestPointFunctions: {
-          dependencyType: "stateVariable",
-          variableName: "nearestPointFunctions"
+          dependencyType: 'stateVariable',
+          variableName: 'nearestPointFunctions',
         },
       }),
       definition: ({ dependencyValues }) => ({
         newValues: {
           applyConstraint: function (variables) {
-
             let closestDistance2 = Infinity;
             let closestPoint = {};
 
             let constrained = false;
 
             for (let nearestPointFunction of dependencyValues.nearestPointFunctions) {
-
               let nearestPoint = nearestPointFunction(variables);
 
               if (nearestPoint === undefined) {
@@ -100,7 +98,6 @@ export default class ConstrainTo extends ConstraintComponent {
                 closestDistance2 = distance2;
                 constrained = true;
               }
-
             }
 
             if (!constrained) {
@@ -108,14 +105,11 @@ export default class ConstrainTo extends ConstraintComponent {
             }
 
             return { constrained, variables: closestPoint };
-
-          }
-        }
-      })
-    }
+          },
+        },
+      }),
+    };
 
     return stateVariableDefinitions;
   }
-
-
 }

@@ -1,7 +1,11 @@
-export function renameStateVariable({ stateVariableDefinitions, oldName, newName }) {
-
+export function renameStateVariable({
+  stateVariableDefinitions,
+  oldName,
+  newName,
+}) {
   // first rename object in stateVariableDefinitions
-  let stateVarDef = stateVariableDefinitions[newName] = stateVariableDefinitions[oldName];
+  let stateVarDef = (stateVariableDefinitions[newName] =
+    stateVariableDefinitions[oldName]);
   delete stateVariableDefinitions[oldName];
 
   // second, check if name is in additionalStateVariablesDefined
@@ -23,8 +27,12 @@ export function renameStateVariable({ stateVariableDefinitions, oldName, newName
 
   let originalDefinition = stateVarDef.definition;
 
-  let keysInObjects = ['newValues', 'useEssentialOrDefaultValue', 'makeEssential'];
-  let entriesInArrays = ['noChanges', 'alwaysShadow']
+  let keysInObjects = [
+    'newValues',
+    'useEssentialOrDefaultValue',
+    'makeEssential',
+  ];
+  let entriesInArrays = ['noChanges', 'alwaysShadow'];
 
   stateVarDef.definition = function (args) {
     let result = originalDefinition(args);
@@ -39,15 +47,15 @@ export function renameStateVariable({ stateVariableDefinitions, oldName, newName
       if (result[key]) {
         let ind = result[key].indexOf(oldName);
         if (ind !== -1) {
-          result[key][ind] = newName
+          result[key][ind] = newName;
         }
       }
     }
 
     return result;
-  }
+  };
 
-  // fourth, wrap inverse definition to change 
+  // fourth, wrap inverse definition to change
   // desiredStateVariableValues and setStateVarible
   // from new name to old name
 
@@ -63,13 +71,11 @@ export function renameStateVariable({ stateVariableDefinitions, oldName, newName
     if (results.success) {
       for (let instruction of results.instructions) {
         if (instruction.setStateVariable === oldName) {
-          instruction.setStateVariable = newName
+          instruction.setStateVariable = newName;
         }
       }
     }
 
     return results;
-
-  }
-
+  };
 }

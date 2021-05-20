@@ -1,10 +1,10 @@
-import React, { useState } from "react";
+import React, { useState } from 'react';
 
-import "./Switch.css";
+import './Switch.css';
 
 function randomAlphaString(len) {
-  let c = "abcdefghijklmnopqrstuvwxyz";
-  let str = "";
+  let c = 'abcdefghijklmnopqrstuvwxyz';
+  let str = '';
   for (let i = 0; i < len; i++) {
     str += c[Math.round(Math.random() * 25)];
   }
@@ -19,14 +19,14 @@ export default function Switch(props) {
     id = randomAlphaString(20); // a random name and id will be chosen if there is no id name is specified.
   }
 
-  if (props.size === "Small") {
+  if (props.size === 'Small') {
   }
 
   let propsChecked = false;
   if (
     props.checked === true ||
-    props.checked === "true" ||
-    props.checked === "1" ||
+    props.checked === 'true' ||
+    props.checked === '1' ||
     props.checked === 1
   ) {
     propsChecked = true;
@@ -35,8 +35,8 @@ export default function Switch(props) {
   let [checked, setChecked] = useState(propsChecked || false); // will be undefined if not specified which will show up like an empty string.
 
   return (
-    <div className={(props.className || "") + " switch"} key={id + "container"}>
-      <label key={id + "label"} htmlFor={id}>
+    <div className={(props.className || '') + ' switch'} key={id + 'container'}>
+      <label key={id + 'label'} htmlFor={id}>
         <input
           type="checkbox"
           onChange={(e) => {
@@ -48,8 +48,8 @@ export default function Switch(props) {
           key={id}
           checked={checked}
         />
-        <span className={"switch-visual"} />
-        <span className={"switch-text"}>{props.children}</span>
+        <span className={'switch-visual'} />
+        <span className={'switch-text'}>{props.children}</span>
       </label>
     </div>
   );

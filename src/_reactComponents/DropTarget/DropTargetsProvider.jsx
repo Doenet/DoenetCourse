@@ -3,10 +3,10 @@ import React, {
   useCallback,
   useEffect,
   useMemo,
-  useRef
-} from "react";
-import DropTargetsContants  from "./constants";
-import { DropTargetsContext } from "./context";
+  useRef,
+} from 'react';
+import DropTargetsContants from './constants';
+import { DropTargetsContext } from './context';
 
 export default function DropTargetsProvider({ children }) {
   const [draggedObject, setDraggedObject] = useState(null);
@@ -20,47 +20,40 @@ export default function DropTargetsProvider({ children }) {
 
   useEffect(() => {
     activeDropTargetIdRef.current = activeDropTargetId;
-  }, [activeDropTargetId])
+  }, [activeDropTargetId]);
 
-  const getDropTargetFromCursor = useCallback(
-    (x, y, ignoreId = null) => {
-      const underCursor = document.elementsFromPoint(x, y);
-      const dropTargetIds = Object.keys(dropTargetsRef.current);
-      for (let dropTargetId of dropTargetIds) {
-        if (dropTargetId === ignoreId) continue;
-        const dropTargetsObjs = dropTargetsRef.current[dropTargetId];
-        for (let dropTargetObj of dropTargetsObjs) {
-          if (underCursor.includes(dropTargetObj.ref)) return [dropTargetId, dropTargetObj];
-        }
+  const getDropTargetFromCursor = useCallback((x, y, ignoreId = null) => {
+    const underCursor = document.elementsFromPoint(x, y);
+    const dropTargetIds = Object.keys(dropTargetsRef.current);
+    for (let dropTargetId of dropTargetIds) {
+      if (dropTargetId === ignoreId) continue;
+      const dropTargetsObjs = dropTargetsRef.current[dropTargetId];
+      for (let dropTargetObj of dropTargetsObjs) {
+        if (underCursor.includes(dropTargetObj.ref))
+          return [dropTargetId, dropTargetObj];
       }
-      return null;
-    },
-    []
-  );
-
-  const registerDropTarget = useCallback(({ 
-    id, 
-    ref, 
-    onDragOver, 
-    onDragHover, 
-    onDragEnter, 
-    onDragExit, 
-    onDrop 
-  }) => {
-    let dropTargetObj = dropTargetsRef.current[id];
-    if (!dropTargetObj) dropTargetObj = [];
-    
-    const newDropTarget = {
-      ref,
-      onDragOver,
-      onDragHover,
-      onDragEnter,
-      onDragExit,
-      onDrop
-    };
-    dropTargetObj.push(newDropTarget);
-    dropTargetsRef.current[id] = dropTargetObj;
+    }
+    return null;
   }, []);
+
+  const registerDropTarget = useCallback(
+    ({ id, ref, onDragOver, onDragHover, onDragEnter, onDragExit, onDrop }) => {
+      let dropTargetObj = dropTargetsRef.current[id];
+      if (!dropTargetObj) dropTargetObj = [];
+
+      const newDropTarget = {
+        ref,
+        onDragOver,
+        onDragHover,
+        onDragEnter,
+        onDragExit,
+        onDrop,
+      };
+      dropTargetObj.push(newDropTarget);
+      dropTargetsRef.current[id] = dropTargetObj;
+    },
+    [],
+  );
 
   const unregisterDropTarget = useCallback((id) => {
     // delete dropTargetsRef.current[id];
@@ -69,11 +62,12 @@ export default function DropTargetsProvider({ children }) {
   const handleDrag = useCallback(
     (x, y, selfId = null) => {
       const dropTarget = getDropTargetFromCursor(x, y, selfId);
-      let dropTargetId = "", dropTargetObj = {};
+      let dropTargetId = '',
+        dropTargetObj = {};
       if (dropTarget) [dropTargetId, dropTargetObj] = dropTarget;
 
       if (dropTargetId) {
-        dropTargetObj?.onDragOver({x, y, dropTargetRef: dropTargetObj.ref});
+        dropTargetObj?.onDragOver({ x, y, dropTargetRef: dropTargetObj.ref });
       }
 
       if (dropTargetId !== activeDropTargetId) {
@@ -83,20 +77,20 @@ export default function DropTargetsProvider({ children }) {
         }
 
         /* Trigger onDragExit */
-        handleDragExit({dropTargetId: activeDropTargetId});
-        
+        handleDragExit({ dropTargetId: activeDropTargetId });
+
         /* Trigger onDragEnter */
-        handleDragEnter({dropTargetId, dropTargetObj});
+        handleDragEnter({ dropTargetId, dropTargetObj });
       }
 
       setActiveDropTargetId(dropTargetId);
     },
-    [activeDropTargetId, getDropTargetFromCursor]
+    [activeDropTargetId, getDropTargetFromCursor],
   );
 
-  const handleDragEnter = ({dropTargetId, dropTargetObj}) => {
+  const handleDragEnter = ({ dropTargetId, dropTargetObj }) => {
     // if timer already set for same dropTargetId, ignore
-    if (timerDropTargetId.current === dropTargetId ) return;
+    if (timerDropTargetId.current === dropTargetId) return;
 
     if (dropTargetId) {
       dropTargetObj && dropTargetObj.onDragEnter && dropTargetObj.onDragEnter();
@@ -109,7 +103,7 @@ export default function DropTargetsProvider({ children }) {
         timerRef.current = null;
       }, 1500);
     }
-  }
+  };
 
   const handleDragExit = ({ dropTargetId }) => {
     const dropTargetObjs = dropTargetsRef.current[dropTargetId];
@@ -117,36 +111,39 @@ export default function DropTargetsProvider({ children }) {
       for (let dropTargetObj of dropTargetObjs) {
         if (dropTargetObj.onDragExit) dropTargetObj.onDragExit();
       }
-    }    
-    
+    }
+
     if (timerRef.current) {
       clearTimeout(timerRef.current);
     }
     timerDropTargetId.current = null;
-  }
+  };
 
   const handleDrop = (selfId = null) => {
     if (activeDropTargetId !== null) {
-      if (dropTargetsRef.current[activeDropTargetId]?.[0]?.onDrop) dropTargetsRef.current[activeDropTargetId][0].onDrop();
-    }    
+      if (dropTargetsRef.current[activeDropTargetId]?.[0]?.onDrop)
+        dropTargetsRef.current[activeDropTargetId][0].onDrop();
+    }
     setActiveDropTargetId(null);
   };
 
   const state = {
     dropState: {
       activeDropTargetId,
-      draggedObject
+      draggedObject,
     },
     dropActions: {
       registerDropTarget,
       unregisterDropTarget,
       handleDrag,
       handleDrop,
-      setDraggedObject
-    }
+      setDraggedObject,
+    },
   };
 
-  return <DropTargetsContext.Provider value={state}>
-    { children }
+  return (
+    <DropTargetsContext.Provider value={state}>
+      {children}
     </DropTargetsContext.Provider>
+  );
 }

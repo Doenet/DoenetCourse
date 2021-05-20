@@ -1,16 +1,16 @@
 import BooleanComponent from '../Boolean';
 
 export default class BooleanBaseOperatorOfMath extends BooleanComponent {
-  static componentType = "_booleanOperatorOfMath";
-  static rendererType = "boolean";
+  static componentType = '_booleanOperatorOfMath';
+  static rendererType = 'boolean';
 
-  static returnChildLogic (args) {
+  static returnChildLogic(args) {
     let childLogic = super.returnChildLogic(args);
-    
+
     childLogic.deleteAllLogic();
 
     childLogic.newLeaf({
-      name: "atLeastOneMath",
+      name: 'atLeastOneMath',
       componentType: 'math',
       comparison: 'atLeast',
       number: 0,
@@ -18,11 +18,9 @@ export default class BooleanBaseOperatorOfMath extends BooleanComponent {
     });
 
     return childLogic;
-
   }
 
   static returnStateVariableDefinitions() {
-
     let stateVariableDefinitions = super.returnStateVariableDefinitions();
 
     delete stateVariableDefinitions.parsedExpression;
@@ -32,30 +30,26 @@ export default class BooleanBaseOperatorOfMath extends BooleanComponent {
 
     stateVariableDefinitions.value = {
       public: true,
-      componentType: "boolean",
+      componentType: 'boolean',
       forRenderer: true,
       returnDependencies: () => ({
         mathChildren: {
-          dependencyType: "child",
-          childLogicName: "atLeastOneMath",
-          variableNames: ["value"]
-        }
+          dependencyType: 'child',
+          childLogicName: 'atLeastOneMath',
+          variableNames: ['value'],
+        },
       }),
       definition: function ({ dependencyValues }) {
         return {
           newValues: {
             value: constructor.applyBooleanOperator(
-              dependencyValues.mathChildren
-                .map(x => x.stateValues.value)
-            )
-          }
-        }
-      }
-    }
+              dependencyValues.mathChildren.map((x) => x.stateValues.value),
+            ),
+          },
+        };
+      },
+    };
 
     return stateVariableDefinitions;
-
   }
-
-
 }

@@ -1,13 +1,13 @@
 import InlineComponent from './abstract/InlineComponent';
 
 export class Ndash extends InlineComponent {
-  static componentType = "ndash";
+  static componentType = 'ndash';
 }
 
 export class Mdash extends InlineComponent {
-  static componentType = "mdash";
+  static componentType = 'mdash';
 }
 
 export class NBSP extends InlineComponent {
-  static componentType = "nbsp";
+  static componentType = 'nbsp';
 }

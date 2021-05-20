@@ -1,11 +1,11 @@
 import BaseComponent from './abstract/BaseComponent';
 import me from 'math-expressions';
-import { normalizeIndex } from "../utils/table";
+import { normalizeIndex } from '../utils/table';
 import { textToAst } from '../utils/math';
 
 export default class Table extends BaseComponent {
-  static componentType = "table";
-  static rendererType = "table";
+  static componentType = 'table';
+  static rendererType = 'table';
 
   static createAttributesObject(args) {
     let attributes = super.createAttributesObject(args);
@@ -15,28 +15,31 @@ export default class Table extends BaseComponent {
 
     attributes.height = {
       forRenderer: true,
-      dependentStateVariables: [{
-        dependencyName: "numRows",
-        variableName: "numRows"
-      }],
+      dependentStateVariables: [
+        {
+          dependencyName: 'numRows',
+          variableName: 'numRows',
+        },
+      ],
       definitionForPropertyValue({ dependencyValues, propertyChild }) {
-
         if (propertyChild.length === 0) {
           // TODO: is this what we want for default height?
           // Do we want to cap default at a maximum?
           let height;
-          if (Number.isFinite(dependencyValues.numRows) && dependencyValues.numRows >= 0) {
+          if (
+            Number.isFinite(dependencyValues.numRows) &&
+            dependencyValues.numRows >= 0
+          ) {
             height = 50 + dependencyValues.numRows * 20;
           } else {
-            height = 130;  // value if numRows = 4
+            height = 130; // value if numRows = 4
           }
-          return { newValues: { height } }
+          return { newValues: { height } };
         }
 
-        return { newValues: { height: propertyChild[0].stateValues.value } }
-
-      }
-    }
+        return { newValues: { height: propertyChild[0].stateValues.value } };
+      },
+    };
 
     return attributes;
   }
@@ -45,90 +48,94 @@ export default class Table extends BaseComponent {
     let childLogic = super.returnChildLogic(args);
 
     let zeroOrMoreCells = childLogic.newLeaf({
-      name: "zeroOrMoreCells",
+      name: 'zeroOrMoreCells',
       componentType: 'cell',
       comparison: 'atLeast',
       number: 0,
     });
 
     let zeroOrMoreRows = childLogic.newLeaf({
-      name: "zeroOrMoreRows",
+      name: 'zeroOrMoreRows',
       componentType: 'row',
       comparison: 'atLeast',
       number: 0,
     });
 
     let zeroOrMoreColumns = childLogic.newLeaf({
-      name: "zeroOrMoreColumns",
+      name: 'zeroOrMoreColumns',
       componentType: 'column',
       comparison: 'atLeast',
       number: 0,
     });
 
     let zeroOrMoreCellblocks = childLogic.newLeaf({
-      name: "zeroOrMoreCellblocks",
+      name: 'zeroOrMoreCellblocks',
       componentType: 'cellBlock',
       comparison: 'atLeast',
       number: 0,
     });
 
     childLogic.newOperator({
-      name: "cellsRowsColumnsBlocks",
+      name: 'cellsRowsColumnsBlocks',
       operator: 'and',
-      propositions: [zeroOrMoreCells, zeroOrMoreRows, zeroOrMoreColumns, zeroOrMoreCellblocks],
+      propositions: [
+        zeroOrMoreCells,
+        zeroOrMoreRows,
+        zeroOrMoreColumns,
+        zeroOrMoreCellblocks,
+      ],
       setAsBase: true,
     });
 
     return childLogic;
   }
 
-
   static returnStateVariableDefinitions() {
     let stateVariableDefinitions = super.returnStateVariableDefinitions();
 
     stateVariableDefinitions.cellNameToRowCol = {
-      additionalStateVariablesDefined: ["cellNamesByRowCol"],
+      additionalStateVariablesDefined: ['cellNamesByRowCol'],
       returnDependencies: () => ({
         cellRelatedChildren: {
-          dependencyType: "child",
-          childLogicName: "cellsRowsColumnsBlocks",
+          dependencyType: 'child',
+          childLogicName: 'cellsRowsColumnsBlocks',
           variableNames: [
-            "rowNum",
-            "colNum",
-            "prescribedCellsWithColNum",
-            "prescribedCellsWithRowNum",
-            "prescribedCellsRowsColumnsBlocks"
+            'rowNum',
+            'colNum',
+            'prescribedCellsWithColNum',
+            'prescribedCellsWithRowNum',
+            'prescribedCellsRowsColumnsBlocks',
           ],
           variablesOptional: true,
-        }
+        },
       }),
       definition({ dependencyValues, componentInfoObjects }) {
         let result = determineCellMapping({
           cellRelatedChildren: dependencyValues.cellRelatedChildren,
-          componentInfoObjects
-        })
+          componentInfoObjects,
+        });
 
         return {
           newValues: {
             cellNameToRowCol: result.cellNameToRowCol,
             cellNamesByRowCol: result.cellNamesByRowCol,
-          }
-        }
-      }
-    }
+          },
+        };
+      },
+    };
 
     stateVariableDefinitions.numRows = {
       public: true,
-      componentType: "number",
+      componentType: 'number',
       returnDependencies: () => ({
         minNumRows: {
-          dependencyType: "stateVariable",
-          variableName: "minNumRows"
+          dependencyType: 'stateVariable',
+          variableName: 'minNumRows',
         },
         cellNamesByRowCol: {
-          dependencyType: "stateVariable",
-          variableName: "cellNamesByRowCol"
-        }
+          dependencyType: 'stateVariable',
+          variableName: 'cellNamesByRowCol',
+        },
       }),
       definition({ dependencyValues }) {
         let numRows = dependencyValues.minNumRows;
@@ -136,22 +143,22 @@ export default class Table extends BaseComponent {
           numRows = 4;
         }
         numRows = Math.max(numRows, dependencyValues.cellNamesByRowCol.length);
-        return { newValues: { numRows } }
-      }
-    }
+        return { newValues: { numRows } };
+      },
+    };
 
     stateVariableDefinitions.numColumns = {
       public: true,
-      componentType: "number",
+      componentType: 'number',
       returnDependencies: () => ({
         minNumColumns: {
-          dependencyType: "stateVariable",
-          variableName: "minNumColumns"
+          dependencyType: 'stateVariable',
+          variableName: 'minNumColumns',
         },
         cellNamesByRowCol: {
-          dependencyType: "stateVariable",
-          variableName: "cellNamesByRowCol"
-        }
+          dependencyType: 'stateVariable',
+          variableName: 'cellNamesByRowCol',
+        },
       }),
       definition({ dependencyValues }) {
         let numColumns = dependencyValues.minNumColumns;
@@ -163,47 +170,47 @@ export default class Table extends BaseComponent {
             numColumns = Math.max(numColumns, row.length);
           }
         }
-        return { newValues: { numColumns } }
-      }
-    }
+        return { newValues: { numColumns } };
+      },
+    };
 
     stateVariableDefinitions.cells = {
       public: true,
-      componentType: "cell",
+      componentType: 'cell',
       isArray: true,
-      entryPrefixes: ["cell", "row", "column", "range"],
+      entryPrefixes: ['cell', 'row', 'column', 'range'],
       nDimensions: 2,
       // stateVariablesDeterminingDependencies: ["numRows", "numColumns"],
       returnArraySizeDependencies: () => ({
         numRows: {
-          dependencyType: "stateVariable",
-          variableName: "numRows",
+          dependencyType: 'stateVariable',
+          variableName: 'numRows',
         },
         numColumns: {
-          dependencyType: "stateVariable",
-          variableName: "numColumns",
+          dependencyType: 'stateVariable',
+          variableName: 'numColumns',
         },
       }),
       returnArraySize({ dependencyValues }) {
         return [dependencyValues.numRows, dependencyValues.numColumns];
       },
-      returnEntryDimensions: prefix => prefix === "range" ? 2 : 1,
+      returnEntryDimensions: (prefix) => (prefix === 'range' ? 2 : 1),
       containsComponentNamesToCopy: true,
-      targetAttributesToIgnoreOnCopy: ["rowNum", "colNum"],
+      targetAttributesToIgnoreOnCopy: ['rowNum', 'colNum'],
       returnWrappingComponents(prefix) {
-        if (prefix === "cell") {
+        if (prefix === 'cell') {
           return [];
-        } else if (prefix === "row") {
-          return [["row"]];
-        } else if (prefix === " col") {
-          return [["column"]];
+        } else if (prefix === 'row') {
+          return [['row']];
+        } else if (prefix === ' col') {
+          return [['column']];
         } else {
           // range or entire array
-          return [["row"], ["cellBlock"]]
+          return [['row'], ['cellBlock']];
         }
       },
       getArrayKeysFromVarName({ arrayEntryPrefix, varEnding, arraySize }) {
-        if (arrayEntryPrefix === "cell") {
+        if (arrayEntryPrefix === 'cell') {
           // accept two formats: cellB1 or cell(1,2)
           // (accept letters in second format: (A, 2), (1, B), or (A,B))
 
@@ -213,7 +220,7 @@ export default class Table extends BaseComponent {
           let result = varEnding.match(letterNumStyle);
           if (result) {
             colNum = result[1];
-            rowNum = result[2]
+            rowNum = result[2];
           } else {
             let tupleStyle = /^\(([a-zA-Z]+|\d+),([a-zA-Z]+|\d+)\)$/;
             result = varEnding.match(tupleStyle);
@@ -228,14 +235,20 @@ export default class Table extends BaseComponent {
           let rowIndex = normalizeIndex(rowNum);
           let colIndex = normalizeIndex(colNum);
 
-          if (!(rowIndex >= 0 && rowIndex < arraySize[0] && colIndex >= 0 && colIndex < arraySize[1])) {
+          if (
+            !(
+              rowIndex >= 0 &&
+              rowIndex < arraySize[0] &&
+              colIndex >= 0 &&
+              colIndex < arraySize[1]
+            )
+          ) {
             // invalid index or index of out range
             return [];
           }
 
-          return [String(rowIndex) + "," + String(colIndex)]
-
-        } else if (arrayEntryPrefix === "row") {
+          return [String(rowIndex) + ',' + String(colIndex)];
+        } else if (arrayEntryPrefix === 'row') {
           // row2 or rowB
 
           let rowIndex = normalizeIndex(varEnding);
@@ -245,14 +258,13 @@ export default class Table extends BaseComponent {
           }
 
           let arrayKeys = [];
-          let arrayKeyBegin = String(rowIndex) + ",";
+          let arrayKeyBegin = String(rowIndex) + ',';
           for (let i = 0; i < arraySize[1]; i++) {
             arrayKeys.push(arrayKeyBegin + i);
           }
 
           return arrayKeys;
-
-        } else if (arrayEntryPrefix === "column") {
+        } else if (arrayEntryPrefix === 'column') {
           // column2 or columnB
 
           let colIndex = normalizeIndex(varEnding);
@@ -262,13 +274,12 @@ export default class Table extends BaseComponent {
           }
 
           let arrayKeys = [];
-          let arrayKeyEnd = "," + String(colIndex);
+          let arrayKeyEnd = ',' + String(colIndex);
           for (let i = 0; i < arraySize[1]; i++) {
             arrayKeys.push(i + arrayKeyEnd);
           }
 
           return arrayKeys;
-
         } else {
           // range
           // accept two formats: rangeB1D5 or range((1,2),(5,4))
@@ -283,7 +294,8 @@ export default class Table extends BaseComponent {
             toCol = normalizeIndex(result[3]);
             toRow = normalizeIndex(result[4]);
           } else {
-            let tupleStyle = /^\(\(([a-zA-Z]+|\d+),([a-zA-Z]+|\d+)\),\(([a-zA-Z]+|\d+),([a-zA-Z]+|\d+)\)\)$/;
+            let tupleStyle =
+              /^\(\(([a-zA-Z]+|\d+),([a-zA-Z]+|\d+)\),\(([a-zA-Z]+|\d+),([a-zA-Z]+|\d+)\)\)$/;
             result = varEnding.match(tupleStyle);
             if (result) {
               fromRow = normalizeIndex(result[1]);
@@ -291,10 +303,9 @@ export default class Table extends BaseComponent {
               toRow = normalizeIndex(result[3]);
               toCol = normalizeIndex(result[4]);
             } else {
-              return [];  //invalid
+              return []; //invalid
             }
           }
-
 
           if (!(fromRow >= 0 && toRow >= 0 && fromCol >= 0 && toCol >= 0)) {
             // invalid range
@@ -310,7 +321,7 @@ export default class Table extends BaseComponent {
 
           for (let rowIndex = row1; rowIndex <= row2; rowIndex++) {
             let rowKeys = [];
-            let arrayKeyBegin = String(rowIndex) + ",";
+            let arrayKeyBegin = String(rowIndex) + ',';
             for (let colIndex = col1; colIndex <= col2; colIndex++) {
               rowKeys.push(arrayKeyBegin + colIndex);
             }
@@ -318,24 +329,28 @@ export default class Table extends BaseComponent {
           }
 
           return arrayKeys;
-
         }
-
       },
       arrayVarNameFromArrayKey(arrayKey) {
-        return "cell(" + arrayKey.split(',').map(x => Number(x) + 1).join(',') + ")"
+        return (
+          'cell(' +
+          arrayKey
+            .split(',')
+            .map((x) => Number(x) + 1)
+            .join(',') +
+          ')'
+        );
       },
       returnArrayDependenciesByKey() {
         let globalDependencies = {
           cellNamesByRowCol: {
-            dependencyType: "stateVariable",
-            variableName: "cellNamesByRowCol",
-          }
-        }
-        return { globalDependencies }
+            dependencyType: 'stateVariable',
+            variableName: 'cellNamesByRowCol',
+          },
+        };
+        return { globalDependencies };
       },
       arrayDefinitionByKey({ globalDependencyValues, arrayKeys }) {
-
         let cells = {};
         let cnbrc = globalDependencyValues.cellNamesByRowCol;
 
@@ -347,36 +362,36 @@ export default class Table extends BaseComponent {
             cells[arrayKey] = null;
           }
         }
-        return { newValues: { cells } }
-      }
-    }
+        return { newValues: { cells } };
+      },
+    };
 
     stateVariableDefinitions.childrenToRender = {
-      additionalStateVariablesDefined: [{
-        variableName: "renderedChildNumberByRowCol",
-        forRenderer: true
-      }],
+      additionalStateVariablesDefined: [
+        {
+          variableName: 'renderedChildNumberByRowCol',
+          forRenderer: true,
+        },
+      ],
       returnDependencies: () => ({
         cellNamesByRowCol: {
-          dependencyType: "stateVariable",
-          variableName: "cellNamesByRowCol"
+          dependencyType: 'stateVariable',
+          variableName: 'cellNamesByRowCol',
         },
         numRows: {
-          dependencyType: "stateVariable",
-          variableName: "numRows"
+          dependencyType: 'stateVariable',
+          variableName: 'numRows',
         },
         numColumns: {
-          dependencyType: "stateVariable",
-          variableName: "numColumns"
+          dependencyType: 'stateVariable',
+          variableName: 'numColumns',
         },
-
       }),
       definition: function ({ dependencyValues }) {
         let childrenToRender = [];
         let renderedChildNumberByRowCol = [];
         let numChildrenFound = 0;
         for (let rowInd = 0; rowInd < dependencyValues.numRows; rowInd++) {
-
           let cellRow = dependencyValues.cellNamesByRowCol[rowInd];
           let childNumberRow = [];
           if (cellRow) {
@@ -389,23 +404,22 @@ export default class Table extends BaseComponent {
                 childNumberRow.push(null);
               }
             }
-            childNumberRow.push(...Array(dependencyValues.numColumns - cellRow.length).fill(null));
+            childNumberRow.push(
+              ...Array(dependencyValues.numColumns - cellRow.length).fill(null),
+            );
           } else {
             childNumberRow = Array(dependencyValues.numColumns).fill(null);
           }
-          renderedChildNumberByRowCol.push(childNumberRow)
-
+          renderedChildNumberByRowCol.push(childNumberRow);
         }
         return { newValues: { childrenToRender, renderedChildNumberByRowCol } };
-      }
-    }
+      },
+    };
 
     return stateVariableDefinitions;
-
   }
 
   addCell({ cell, rowNum, colNum }) {
-
     //Add the rows we need
     if (!Array.isArray(this.state.cells[rowNum])) {
       this.state.cells[rowNum] = [];
@@ -414,12 +428,11 @@ export default class Table extends BaseComponent {
       this.state.cellComponents[rowNum] = [];
     }
 
-
     if (rowNum < 0) {
-      throw Error("RowNum position has to be 1 or greater");
+      throw Error('RowNum position has to be 1 or greater');
     }
     if (colNum < 0) {
-      throw Error("ColNum position has to be 1 or greater");
+      throw Error('ColNum position has to be 1 or greater');
     }
     // if (rowNum > Number(this.state.numRows)){
     //   throw Error(`RowNum position of ${cell.componentName} is ${rowNum} which is larger than the number of rows ${this.state.numRows}`);
@@ -428,10 +441,12 @@ export default class Table extends BaseComponent {
     //   throw Error(`ColNum position of ${cell.componentName} is ${colNum} which is larger than the number of columns ${this.state.numColumns}`);
     // }
 
-
     if (cell.unresolvedState.text) {
       if (this.unresolvedState.cells == undefined) {
-        this.unresolvedState.cells = { isArray: true, arrayComponents: { [[rowNum, colNum]]: true } };
+        this.unresolvedState.cells = {
+          isArray: true,
+          arrayComponents: { [[rowNum, colNum]]: true },
+        };
       } else {
         this.unresolvedState.cells.arrayComponents[[rowNum, colNum]] = true;
       }
@@ -441,16 +456,19 @@ export default class Table extends BaseComponent {
 
     if (this.state.cellComponents[rowNum][colNum] === undefined) {
       this.state.cellComponents[rowNum][colNum] = cell;
+    } else {
+      throw Error(
+        `Cell row ${rowNum + 1} column ${colNum + 1} is already defined above.`,
+      );
     }
-    else {
-      throw Error(`Cell row ${rowNum + 1} column ${colNum + 1} is already defined above.`);
-    }
-    this.state.cellNameToRowCol[cell.componentName] = { row: rowNum, col: colNum };
+    this.state.cellNameToRowCol[cell.componentName] = {
+      row: rowNum,
+      col: colNum,
+    };
     return { rowNum, colNum };
   }
 
   getCellPoints(obj, index) {
-
     if (this.unresolvedState.points) {
       return;
     }
@@ -461,9 +479,9 @@ export default class Table extends BaseComponent {
 
     this.currentTracker.trackChanges.logPotentialChange({
       component: this,
-      variable: "points",
+      variable: 'points',
       oldValue: this.state.pointsFoundInCells,
-    })
+    });
 
     this.state.pointsFoundInCells = [];
     this._state.pointsFoundInCells.indices = [];
@@ -484,30 +502,27 @@ export default class Table extends BaseComponent {
           continue;
         }
 
-        if (Array.isArray(cellME.tree) && cellME.tree[0] === "tuple") {
+        if (Array.isArray(cellME.tree) && cellME.tree[0] === 'tuple') {
           this.state.pointsFoundInCells.push(cellME);
           this._state.pointsFoundInCells.indices.push([rowInd, colInd]);
         }
       }
     }
 
-
-    console.log("logging points change");
+    console.log('logging points change');
 
     return this.state.pointsFoundInCells[index];
-
   }
-
 }
 
-
-
-
-function determineCellMapping({ cellRelatedChildren, rowOffset = 0, colOffset = 0,
-  cellNameToRowCol = {}, cellNamesByRowCol = [],
-  componentInfoObjects
+function determineCellMapping({
+  cellRelatedChildren,
+  rowOffset = 0,
+  colOffset = 0,
+  cellNameToRowCol = {},
+  cellNamesByRowCol = [],
+  componentInfoObjects,
 }) {
-
   var nextCellRowIndex = rowOffset; //CellBlock and Cells
   var nextCellColIndex = colOffset; //CellBlock and Cells
   var nextCellColIndexIfBothUndefined = colOffset; //CellBlock and Cells
@@ -516,10 +531,12 @@ function determineCellMapping({ cellRelatedChildren, rowOffset = 0, colOffset = 
   var maxRowIndex = rowOffset;
   var maxColIndex = colOffset;
   for (let child of cellRelatedChildren) {
-    if (componentInfoObjects.isInheritedComponentType({
-      inheritedComponentType: child.componentType,
-      baseComponentType: "cell"
-    })) {
+    if (
+      componentInfoObjects.isInheritedComponentType({
+        inheritedComponentType: child.componentType,
+        baseComponentType: 'cell',
+      })
+    ) {
       let cell = child;
       let rowIndex = normalizeIndex(cell.stateValues.rowNum);
       let colIndex = normalizeIndex(cell.stateValues.colNum);
@@ -541,8 +558,11 @@ function determineCellMapping({ cellRelatedChildren, rowOffset = 0, colOffset = 
       }
 
       addCellToMapping({
-        cell, rowIndex, colIndex,
-        cellNameToRowCol, cellNamesByRowCol
+        cell,
+        rowIndex,
+        colIndex,
+        cellNameToRowCol,
+        cellNamesByRowCol,
       });
 
       maxRowIndex = Math.max(rowIndex, maxRowIndex);
@@ -550,11 +570,12 @@ function determineCellMapping({ cellRelatedChildren, rowOffset = 0, colOffset = 
       nextCellRowIndex = rowIndex;
       nextCellColIndex = colIndex;
       nextCellColIndexIfBothUndefined = colIndex + 1;
-    }
-    else if (componentInfoObjects.isInheritedComponentType({
-      inheritedComponentType: child.componentType,
-      baseComponentType: "row"
-    })) {
+    } else if (
+      componentInfoObjects.isInheritedComponentType({
+        inheritedComponentType: child.componentType,
+        baseComponentType: 'row',
+      })
+    ) {
       let row = child;
       let rowIndex = normalizeIndex(row.stateValues.rowNum);
       if (rowIndex === undefined) {
@@ -572,8 +593,11 @@ function determineCellMapping({ cellRelatedChildren, rowOffset = 0, colOffset = 
           colIndex = colIndex + colOffset;
         }
         addCellToMapping({
-          cell, rowIndex, colIndex,
-          cellNameToRowCol, cellNamesByRowCol
+          cell,
+          rowIndex,
+          colIndex,
+          cellNameToRowCol,
+          cellNamesByRowCol,
         });
         nextColIndex = colIndex + 1;
         maxRowIndex = Math.max(rowIndex, maxRowIndex);
@@ -583,11 +607,12 @@ function determineCellMapping({ cellRelatedChildren, rowOffset = 0, colOffset = 
       nextCellRowIndex = rowIndex + 1;
       nextCellColIndex = colOffset;
       nextCellColIndexIfBothUndefined = nextCellColIndex;
-    }
-    else if (componentInfoObjects.isInheritedComponentType({
-      inheritedComponentType: child.componentType,
-      baseComponentType: "column"
-    })) {
+    } else if (
+      componentInfoObjects.isInheritedComponentType({
+        inheritedComponentType: child.componentType,
+        baseComponentType: 'column',
+      })
+    ) {
       let col = child;
       let colIndex = normalizeIndex(col.stateValues.colNum);
       if (colIndex === undefined) {
@@ -605,8 +630,11 @@ function determineCellMapping({ cellRelatedChildren, rowOffset = 0, colOffset = 
           rowIndex = rowIndex + rowOffset;
         }
         addCellToMapping({
-          cell, rowIndex, colIndex,
-          cellNameToRowCol, cellNamesByRowCol
+          cell,
+          rowIndex,
+          colIndex,
+          cellNameToRowCol,
+          cellNamesByRowCol,
         });
         nextRowIndex = rowIndex + 1;
         maxRowIndex = Math.max(rowIndex, maxRowIndex);
@@ -616,10 +644,12 @@ function determineCellMapping({ cellRelatedChildren, rowOffset = 0, colOffset = 
       nextCellRowIndex = rowOffset;
       nextCellColIndex = colIndex + 1;
       nextCellColIndexIfBothUndefined = nextCellColIndex;
-    } else if (componentInfoObjects.isInheritedComponentType({
-      inheritedComponentType: child.componentType,
-      baseComponentType: "cellBlock"
-    })) {
+    } else if (
+      componentInfoObjects.isInheritedComponentType({
+        inheritedComponentType: child.componentType,
+        baseComponentType: 'cellBlock',
+      })
+    ) {
       let cellBlock = child;
       let rowIndex = normalizeIndex(cellBlock.stateValues.rowNum);
       let colIndex = normalizeIndex(cellBlock.stateValues.colNum);
@@ -641,10 +671,13 @@ function determineCellMapping({ cellRelatedChildren, rowOffset = 0, colOffset = 
       }
 
       let results = determineCellMapping({
-        cellRelatedChildren: cellBlock.stateValues.prescribedCellsRowsColumnsBlocks,
+        cellRelatedChildren:
+          cellBlock.stateValues.prescribedCellsRowsColumnsBlocks,
         rowOffset: rowIndex,
         colOffset: colIndex,
-        cellNameToRowCol, cellNamesByRowCol, componentInfoObjects
+        cellNameToRowCol,
+        cellNamesByRowCol,
+        componentInfoObjects,
       });
       maxRowIndex = Math.max(results.maxRowIndex, maxRowIndex);
       maxColIndex = Math.max(results.maxColIndex, maxColIndex);
@@ -656,16 +689,23 @@ function determineCellMapping({ cellRelatedChildren, rowOffset = 0, colOffset = 
   return { maxRowIndex, maxColIndex, cellNameToRowCol, cellNamesByRowCol };
 }
 
-function addCellToMapping({ cell, rowIndex, colIndex,
-  cellNameToRowCol, cellNamesByRowCol
+function addCellToMapping({
+  cell,
+  rowIndex,
+  colIndex,
+  cellNameToRowCol,
+  cellNamesByRowCol,
 }) {
-
   cellNameToRowCol[cell.componentName] = [rowIndex, colIndex];
   if (cellNamesByRowCol[rowIndex] === undefined) {
     cellNamesByRowCol[rowIndex] = [];
   }
   if (cellNamesByRowCol[rowIndex][colIndex] !== undefined) {
-    console.warn(`Cell is overwriting previous cell at rowNum=${rowIndex + 1}, colNum=${colIndex + 1}`);
+    console.warn(
+      `Cell is overwriting previous cell at rowNum=${rowIndex + 1}, colNum=${
+        colIndex + 1
+      }`,
+    );
     let previousComponentName = cellNamesByRowCol[rowIndex][colIndex];
     cellNameToRowCol[previousComponentName] = null;
   }

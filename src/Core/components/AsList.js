@@ -1,14 +1,14 @@
 import InlineComponent from './abstract/InlineComponent';
 
 export default class AsList extends InlineComponent {
-  static componentType = "asList";
+  static componentType = 'asList';
   static renderChildren = true;
 
   static returnChildLogic(args) {
     let childLogic = super.returnChildLogic(args);
 
     childLogic.newLeaf({
-      name: "atLeastZeroInline",
+      name: 'atLeastZeroInline',
       componentType: '_inline',
       comparison: 'atLeast',
       number: 0,
@@ -18,9 +18,7 @@ export default class AsList extends InlineComponent {
     return childLogic;
   }
 
-
   static returnStateVariableDefinitions() {
-
     let stateVariableDefinitions = super.returnStateVariableDefinitions();
 
     // stateVariableDefinitions.childrenToRender = {
@@ -45,20 +43,19 @@ export default class AsList extends InlineComponent {
 
     stateVariableDefinitions.text = {
       public: true,
-      componentType: "text",
+      componentType: 'text',
       returnDependencies: () => ({
         inlineChildren: {
-          dependencyType: "child",
-          childLogicName: "atLeastZeroInline",
-          variableNames: ["text"],
+          dependencyType: 'child',
+          childLogicName: 'atLeastZeroInline',
+          variableNames: ['text'],
           variablesOptional: true,
-        }
+        },
       }),
       definition: function ({ dependencyValues }) {
-
         let textpieces = [];
         for (let child of dependencyValues.inlineChildren) {
-          if (typeof child.stateValues.text === "string") {
+          if (typeof child.stateValues.text === 'string') {
             textpieces.push(child.stateValues.text);
           } else {
             textpieces.push('');
@@ -67,10 +64,9 @@ export default class AsList extends InlineComponent {
         let text = textpieces.join(', ');
 
         return { newValues: { text } };
-      }
-    }
+      },
+    };
 
     return stateVariableDefinitions;
   }
-
 }

@@ -1,11 +1,7 @@
-import React from 'react'
+import React from 'react';
 
 const BreadcrumbItem = ({ children, ...props }) => {
-  return (
-    <li {...props} >
-      {children}
-    </li>
-  );
+  return <li {...props}>{children}</li>;
 };
 
 export default BreadcrumbItem;

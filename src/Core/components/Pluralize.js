@@ -6,67 +6,61 @@ import { renameStateVariable } from '../utils/stateVariables';
 
 nlp.extend(compromise_numbers);
 
-
 export default class Pluralize extends Text {
-  static componentType = "pluralize";
-  static rendererType = "text";
+  static componentType = 'pluralize';
+  static rendererType = 'text';
 
   static createAttributesObject(args) {
     let attributes = super.createAttributesObject(args);
     attributes.pluralForm = {
-      createComponentOfType: "text",
-      createStateVariable: "pluralForm",
+      createComponentOfType: 'text',
+      createStateVariable: 'pluralForm',
       defaultValue: null,
       public: true,
     };
     attributes.basedOnNumber = {
-      createComponentOfType: "number",
-      createStateVariable: "basedOnNumber",
+      createComponentOfType: 'number',
+      createStateVariable: 'basedOnNumber',
       defaultValue: null,
       public: true,
     };
     return attributes;
   }
 
-
-
   static returnStateVariableDefinitions() {
-
     let stateVariableDefinitions = super.returnStateVariableDefinitions();
 
     // rename unnormalizedValue to unnormalizedValuePreOperator
     renameStateVariable({
       stateVariableDefinitions,
-      oldName: "value",
-      newName: "valuePrePluralize"
+      oldName: 'value',
+      newName: 'valuePrePluralize',
     });
 
     stateVariableDefinitions.value = {
       public: true,
-      componentType: "text",
+      componentType: 'text',
       returnDependencies: () => ({
         valuePrePluralize: {
-          dependencyType: "stateVariable",
-          variableName: "valuePrePluralize"
+          dependencyType: 'stateVariable',
+          variableName: 'valuePrePluralize',
         },
         pluralForm: {
-          dependencyType: "stateVariable",
-          variableName: "pluralForm"
+          dependencyType: 'stateVariable',
+          variableName: 'pluralForm',
         },
         basedOnNumber: {
-          dependencyType: "stateVariable",
-          variableName: "basedOnNumber"
+          dependencyType: 'stateVariable',
+          variableName: 'basedOnNumber',
         },
       }),
       definition: function ({ dependencyValues }) {
-
-
         let text = nlp(dependencyValues.valuePrePluralize);
 
         let allwords = text.values().toNumber().all().terms().json();
 
         if (allwords.length === 0) {
-          return { newValues: { value: dependencyValues.valuePrePluralize } }
+          return { newValues: { value: dependencyValues.valuePrePluralize } };
         }
 
         let makePlural;
@@ -83,31 +77,29 @@ export default class Pluralize extends Text {
           }
 
           if (!makePlural) {
-            return { newValues: { value: dependencyValues.valuePrePluralize } }
+            return { newValues: { value: dependencyValues.valuePrePluralize } };
           }
 
           // if have pluralForm, the one word should be turned into the pluralForm
           if (dependencyValues.pluralForm !== null) {
             return {
               newValues: {
-                value: dependencyValues.pluralForm
-              }
-            }
+                value: dependencyValues.pluralForm,
+              },
+            };
           } else {
             // attempt to pluralize via nlp
             return {
               newValues: {
-                value: text.nouns().toPlural().all().out('text')
-              }
-            }
+                value: text.nouns().toPlural().all().out('text'),
+              },
+            };
           }
         }
-
 
         // have more than one word
         // if don't have basedOnNumber, look for numbers before nouns to determine if plurals
         if (makePlural === undefined) {
-
           // find indices in allwords of nouns and values
           let nounIndices = [];
           let valueIndices = [];
@@ -117,7 +109,7 @@ export default class Pluralize extends Text {
           for (let [ind, word] of allwords.entries()) {
             let nextNoun = nouns[nounIndices.length];
 
-            if (word.terms[0].tags.includes("Value")) {
+            if (word.terms[0].tags.includes('Value')) {
               valueIndices.push(ind);
             }
             if (nextNoun !== undefined && nextNoun.text === word.text) {
@@ -137,24 +129,25 @@ export default class Pluralize extends Text {
               lastValueInd++;
             }
 
-            if (numbers[lastValueInd] && numberDesignatesPlural(Number(numbers[lastValueInd].normal))) {
+            if (
+              numbers[lastValueInd] &&
+              numberDesignatesPlural(Number(numbers[lastValueInd].normal))
+            ) {
               makePlural.push(true);
             } else {
               makePlural.push(false);
             }
           }
-
         }
 
         if (makePlural === false) {
-          return { newValues: { value: dependencyValues.valuePrePluralize } }
+          return { newValues: { value: dependencyValues.valuePrePluralize } };
         }
 
         // not sure why have to create new text for this to work
         let text2 = nlp(dependencyValues.valuePrePluralize);
 
         if (dependencyValues.pluralForm !== null) {
-
           // replace all nouns with plural form
           for (let [ind, nounObj] of text.nouns().data().entries()) {
             if (makePlural === true || makePlural[ind] === true) {
@@ -162,7 +155,6 @@ export default class Pluralize extends Text {
             }
           }
         } else {
-
           let numNouns = text.nouns().json().length;
           for (let ind = 0; ind < numNouns; ind++) {
             if (makePlural === true || makePlural[ind] === true) {
@@ -172,35 +164,29 @@ export default class Pluralize extends Text {
         }
         return {
           newValues: {
-            value: text2.out('text')
-          }
-        }
-
-      }
-
-    }
+            value: text2.out('text'),
+          },
+        };
+      },
+    };
 
     stateVariableDefinitions.text = {
       public: true,
-      componentType: "text",
+      componentType: 'text',
       forRenderer: true,
       returnDependencies: () => ({
         value: {
-          dependencyType: "stateVariable",
-          variableName: "value"
-        }
+          dependencyType: 'stateVariable',
+          variableName: 'value',
+        },
       }),
       definition: ({ dependencyValues }) => ({
-        newValues: { text: dependencyValues.value }
-      })
-    }
+        newValues: { text: dependencyValues.value },
+      }),
+    };
 
     return stateVariableDefinitions;
   }
-
-
-
-
 }
 
 function numberDesignatesPlural(num) {

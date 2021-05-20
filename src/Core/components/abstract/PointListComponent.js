@@ -2,53 +2,50 @@ import BaseComponent from './BaseComponent';
 import { breakEmbeddedStringsIntoParensPieces } from '../commonsugar/breakstrings';
 
 export default class PointListComponent extends BaseComponent {
-  static componentType = "_pointListComponent";
-  static rendererType = "container";
+  static componentType = '_pointListComponent';
+  static rendererType = 'container';
   static renderChildren = true;
 
   static returnSugarInstructions() {
     let sugarInstructions = super.returnSugarInstructions();
 
-
     let createPointList = function ({ matchedChildren }) {
-
       let results = breakEmbeddedStringsIntoParensPieces({
         componentList: matchedChildren,
       });
 
       if (results.success !== true) {
-        return { success: false }
+        return { success: false };
       }
 
       return {
         success: true,
         newChildren: results.pieces.map(function (piece) {
-          if (piece.length > 1 || piece[0].componentType === "string") {
+          if (piece.length > 1 || piece[0].componentType === 'string') {
             return {
-              componentType: "point",
-              children: piece
-            }
+              componentType: 'point',
+              children: piece,
+            };
           } else {
-            return piece[0]
+            return piece[0];
           }
-        })
-      }
-    }
+        }),
+      };
+    };
 
     sugarInstructions.push({
       // childrenRegex: /s+(.*s)?/,
-      replacementFunction: createPointList
+      replacementFunction: createPointList,
     });
 
     return sugarInstructions;
-
   }
 
   static returnChildLogic(args) {
     let childLogic = super.returnChildLogic(args);
 
     childLogic.newLeaf({
-      name: "atLeastZeroPoints",
+      name: 'atLeastZeroPoints',
       componentType: 'point',
       comparison: 'atLeast',
       number: 0,
@@ -58,40 +55,35 @@ export default class PointListComponent extends BaseComponent {
     return childLogic;
   }
 
-
-
   static returnStateVariableDefinitions() {
-
     let stateVariableDefinitions = super.returnStateVariableDefinitions();
 
     stateVariableDefinitions.nPoints = {
       returnDependencies: () => ({
         pointChildren: {
-          dependencyType: "child",
-          childLogicName: "atLeastZeroPoints",
+          dependencyType: 'child',
+          childLogicName: 'atLeastZeroPoints',
           skipComponentNames: true,
-        }
+        },
       }),
       definition: function ({ dependencyValues }) {
         return {
           newValues: { nPoints: dependencyValues.pointChildren.length },
-          checkForActualChange: { nPoints: true }
-        }
-      }
-    }
-
+          checkForActualChange: { nPoints: true },
+        };
+      },
+    };
 
     stateVariableDefinitions.nDimensions = {
       returnDependencies: () => ({
         pointChildren: {
-          dependencyType: "child",
-          childLogicName: "atLeastZeroPoints",
-          variableNames: ["nDimensions"],
+          dependencyType: 'child',
+          childLogicName: 'atLeastZeroPoints',
+          variableNames: ['nDimensions'],
           skipPlaceholders: true,
-        }
+        },
       }),
       definition: function ({ dependencyValues }) {
-
         let nDimensions;
 
         if (dependencyValues.pointChildren.length === 0) {
@@ -100,28 +92,32 @@ export default class PointListComponent extends BaseComponent {
           nDimensions = 1;
           for (let point of dependencyValues.pointChildren) {
             if (Number.isFinite(point.stateValues.nDimensions)) {
-              nDimensions = Math.max(nDimensions, point.stateValues.nDimensions)
+              nDimensions = Math.max(
+                nDimensions,
+                point.stateValues.nDimensions,
+              );
             }
           }
         }
         return {
           newValues: { nDimensions },
-          checkForActualChange: { nDimensions: true }
-        }
-      }
-    }
+          checkForActualChange: { nDimensions: true },
+        };
+      },
+    };
 
     stateVariableDefinitions.points = {
       isArray: true,
       nDimensions: 2,
-      entryPrefixes: ["pointX", "point"],
+      entryPrefixes: ['pointX', 'point'],
       getArrayKeysFromVarName({ arrayEntryPrefix, varEnding, arraySize }) {
-        if (arrayEntryPrefix === "pointX") {
+        if (arrayEntryPrefix === 'pointX') {
           // pointX1_2 is the 2nd component of the first point
-          let indices = varEnding.split('_').map(x => Number(x) - 1)
-          if (indices.length === 2 && indices.every(
-            (x, i) => Number.isInteger(x) && x >= 0
-          )) {
+          let indices = varEnding.split('_').map((x) => Number(x) - 1);
+          if (
+            indices.length === 2 &&
+            indices.every((x, i) => Number.isInteger(x) && x >= 0)
+          ) {
             if (arraySize) {
               if (indices.every((x, i) => x < arraySize[i])) {
                 return [String(indices)];
@@ -143,23 +139,29 @@ export default class PointListComponent extends BaseComponent {
             return [];
           }
           let pointInd = Number(varEnding) - 1;
-          if (Number.isInteger(pointInd) && pointInd >= 0 && pointInd < arraySize[0]) {
+          if (
+            Number.isInteger(pointInd) &&
+            pointInd >= 0 &&
+            pointInd < arraySize[0]
+          ) {
             // array of "pointInd,i", where i=0, ..., arraySize[1]-1
-            return Array.from(Array(arraySize[1]), (_, i) => pointInd + "," + i)
+            return Array.from(
+              Array(arraySize[1]),
+              (_, i) => pointInd + ',' + i,
+            );
           } else {
             return [];
           }
         }
-
       },
       returnArraySizeDependencies: () => ({
         nPoints: {
-          dependencyType: "stateVariable",
-          variableName: "nPoints",
+          dependencyType: 'stateVariable',
+          variableName: 'nPoints',
         },
         nDimensions: {
-          dependencyType: "stateVariable",
-          variableName: "nDimensions",
+          dependencyType: 'stateVariable',
+          variableName: 'nDimensions',
         },
       }),
       returnArraySize({ dependencyValues }) {
@@ -171,19 +173,17 @@ export default class PointListComponent extends BaseComponent {
           let [pointInd, dim] = arrayKey.split(',');
           dependenciesByKey[arrayKey] = {
             pointChild: {
-              dependencyType: "child",
-              childLogicName: "atLeastZeroPoints",
-              variableNames: ["x" + (Number(dim) + 1)],
+              dependencyType: 'child',
+              childLogicName: 'atLeastZeroPoints',
+              variableNames: ['x' + (Number(dim) + 1)],
               childIndices: [pointInd],
-            }
-          }
+            },
+          };
         }
 
         return { dependenciesByKey };
-
       },
       arrayDefinitionByKey({ dependencyValuesByKey, arrayKeys }) {
-
         // console.log('array definition of points for pointlist')
         // console.log(JSON.parse(JSON.stringify(dependencyValuesByKey)))
         // console.log(arrayKeys);
@@ -195,46 +195,40 @@ export default class PointListComponent extends BaseComponent {
 
           let pointChild = dependencyValuesByKey[arrayKey].pointChild[0];
           if (pointChild) {
-            points[arrayKey] = pointChild.stateValues["x" + (Number(dim) + 1)];
+            points[arrayKey] = pointChild.stateValues['x' + (Number(dim) + 1)];
           }
         }
 
         // console.log("result")
         // console.log(JSON.parse(JSON.stringify(points)));
-        
-        return { newValues: { points } }
 
+        return { newValues: { points } };
       },
-      inverseArrayDefinitionByKey({ desiredStateVariableValues,
-        dependencyNamesByKey
+      inverseArrayDefinitionByKey({
+        desiredStateVariableValues,
+        dependencyNamesByKey,
       }) {
-
         // console.log('array inverse definition of points of pointlist')
         // console.log(desiredStateVariableValues)
         // console.log(arrayKeys);
 
         let instructions = [];
         for (let arrayKey in desiredStateVariableValues.points) {
-
           instructions.push({
             setDependency: dependencyNamesByKey[arrayKey].pointChild,
             desiredValue: desiredStateVariableValues.points[arrayKey],
             childIndex: 0,
-            variableIndex: 0
-          })
-
+            variableIndex: 0,
+          });
         }
 
         return {
           success: true,
-          instructions
-        }
-
-      }
-    }
+          instructions,
+        };
+      },
+    };
 
     return stateVariableDefinitions;
-
   }
-
 }

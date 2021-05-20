@@ -1,7 +1,6 @@
 import { nanoid } from 'nanoid';
 import React, { Component } from 'react';
 
-
 export default class DoenetRenderer extends Component {
   constructor(props) {
     super(props);
@@ -15,7 +14,6 @@ export default class DoenetRenderer extends Component {
 
     this.actions = props.componentInstructions.actions;
 
-
     // This keeps the proxy in place so that state variables
     // aren't calculated unless asked for
     // Also means it will always have the new values when they are changed
@@ -27,12 +25,11 @@ export default class DoenetRenderer extends Component {
       addChildren: this.addChildren,
       removeChildren: this.removeChildren,
       swapChildren: this.swapChildren,
-    }
+    };
 
-    if(this.constructor.initializeChildrenOnConstruction) {
+    if (this.constructor.initializeChildrenOnConstruction) {
       this.initializeChildren();
     }
-
   }
 
   static initializeChildrenOnConstruction = true;
@@ -51,7 +48,10 @@ export default class DoenetRenderer extends Component {
   }
 
   removeChildren(instruction) {
-    this.children.splice(instruction.firstIndexInParent, instruction.numberChildrenDeleted);
+    this.children.splice(
+      instruction.firstIndexInParent,
+      instruction.numberChildrenDeleted,
+    );
     this.children = [...this.children]; // needed for React to recognize it's different
     for (let componentName of instruction.deletedComponentNames) {
       delete this.props.rendererUpdateMethods[componentName];
@@ -59,10 +59,11 @@ export default class DoenetRenderer extends Component {
     this.forceUpdate();
   }
 
-
   swapChildren(instruction) {
-    [this.children[instruction.index1], this.children[instruction.index2]]
-      = [this.children[instruction.index2], this.children[instruction.index1]];
+    [this.children[instruction.index1], this.children[instruction.index2]] = [
+      this.children[instruction.index2],
+      this.children[instruction.index1],
+    ];
     this.children = [...this.children]; // needed for React to recognize it's different
     this.forceUpdate();
   }
@@ -76,7 +77,6 @@ export default class DoenetRenderer extends Component {
 
     return this.children;
   }
-
 
   createChildFromInstructions(childInstructions) {
     // add nanoid to key so that will have unique key if recreate
@@ -92,7 +92,10 @@ export default class DoenetRenderer extends Component {
     if (this.doenetPropsForChildren) {
       Object.assign(propsForChild, this.doenetPropsForChildren);
     }
-    let child = React.createElement(this.props.rendererClasses[childInstructions.rendererType], propsForChild);
+    let child = React.createElement(
+      this.props.rendererClasses[childInstructions.rendererType],
+      propsForChild,
+    );
     return child;
   }
 }

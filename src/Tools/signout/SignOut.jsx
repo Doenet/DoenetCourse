@@ -10,10 +10,10 @@ export default function SignOut() {
     localStorage.clear(); //Clear out the profile
 
     axios
-      .get('/api/signOut.php', {params: {}})
+      .get('/api/signOut.php', { params: {} })
       .then((resp) => {
-      // console.log(">>>signout resp",resp)
-      setSignOutAttempted(true);
+        // console.log(">>>signout resp",resp)
+        setSignOutAttempted(true);
       })
       .catch((error) => {
         this.setState({ error: error });
@@ -82,7 +82,6 @@ export default function SignOut() {
       </>
     );
   }
-
 
   return (
     <>

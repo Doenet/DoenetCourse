@@ -1,4 +1,4 @@
-import React, { createContext, useCallback, useRef } from "react";
+import React, { createContext, useCallback, useRef } from 'react';
 
 export const BreadcrumbContext = createContext({});
 
@@ -37,11 +37,13 @@ export const BreadcrumbProvider = ({ children }) => {
       unsubscribe() {
         const index = listernersRef.current.findIndex((l) => l === listener);
         listernersRef.current.splice(index, 1);
-      }
+      },
     };
   }, []);
   return (
-    <BreadcrumbContext.Provider value={{ addItem, removeItem, clearItems, subscribe }}>
+    <BreadcrumbContext.Provider
+      value={{ addItem, removeItem, clearItems, subscribe }}
+    >
       {children}
     </BreadcrumbContext.Provider>
   );

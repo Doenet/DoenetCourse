@@ -39,7 +39,7 @@ import GlobalFont from '../../_utils/GlobalFont';
 import Tool from '../_framework/Tool';
 import { useToolControlHelper, ProfileContext } from '../_framework/ToolRoot';
 import Toast, { useToast } from '../_framework/Toast';
-import { drivecardSelectedNodesAtom,URLPathSync } from '../library/Library';
+import { drivecardSelectedNodesAtom, URLPathSync } from '../library/Library';
 import Enrollment from './Enrollment';
 import { useAssignment } from '../course/CourseActions';
 import { useAssignmentCallbacks } from '../../_reactComponents/Drive/DriveActions';
@@ -53,48 +53,51 @@ export const roleAtom = atom({
 });
 const loadAssignmentSelector = selectorFamily({
   key: 'loadAssignmentSelector',
-  get: (assignmentId) => async ({ get, set }) => {
-    const { data } = await axios.get(
-      `/api/getAllAssignmentSettings.php?assignmentId=${assignmentId}`,
-    );
-    return data;
-  },
+  get:
+    (assignmentId) =>
+    async ({ get, set }) => {
+      const { data } = await axios.get(
+        `/api/getAllAssignmentSettings.php?assignmentId=${assignmentId}`,
+      );
+      return data;
+    },
 });
 export const assignmentDictionary = atomFamily({
   key: 'assignmentDictionary',
   default: selectorFamily({
     key: 'assignmentDictionary/Default',
-    get: (driveIdcourseIditemIdparentFolderId) => async (
-      { get },
-      instructions,
-    ) => {
-      let folderInfoQueryKey = {
-        driveId: driveIdcourseIditemIdparentFolderId.driveId,
-        folderId: driveIdcourseIditemIdparentFolderId.folderId,
-      };
-      let folderInfo = get(folderDictionarySelector(folderInfoQueryKey));
-      const itemObj =
-        folderInfo?.contentsDictionary?.[
-          driveIdcourseIditemIdparentFolderId.itemId
-        ];
-      let itemIdassignmentId = itemObj?.assignmentId
-        ? itemObj.assignmentId
-        : null;
-      if (itemIdassignmentId) {
-        const aInfo = await get(loadAssignmentSelector(itemIdassignmentId));
-        if (aInfo) {
-          return aInfo?.assignments[0];
+    get:
+      (driveIdcourseIditemIdparentFolderId) =>
+      async ({ get }, instructions) => {
+        let folderInfoQueryKey = {
+          driveId: driveIdcourseIditemIdparentFolderId.driveId,
+          folderId: driveIdcourseIditemIdparentFolderId.folderId,
+        };
+        let folderInfo = get(folderDictionarySelector(folderInfoQueryKey));
+        const itemObj =
+          folderInfo?.contentsDictionary?.[
+            driveIdcourseIditemIdparentFolderId.itemId
+          ];
+        let itemIdassignmentId = itemObj?.assignmentId
+          ? itemObj.assignmentId
+          : null;
+        if (itemIdassignmentId) {
+          const aInfo = await get(loadAssignmentSelector(itemIdassignmentId));
+          if (aInfo) {
+            return aInfo?.assignments[0];
+          } else return null;
         } else return null;
-      } else return null;
-    },
+      },
   }),
 });
 let assignmentDictionarySelector = selectorFamily({
   //recoilvalue(assignmentDictionaryNewSelector(assignmentId))
   key: 'assignmentDictionaryNewSelector',
-  get: (driveIdcourseIditemIdparentFolderId) => ({ get }) => {
-    return get(assignmentDictionary(driveIdcourseIditemIdparentFolderId));
-  },
+  get:
+    (driveIdcourseIditemIdparentFolderId) =>
+    ({ get }) => {
+      return get(assignmentDictionary(driveIdcourseIditemIdparentFolderId));
+    },
 });
 
 function Container(props) {
@@ -138,15 +141,11 @@ export default function Course(props) {
   const clearSelections = useSetRecoilState(clearDriveAndItemSelections);
   const [openEnrollment, setEnrollmentView] = useState(false);
   const role = useRecoilValue(roleAtom);
-  const  setDrivePath = useSetRecoilState(drivePathSyncFamily("main"));
+  const setDrivePath = useSetRecoilState(drivePathSyncFamily('main'));
 
   if (urlParamsObj?.path !== undefined) {
-    [
-      routePathDriveId,
-      routePathFolderId,
-      pathItemId,
-      itemType,
-    ] = urlParamsObj.path.split(':');
+    [routePathDriveId, routePathFolderId, pathItemId, itemType] =
+      urlParamsObj.path.split(':');
   }
   if (urlParamsObj?.path !== undefined) {
     [routePathDriveId] = urlParamsObj.path.split(':');
@@ -178,7 +177,6 @@ export default function Course(props) {
     history.push('?' + encodeParams(newParams));
   };
 
-
   function cleardrivecardSelection() {
     // setDrivePath({
     //   driveId:"",
@@ -199,7 +197,7 @@ export default function Course(props) {
     newParams['path'] = `:::`;
     history.push('?' + encodeParams(newParams));
   }
-  let breadcrumbContainer = <BreadcrumbContainer drivePathSyncKey="main"/>;
+  let breadcrumbContainer = <BreadcrumbContainer drivePathSyncKey="main" />;
 
   const setEnrollment = (e) => {
     e.preventDefault();
@@ -271,7 +269,7 @@ export default function Course(props) {
 
   return (
     <Tool>
-       <URLPathSync route={props.route}/>
+      <URLPathSync route={props.route} />
       <headerPanel title="Course" />
       <navPanel isInitOpen>
         <GlobalFont />
@@ -279,7 +277,11 @@ export default function Course(props) {
           style={{ marginBottom: '40px', height: '100vh' }}
           onClick={useOutsideDriveSelector}
         >
-          <Drive driveId={routePathDriveId} foldersOnly={true} drivePathSyncKey="main"/>
+          <Drive
+            driveId={routePathDriveId}
+            foldersOnly={true}
+            drivePathSyncKey="main"
+          />
         </div>
       </navPanel>
 
@@ -420,7 +422,7 @@ const DoenetMLInfoPanel = (props) => {
   let assignmentToContentButton = null;
   let loadAssignmentButton = null;
   let unPublishContentButton = null;
-  let viewDoenetMLButton = (itemInfo.isAssignment === '0' &&
+  let viewDoenetMLButton = itemInfo.isAssignment === '0' && (
     <Button
       value="View DoenetML"
       callback={() => {
@@ -466,7 +468,8 @@ const DoenetMLInfoPanel = (props) => {
   };
   const handleOnBlur = (e) => {
     let name = e.target.name;
-    let value = e.target.type === 'checkbox' ? e.target.checked : e.target.value;
+    let value =
+      e.target.type === 'checkbox' ? e.target.checked : e.target.value;
     const result = saveSettings({
       [name]: value,
       driveIdcourseIditemIdparentFolderId: {
@@ -484,27 +487,28 @@ const DoenetMLInfoPanel = (props) => {
       [name]: value,
     };
     // if (name === 'assignment_title') {
-      updateAssignmentTitle({
-        driveIdFolderId: {
-          driveId: itemInfo.driveId,
-          folderId: itemInfo.parentFolderId,
-        },
-        itemId: itemInfo.itemId,
-        payloadAssignment: payload,
-      });
+    updateAssignmentTitle({
+      driveIdFolderId: {
+        driveId: itemInfo.driveId,
+        folderId: itemInfo.parentFolderId,
+      },
+      itemId: itemInfo.itemId,
+      payloadAssignment: payload,
+    });
 
     // }
 
-    result.then((resp) => {
-      if (resp.data.success) {
-        addToast(`Updated '${name}' to '${value}'`, ToastType.SUCCESS);
-      } else {
-        onAssignmentError({errorMessage: resp.data.message});
-      }
-    })
-    .catch((e) => {
-      onAssignmentError({errorMessage: e.message});
-    });
+    result
+      .then((resp) => {
+        if (resp.data.success) {
+          addToast(`Updated '${name}' to '${value}'`, ToastType.SUCCESS);
+        } else {
+          onAssignmentError({ errorMessage: resp.data.message });
+        }
+      })
+      .catch((e) => {
+        onAssignmentError({ errorMessage: e.message });
+      });
   };
   const handlePublishContent = () => {
     let payload = {
@@ -519,24 +523,25 @@ const DoenetMLInfoPanel = (props) => {
       payload: payload,
     });
 
-    const result = axios.post(`/api/handlePublishContent.php`, payload)
-    result.then((resp) => {
-      if (resp.data.success) {
-      addToast(`'${itemInfo.label}' Published'`, ToastType.SUCCESS);
-    } else {
-        onAssignmentError({errorMessage: resp.data.message});
-      }
-    })
-    .catch((e) => {
-      onAssignmentError({errorMessage: e.message});
-    });
+    const result = axios.post(`/api/handlePublishContent.php`, payload);
+    result
+      .then((resp) => {
+        if (resp.data.success) {
+          addToast(`'${itemInfo.label}' Published'`, ToastType.SUCCESS);
+        } else {
+          onAssignmentError({ errorMessage: resp.data.message });
+        }
+      })
+      .catch((e) => {
+        onAssignmentError({ errorMessage: e.message });
+      });
   };
 
   const handleMakeContent = (e) => {
     let payload = {
       itemId: itemInfo.itemId,
     };
-    
+
     assignmentToContent({
       driveIdcourseIditemIdparentFolderId: {
         driveId: itemInfo.driveId,
@@ -545,7 +550,7 @@ const DoenetMLInfoPanel = (props) => {
         courseId: courseId,
       },
     });
-   
+
     convertAssignmentToContent({
       driveIdFolderId: {
         driveId: itemInfo.driveId,
@@ -555,17 +560,21 @@ const DoenetMLInfoPanel = (props) => {
       assignedDataSavenew: payload,
     });
 
-    const result = axios.post(`/api/handleMakeContent.php`, payload)
-    result.then((resp) => {
-      if (resp.data.success) {
-        addToast(`'${itemInfo.assignment_title}' back to '${itemInfo.label}''`, ToastType.SUCCESS);
-      } else {
-        onAssignmentError({errorMessage: resp.data.message});
-      }
-    })
-    .catch((e) => {
-      onAssignmentError({errorMessage: e.message});
-    });
+    const result = axios.post(`/api/handleMakeContent.php`, payload);
+    result
+      .then((resp) => {
+        if (resp.data.success) {
+          addToast(
+            `'${itemInfo.assignment_title}' back to '${itemInfo.label}''`,
+            ToastType.SUCCESS,
+          );
+        } else {
+          onAssignmentError({ errorMessage: resp.data.message });
+        }
+      })
+      .catch((e) => {
+        onAssignmentError({ errorMessage: e.message });
+      });
   };
 
   const loadBackAssignment = () => {
@@ -593,18 +602,21 @@ const DoenetMLInfoPanel = (props) => {
       itemId: itemInfo.itemId,
       payloadAssignment: payload,
     });
-    const result = axios.post(`/api/handleBackAssignment.php`, payload)
-    result.then((resp) => {
-     if (resp.data.success) {
-      addToast(`'${itemInfo.label}' back to '${itemInfo.assignment_title}'`, ToastType.SUCCESS);
-    } else {
-       onAssignmentError({errorMessage: resp.data.message});
-     }
-   })
-   .catch((e) => {
-     onAssignmentError({errorMessage: e.message});
-   });
-
+    const result = axios.post(`/api/handleBackAssignment.php`, payload);
+    result
+      .then((resp) => {
+        if (resp.data.success) {
+          addToast(
+            `'${itemInfo.label}' back to '${itemInfo.assignment_title}'`,
+            ToastType.SUCCESS,
+          );
+        } else {
+          onAssignmentError({ errorMessage: resp.data.message });
+        }
+      })
+      .catch((e) => {
+        onAssignmentError({ errorMessage: e.message });
+      });
   };
   const [showAForm, setShowAForm] = useState(false);
   const role = useRecoilValue(roleAtom);
@@ -663,16 +675,16 @@ const DoenetMLInfoPanel = (props) => {
               payload: payload,
             });
             try {
-              if(result.success){
-                addToast(`Add new assignment 'Untitled assignment'`, ToastType.SUCCESS,);
-              }
-              else{
+              if (result.success) {
+                addToast(
+                  `Add new assignment 'Untitled assignment'`,
+                  ToastType.SUCCESS,
+                );
+              } else {
                 onAssignmentError({ errorMessage: result.message });
               }
-              
             } catch (e) {
-              onAssignmentError({ errorMessage: e});
-
+              onAssignmentError({ errorMessage: e });
             }
           }}
         />
@@ -700,7 +712,7 @@ const DoenetMLInfoPanel = (props) => {
                 onChange={handleChange}
               />
             </div>
-            <div>                   
+            <div>
               <label>Assigned Date:</label>
               <input
                 required
@@ -885,17 +897,20 @@ const DoenetMLInfoPanel = (props) => {
                     payload: payload,
                   });
 
-                  result.then((resp) => {
-                    if (resp.data.success) {
-                      addToast(`'${aInfo.assignment_title}' Published'`, ToastType.SUCCESS);
-                    }
-                    else{
-                      onAssignmentError({errorMessage: resp.data.message});
-                    }
-                  })
-                  .catch( e => {
-                    onAssignmentError({errorMessage: e.message});
-                  })
+                  result
+                    .then((resp) => {
+                      if (resp.data.success) {
+                        addToast(
+                          `'${aInfo.assignment_title}' Published'`,
+                          ToastType.SUCCESS,
+                        );
+                      } else {
+                        onAssignmentError({ errorMessage: resp.data.message });
+                      }
+                    })
+                    .catch((e) => {
+                      onAssignmentError({ errorMessage: e.message });
+                    });
                 }}
                 type="submit"
               ></Button>
@@ -941,7 +956,7 @@ const DoenetMLInfoPanel = (props) => {
       {publishContentButton}
       <br />
       {viewDoenetMLButton}
-       <br />
+      <br />
       {loadAssignmentButton}
       <br />
       {assignmentToContentButton}

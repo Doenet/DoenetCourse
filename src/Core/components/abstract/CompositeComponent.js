@@ -6,57 +6,58 @@ export default class CompositeComponent extends BaseComponent {
 
     this.replacementsWorkspace = {};
   }
-  static componentType = "_composite";
+  static componentType = '_composite';
 
   static rendererType = undefined;
 
   static returnStateVariableDefinitions() {
-
     let stateVariableDefinitions = super.returnStateVariableDefinitions();
-
 
     stateVariableDefinitions.replacements = {
       returnDependencies: () => ({
         replacements: {
-          dependencyType: "replacement",
+          dependencyType: 'replacement',
         },
       }),
       definition: ({ dependencyValues }) => ({
-        newValues: { replacements: dependencyValues.replacements }
-      })
-    }
-
+        newValues: { replacements: dependencyValues.replacements },
+      }),
+    };
 
     stateVariableDefinitions.recursiveReplacements = {
       returnDependencies: () => ({
         recursiveReplacements: {
-          dependencyType: "replacement",
+          dependencyType: 'replacement',
           recursive: true,
         },
       }),
       definition: ({ dependencyValues }) => ({
-        newValues: { recursiveReplacements: dependencyValues.recursiveReplacements }
-      })
-    }
+        newValues: {
+          recursiveReplacements: dependencyValues.recursiveReplacements,
+        },
+      }),
+    };
 
     stateVariableDefinitions.fullRecursiveReplacements = {
       returnDependencies: () => ({
         recursiveReplacements: {
-          dependencyType: "replacement",
+          dependencyType: 'replacement',
           recursive: true,
           recurseNonStandardComposites: true,
         },
       }),
       definition: ({ dependencyValues }) => ({
-        newValues: { fullRecursiveReplacements: dependencyValues.recursiveReplacements }
-      })
-    }
+        newValues: {
+          fullRecursiveReplacements: dependencyValues.recursiveReplacements,
+        },
+      }),
+    };
 
     return stateVariableDefinitions;
   }
 
   static createSerializedReplacements() {
-    return { replacements: [] }
+    return { replacements: [] };
   }
 
   static calculateReplacementChanges() {
@@ -87,7 +88,6 @@ export default class CompositeComponent extends BaseComponent {
   // }
 
   get allPotentialRendererTypes() {
-
     let allPotentialRendererTypes = [];
 
     if (this.replacements) {
@@ -97,13 +97,9 @@ export default class CompositeComponent extends BaseComponent {
             allPotentialRendererTypes.push(rendererType);
           }
         }
-
       }
     }
 
     return allPotentialRendererTypes;
-
   }
-
-
 }

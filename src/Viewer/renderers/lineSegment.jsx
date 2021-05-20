@@ -3,7 +3,7 @@ import DoenetRenderer from './DoenetRenderer';
 
 export default class LineSegment extends DoenetRenderer {
   constructor(props) {
-    super(props)
+    super(props);
 
     this.onDragHandler = this.onDragHandler.bind(this);
 
@@ -18,9 +18,9 @@ export default class LineSegment extends DoenetRenderer {
   static initializeChildrenOnConstruction = false;
 
   createGraphicalObject() {
-
-    if (this.doenetSvData.numericalEndpoints.length !== 2 ||
-      this.doenetSvData.numericalEndpoints.some(x => x.length !== 2)
+    if (
+      this.doenetSvData.numericalEndpoints.length !== 2 ||
+      this.doenetSvData.numericalEndpoints.some((x) => x.length !== 2)
     ) {
       return;
     }
@@ -29,7 +29,7 @@ export default class LineSegment extends DoenetRenderer {
     var jsxSegmentAttributes = {
       name: this.doenetSvData.label,
       visible: !this.doenetSvData.hidden,
-      withLabel: this.doenetSvData.showLabel && this.doenetSvData.label !== "",
+      withLabel: this.doenetSvData.showLabel && this.doenetSvData.label !== '',
       fixed: !this.doenetSvData.draggable || this.doenetSvData.fixed,
       layer: 10 * this.doenetSvData.layer + 7,
       strokeColor: this.doenetSvData.selectedStyle.lineColor,
@@ -39,7 +39,8 @@ export default class LineSegment extends DoenetRenderer {
     };
 
     if (!this.doenetSvData.draggable || this.doenetSvData.fixed) {
-      jsxSegmentAttributes.highlightStrokeWidth = this.doenetSvData.selectedStyle.lineWidth;
+      jsxSegmentAttributes.highlightStrokeWidth =
+        this.doenetSvData.selectedStyle.lineWidth;
     }
 
     let jsxPointAttributes = Object.assign({}, jsxSegmentAttributes);
@@ -55,18 +56,28 @@ export default class LineSegment extends DoenetRenderer {
       jsxPointAttributes.visible = false;
     }
 
-
     let endpoints = [
       [...this.doenetSvData.numericalEndpoints[0]],
-      [...this.doenetSvData.numericalEndpoints[1]]
+      [...this.doenetSvData.numericalEndpoints[1]],
     ];
 
     // create invisible points at endpoints
-    this.point1JXG = this.props.board.create('point', endpoints[0], jsxPointAttributes);
-    this.point2JXG = this.props.board.create('point', endpoints[1], jsxPointAttributes);
+    this.point1JXG = this.props.board.create(
+      'point',
+      endpoints[0],
+      jsxPointAttributes,
+    );
+    this.point2JXG = this.props.board.create(
+      'point',
+      endpoints[1],
+      jsxPointAttributes,
+    );
 
-
-    this.lineSegmentJXG = this.props.board.create('segment', [this.point1JXG, this.point2JXG], jsxSegmentAttributes);
+    this.lineSegmentJXG = this.props.board.create(
+      'segment',
+      [this.point1JXG, this.point2JXG],
+      jsxSegmentAttributes,
+    );
 
     this.point1JXG.on('drag', () => this.onDragHandler(1, true));
     this.point2JXG.on('drag', () => this.onDragHandler(2, true));
@@ -76,14 +87,14 @@ export default class LineSegment extends DoenetRenderer {
     this.point2JXG.on('up', () => this.onDragHandler(2, false));
     this.lineSegmentJXG.on('up', () => this.onDragHandler(0, false));
 
-    this.point1JXG.on('down', () => this.draggedPoint = null);
-    this.point2JXG.on('down', () => this.draggedPoint = null);
-    this.lineSegmentJXG.on('down', () => this.draggedPoint = null);
+    this.point1JXG.on('down', () => (this.draggedPoint = null));
+    this.point2JXG.on('down', () => (this.draggedPoint = null));
+    this.lineSegmentJXG.on('down', () => (this.draggedPoint = null));
 
-    this.previousWithLabel = this.doenetSvData.showLabel && this.doenetSvData.label !== "";
+    this.previousWithLabel =
+      this.doenetSvData.showLabel && this.doenetSvData.label !== '';
 
     return this.lineSegmentJXG;
-
   }
 
   deleteGraphicalObject() {
@@ -101,9 +112,7 @@ export default class LineSegment extends DoenetRenderer {
     }
   }
 
-
   update({ sourceOfUpdate }) {
-
     if (!this.props.board) {
       this.forceUpdate();
       return;
@@ -113,15 +122,19 @@ export default class LineSegment extends DoenetRenderer {
       return this.createGraphicalObject();
     }
 
-    if (this.doenetSvData.numericalEndpoints.length !== 2 ||
-      this.doenetSvData.numericalEndpoints.some(x => x.length !== 2)
+    if (
+      this.doenetSvData.numericalEndpoints.length !== 2 ||
+      this.doenetSvData.numericalEndpoints.some((x) => x.length !== 2)
     ) {
       return this.deleteGraphicalObject();
     }
 
     let validCoords = true;
 
-    for (let coords of [this.doenetSvData.numericalEndpoints[0], this.doenetSvData.numericalEndpoints[1]]) {
+    for (let coords of [
+      this.doenetSvData.numericalEndpoints[0],
+      this.doenetSvData.numericalEndpoints[1],
+    ]) {
       if (!Number.isFinite(coords[0])) {
         validCoords = false;
       }
@@ -130,39 +143,46 @@ export default class LineSegment extends DoenetRenderer {
       }
     }
 
-    this.lineSegmentJXG.point1.coords.setCoordinates(JXG.COORDS_BY_USER, this.doenetSvData.numericalEndpoints[0]);
-    this.lineSegmentJXG.point2.coords.setCoordinates(JXG.COORDS_BY_USER, this.doenetSvData.numericalEndpoints[1]);
+    this.lineSegmentJXG.point1.coords.setCoordinates(
+      JXG.COORDS_BY_USER,
+      this.doenetSvData.numericalEndpoints[0],
+    );
+    this.lineSegmentJXG.point2.coords.setCoordinates(
+      JXG.COORDS_BY_USER,
+      this.doenetSvData.numericalEndpoints[1],
+    );
 
     let visible = !this.doenetSvData.hidden;
 
     if (validCoords) {
-      let actuallyChangedVisibility = this.lineSegmentJXG.visProp["visible"] !== visible;
-      this.lineSegmentJXG.visProp["visible"] = visible;
-      this.lineSegmentJXG.visPropCalc["visible"] = visible;
+      let actuallyChangedVisibility =
+        this.lineSegmentJXG.visProp['visible'] !== visible;
+      this.lineSegmentJXG.visProp['visible'] = visible;
+      this.lineSegmentJXG.visPropCalc['visible'] = visible;
 
       if (actuallyChangedVisibility) {
         // at least for point, this function is incredibly slow, so don't run it if not necessary
         // TODO: figure out how to make label disappear right away so don't need to run this function
-        this.lineSegmentJXG.setAttribute({ visible: visible })
+        this.lineSegmentJXG.setAttribute({ visible: visible });
       }
-    }
-    else {
-      this.lineSegmentJXG.visProp["visible"] = false;
-      this.lineSegmentJXG.visPropCalc["visible"] = false;
+    } else {
+      this.lineSegmentJXG.visProp['visible'] = false;
+      this.lineSegmentJXG.visPropCalc['visible'] = false;
       // this.lineSegmentJXG.setAttribute({visible: false})
     }
 
     this.lineSegmentJXG.name = this.doenetSvData.label;
     // this.lineSegmentJXG.visProp.withlabel = this.showlabel && this.label !== "";
 
-    let withlabel = this.doenetSvData.showLabel && this.doenetSvData.label !== "";
+    let withlabel =
+      this.doenetSvData.showLabel && this.doenetSvData.label !== '';
     if (withlabel != this.previousWithLabel) {
       this.lineSegmentJXG.setAttribute({ withlabel: withlabel });
       this.previousWithLabel = withlabel;
     }
 
     this.lineSegmentJXG.needsUpdate = true;
-    this.lineSegmentJXG.update()
+    this.lineSegmentJXG.update();
     if (this.lineSegmentJXG.hasLabel) {
       this.lineSegmentJXG.label.needsUpdate = true;
       this.lineSegmentJXG.label.update();
@@ -173,11 +193,9 @@ export default class LineSegment extends DoenetRenderer {
     this.point2JXG.update();
 
     this.props.board.updateRenderer();
-
   }
 
   onDragHandler(i, transient) {
-
     if (transient) {
       this.draggedPoint = i;
     } else if (this.draggedPoint !== i) {
@@ -186,28 +204,43 @@ export default class LineSegment extends DoenetRenderer {
 
     if (i == 1) {
       this.actions.moveLineSegment({
-        point1coords: [this.lineSegmentJXG.point1.X(), this.lineSegmentJXG.point1.Y()],
-        transient
+        point1coords: [
+          this.lineSegmentJXG.point1.X(),
+          this.lineSegmentJXG.point1.Y(),
+        ],
+        transient,
       });
     } else if (i == 2) {
       this.actions.moveLineSegment({
-        point2coords: [this.lineSegmentJXG.point2.X(), this.lineSegmentJXG.point2.Y()],
-        transient
+        point2coords: [
+          this.lineSegmentJXG.point2.X(),
+          this.lineSegmentJXG.point2.Y(),
+        ],
+        transient,
       });
     } else {
       this.actions.moveLineSegment({
-        point1coords: [this.lineSegmentJXG.point1.X(), this.lineSegmentJXG.point1.Y()],
-        point2coords: [this.lineSegmentJXG.point2.X(), this.lineSegmentJXG.point2.Y()],
-        transient
+        point1coords: [
+          this.lineSegmentJXG.point1.X(),
+          this.lineSegmentJXG.point1.Y(),
+        ],
+        point2coords: [
+          this.lineSegmentJXG.point2.X(),
+          this.lineSegmentJXG.point2.Y(),
+        ],
+        transient,
       });
     }
   }
 
-
   render() {
-
     if (this.props.board) {
-      return <><a name={this.componentName} />{this.children}</>
+      return (
+        <>
+          <a name={this.componentName} />
+          {this.children}
+        </>
+      );
     }
 
     if (this.doenetSvData.hidden) {
@@ -215,16 +248,20 @@ export default class LineSegment extends DoenetRenderer {
     }
 
     // don't think we want to return anything if not in board
-    return <><a name={this.componentName} /></>
+    return (
+      <>
+        <a name={this.componentName} />
+      </>
+    );
   }
 }
 
 function styleToDash(style) {
-  if (style === "solid") {
+  if (style === 'solid') {
     return 0;
-  } else if (style === "dashed") {
+  } else if (style === 'dashed') {
     return 2;
-  } else if (style === "dotted") {
+  } else if (style === 'dotted') {
     return 1;
   } else {
     return 0;

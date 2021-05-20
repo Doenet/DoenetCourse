@@ -1,6 +1,6 @@
 import React from 'react';
 //import "theme.css";
-import { doenetComponentBackgroundActive } from "./theme.js";
+import { doenetComponentBackgroundActive } from './theme.js';
 
 export default function VerticalDivider() {
   const verticalHeaderDivider = {
@@ -11,10 +11,7 @@ export default function VerticalDivider() {
     width: '0px',
     display: 'inline-block',
     margin: '0px',
-    verticalAlign: 'middle'
+    verticalAlign: 'middle',
   };
-  return (
-    <div style={verticalHeaderDivider}></div>
-  );
+  return <div style={verticalHeaderDivider}></div>;
 }
-      

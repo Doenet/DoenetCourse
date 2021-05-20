@@ -1,6 +1,6 @@
 import React from 'react';
 import ReactDOM from 'react-dom';
-import {parse,parseAndCompile,showCursor} from '../../Parser/parser.js';
+import { parse, parseAndCompile, showCursor } from '../../Parser/parser.js';
 
 // import axios from 'axios';
 
@@ -58,7 +58,6 @@ import {parse,parseAndCompile,showCursor} from '../../Parser/parser.js';
 //   //   setComponents([<>{component}</>])
 //   // })
 
-
 //   // const One = lazy(() => import('./one.jsx'));
 //   // const Two = lazy(() => import('./two.jsx'));
 
@@ -81,23 +80,18 @@ import {parse,parseAndCompile,showCursor} from '../../Parser/parser.js';
 //   );
 // }
 
-  // <DynamicLoad />,
+// <DynamicLoad />,
 
+ReactDOM.render(<p>temp</p>, document.getElementById('root'));
 
-ReactDOM.render(
-  <p>temp</p>,
-  document.getElementById('root'),
-);
-
-
-const doenetMl = "<p>This is a test string <div> with a nested tag </div></p> <test attr=\"value\" /> <two />"
+const doenetMl =
+  '<p>This is a test string <div> with a nested tag </div></p> <test attr="value" /> <two />';
 
 // const doenetMl = `
-//   <p> this is a test string 
+//   <p> this is a test string
 //     <div id="divtastic" parsed="true"> with a div <a href ="https://www.youtube.com/watch?v=dQw4w9WgXcQ"> cool link </a></div>
-//   </p>  
+//   </p>
 //   <test passed="true" />`
-
 
 let t = parse(doenetMl);
 console.log(t);
@@ -105,7 +99,7 @@ console.log(t);
 console.log(showCursor(t));
 
 let o = parseAndCompile(doenetMl);
-console.log(o)
+console.log(o);
 
 // while(t.next()){
 //   console.log(">>>node type",t.type)

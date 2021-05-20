@@ -13,8 +13,7 @@ jobs:
       - name: Prettify
         uses: creyD/prettier_action@v3.3
         with:
-          prettier_options: --write ./src/**/*.{jsx,json,php}
-          prettier_plugins: '@prettier/plugin-php'
+          prettier_options: --write ./src/**/*.{js,jsx,json}
           dry: true
 
   lint:

@@ -8,20 +8,20 @@ import ToolRoot from '../Tools/_framework/ToolRoot';
 
 ReactDOM.render(
   <RecoilRoot>
-  <Router>
-    <Switch>
-      <Route
-        path="/"
-        render={(routeprops) => (
-          <ToolRoot
-            route={{ ...routeprops }}
-            tool={<DoenetHomePage key={'BaseTool'} />}
-          />
-        )}
-      />
-    </Switch>
-  </Router>
-</RecoilRoot>, 
+    <Router>
+      <Switch>
+        <Route
+          path="/"
+          render={(routeprops) => (
+            <ToolRoot
+              route={{ ...routeprops }}
+              tool={<DoenetHomePage key={'BaseTool'} />}
+            />
+          )}
+        />
+      </Switch>
+    </Router>
+  </RecoilRoot>,
   document.getElementById('root'),
 );
 

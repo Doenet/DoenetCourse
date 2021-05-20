@@ -3,22 +3,33 @@ import me from 'math-expressions';
 import { textToAst } from '../utils/math';
 
 export default class Integer extends NumberComponent {
-  static componentType = "integer";
-  static rendererType = "number";
+  static componentType = 'integer';
+  static rendererType = 'number';
 
   static returnStateVariableDefinitions() {
-
     let stateVariableDefinitions = super.returnStateVariableDefinitions();
 
-    stateVariableDefinitions.value.definition = function ({ dependencyValues }) {
+    stateVariableDefinitions.value.definition = function ({
+      dependencyValues,
+    }) {
       if (dependencyValues.numberChild.length === 0) {
         if (dependencyValues.stringChild.length === 0) {
-          return { useEssentialOrDefaultValue: { value: { variablesToCheck: ["value"] } } }
+          return {
+            useEssentialOrDefaultValue: {
+              value: { variablesToCheck: ['value'] },
+            },
+          };
         }
         let number = Number(dependencyValues.stringChild[0].stateValues.value);
         if (Number.isNaN(number)) {
           try {
-            number = me.fromAst(textToAst.convert(dependencyValues.stringChild[0].stateValues.value)).evaluate_to_constant();
+            number = me
+              .fromAst(
+                textToAst.convert(
+                  dependencyValues.stringChild[0].stateValues.value,
+                ),
+              )
+              .evaluate_to_constant();
             if (number === null) {
               number = NaN;
             }
@@ -28,13 +39,21 @@ export default class Integer extends NumberComponent {
         }
         return { newValues: { value: Math.round(number) } };
       } else {
-        return { newValues: { value: Math.round(dependencyValues.numberChild[0].stateValues.value) } }
+        return {
+          newValues: {
+            value: Math.round(
+              dependencyValues.numberChild[0].stateValues.value,
+            ),
+          },
+        };
       }
-    }
+    };
 
-
-    stateVariableDefinitions.value.inverseDefinition = function ({ desiredStateVariableValues, dependencyValues, stateValues }) {
-
+    stateVariableDefinitions.value.inverseDefinition = function ({
+      desiredStateVariableValues,
+      dependencyValues,
+      stateValues,
+    }) {
       if (!stateValues.canBeModified) {
         return { success: false };
       }
@@ -51,35 +70,40 @@ export default class Integer extends NumberComponent {
 
       if (dependencyValues.numberChild.length === 0) {
         if (dependencyValues.stringChild.length === 0) {
-          instructions = [{
-            setStateVariable: "value",
-            value: desiredValue,
-          }];
+          instructions = [
+            {
+              setStateVariable: 'value',
+              value: desiredValue,
+            },
+          ];
         } else {
           // TODO: would it be more efficient to defer setting value of string?
-          instructions = [{
-            setDependency: "stringChild",
-            desiredValue: desiredValue.toString(),
-            childIndex: 0,
-            variableIndex: 0,
-          }];
+          instructions = [
+            {
+              setDependency: 'stringChild',
+              desiredValue: desiredValue.toString(),
+              childIndex: 0,
+              variableIndex: 0,
+            },
+          ];
         }
       } else {
-        instructions = [{
-          setDependency: "numberChild",
-          desiredValue: desiredValue,
-          childIndex: 0,
-          variableIndex: 0,
-        }];
+        instructions = [
+          {
+            setDependency: 'numberChild',
+            desiredValue: desiredValue,
+            childIndex: 0,
+            variableIndex: 0,
+          },
+        ];
       }
 
       return {
         success: true,
         instructions,
-      }
+      };
     };
 
     return stateVariableDefinitions;
-
   }
 }

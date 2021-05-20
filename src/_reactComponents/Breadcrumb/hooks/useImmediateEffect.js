@@ -1,10 +1,10 @@
-import { useRef } from "react";
+import { useRef } from 'react';
 
 export const useImmediateEffect = (effectFn, deps) => {
   const previousDeps = useRef();
 
   if (
-    typeof deps === "undefined" ||
+    typeof deps === 'undefined' ||
     !previousDeps.current ||
     !compareArrays(previousDeps.current, deps)
   ) {

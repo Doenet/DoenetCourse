@@ -11,20 +11,20 @@ the value prop overrides the children, the children will be ignored if there is 
 Note: you can pass any additional properties if you wish, these props will be passed to the div that contains the input and label elements.
 */
 
-import React, { useState, useEffect } from "react";
-import { useSpring, animated } from "react-spring";
-import styled from "styled-components";
-import { doenetComponentForegroundActive } from './temp/theme'
+import React, { useState, useEffect } from 'react';
+import { useSpring, animated } from 'react-spring';
+import styled from 'styled-components';
+import { doenetComponentForegroundActive } from './temp/theme';
 
 // PARAMETERS
-const LABELCOLOR = "#1a5a99";
-const FONTFAMILY = "sans-serif";
-const BACKGROUNDCOLOR = "#eee";
-const FOCUSBACKGROUNDCOLOR = "#1a5a99";
+const LABELCOLOR = '#1a5a99';
+const FONTFAMILY = 'sans-serif';
+const BACKGROUNDCOLOR = '#eee';
+const FOCUSBACKGROUNDCOLOR = '#1a5a99';
 
 function randomAlphaString(len) {
-  let c = "abcdefghijklmnopqrstuvwxyz";
-  let str = "";
+  let c = 'abcdefghijklmnopqrstuvwxyz';
+  let str = '';
   for (let i = 0; i < len; i++) {
     str += c[Math.round(Math.random() * 25)];
   }
@@ -34,61 +34,61 @@ function randomAlphaString(len) {
 const labelStyles = {
   baseline: {
     fontFamily: FONTFAMILY,
-    position: "absolute",
-    top: "0.75em",
-    fontSize: "1em",
-    marginLeft: "0.7em",
-    whiteSpace: "nowrap",
-    MozUserSelect: "none" /* Firefox */,
-    msUserSelect: "none" /* Internet Explorer */,
-    WebkitUserSelect: "none" /* Chrome, Safari, and Opera */,
-    WebkitTouchCallout: "none" /* Disable Android and iOS callouts*/,
+    position: 'absolute',
+    top: '0.75em',
+    fontSize: '1em',
+    marginLeft: '0.7em',
+    whiteSpace: 'nowrap',
+    MozUserSelect: 'none' /* Firefox */,
+    msUserSelect: 'none' /* Internet Explorer */,
+    WebkitUserSelect: 'none' /* Chrome, Safari, and Opera */,
+    WebkitTouchCallout: 'none' /* Disable Android and iOS callouts*/,
     config: {
-      tension: 400
-    }
+      tension: 400,
+    },
   },
   empty: {
     color: LABELCOLOR,
-    position: "absolute",
-    top: "0.75em",
-    fontSize: "1em"
+    position: 'absolute',
+    top: '0.75em',
+    fontSize: '1em',
   },
   inactive: {
     color: LABELCOLOR,
-    position: "absolute",
-    top: "0.75em",
-    fontSize: "1em"
+    position: 'absolute',
+    top: '0.75em',
+    fontSize: '1em',
   },
   notEmpty: {
     color: LABELCOLOR,
-    top: "0.3em",
-    fontSize: "0.7em"
+    top: '0.3em',
+    fontSize: '0.7em',
   },
   active: {
-    color: "#eee",
-    top: "0.3em",
-    fontSize: "0.7em",
-  }
+    color: '#eee',
+    top: '0.3em',
+    fontSize: '0.7em',
+  },
 };
 
 const inputStyles = {
   baseline: {
-    fontSize: "1em",
-    padding: "1em 0.5em 0.5em 0.5em",
-    border: "none",
+    fontSize: '1em',
+    padding: '1em 0.5em 0.5em 0.5em',
+    border: 'none',
     backgroundColor: BACKGROUNDCOLOR,
-    borderRadius: "0.33em",
-    outline: "0",
-    width: "calc(100% - 1em)"
+    borderRadius: '0.33em',
+    outline: '0',
+    width: 'calc(100% - 1em)',
   },
   inactive: {
-    color: "#000",
-    backgroundColor: BACKGROUNDCOLOR
+    color: '#000',
+    backgroundColor: BACKGROUNDCOLOR,
   },
   active: {
-    color: "#eee",
-    backgroundColor: FOCUSBACKGROUNDCOLOR
-  }
+    color: '#eee',
+    backgroundColor: FOCUSBACKGROUNDCOLOR,
+  },
 };
 
 const AnimatedLabel = animated.label;
@@ -111,7 +111,7 @@ const LengthIndicator = styled.p`
   right: 1em;
   color: ${LABELCOLOR};
   font-family: sans-serif;
-`
+`;
 
 export default function Textinput(props) {
   // props
@@ -124,7 +124,7 @@ export default function Textinput(props) {
   }
 
   // Section: states
-  let [value, setValue] = useState(props.value || props.children || ""); // will be undefined if not specified which will show up like an empty string.
+  let [value, setValue] = useState(props.value || props.children || ''); // will be undefined if not specified which will show up like an empty string.
 
   // Section: spring animations
   const [labelStyle, setLabelStyle] = useSpring(() => labelStyles.baseline);
@@ -139,9 +139,17 @@ export default function Textinput(props) {
   }, []);
 
   // allow specifying resize property for textarea
-  let inputStylesWithResize = { ...inputStyles, baseline: { ...inputStyles.baseline, resize: props.resize || (area ? "both" : "none") }}
+  let inputStylesWithResize = {
+    ...inputStyles,
+    baseline: {
+      ...inputStyles.baseline,
+      resize: props.resize || (area ? 'both' : 'none'),
+    },
+  };
 
-  const [inputStyle, setInputStyle] = useSpring(() => inputStylesWithResize.baseline);
+  const [inputStyle, setInputStyle] = useSpring(
+    () => inputStylesWithResize.baseline,
+  );
 
   // Section: event handlers
   function handleFocus(e) {
@@ -155,7 +163,7 @@ export default function Textinput(props) {
     setInputStyle(inputStyles.inactive);
     if (!value) {
       setLabelStyle(labelStyles.inactive);
-    }else{
+    } else {
       setLabelStyle(labelStyles.notEmpty);
     }
   }
@@ -166,10 +174,10 @@ export default function Textinput(props) {
         {...props}
         style={props.style}
         className={props.className}
-        key={id + "-doenet-textinput-container"}
+        key={id + '-doenet-textinput-container'}
       >
         <AnimatedLabel
-          key={id + "-doenet-textinput-label"}
+          key={id + '-doenet-textinput-label'}
           style={labelStyle}
           htmlFor={id}
         >
@@ -178,7 +186,7 @@ export default function Textinput(props) {
         <AnimatedTextarea
           onFocus={handleFocus}
           onBlur={handleBlur}
-          onChange={e => {
+          onChange={(e) => {
             setValue(e.target.value);
             props.onChange(e);
           }}
@@ -186,7 +194,7 @@ export default function Textinput(props) {
           id={id}
           name={name}
           value={value}
-          key={id + "-doenet-input"}
+          key={id + '-doenet-input'}
           rows={props.rows}
           cols={props.cols}
           maxLength={props.maxlength}
@@ -197,12 +205,9 @@ export default function Textinput(props) {
   }
 
   return (
-    <StyledInputContainer
-      {...props}
-      key={id + "-doenet-textinput-container"}
-    >
+    <StyledInputContainer {...props} key={id + '-doenet-textinput-container'}>
       <AnimatedLabel
-        key={id + "-doenet-textinput-label"}
+        key={id + '-doenet-textinput-label'}
         style={labelStyle}
         htmlFor={id}
       >
@@ -211,7 +216,7 @@ export default function Textinput(props) {
       <AnimatedInput
         onFocus={handleFocus}
         onBlur={handleBlur}
-        onChange={e => {
+        onChange={(e) => {
           setValue(e.target.value);
           props.onChange(e);
         }}
@@ -219,7 +224,7 @@ export default function Textinput(props) {
         id={id}
         name={name}
         value={value}
-        key={id + "-doenet-input"}
+        key={id + '-doenet-input'}
       />
     </StyledInputContainer>
   );

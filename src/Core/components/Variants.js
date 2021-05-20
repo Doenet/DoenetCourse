@@ -1,55 +1,52 @@
 import BaseComponent from './abstract/BaseComponent';
 
 export default class Variants extends BaseComponent {
-  static componentType = "variants";
+  static componentType = 'variants';
   static rendererType = undefined;
 
-  static stateVariableForAttributeValue = "variants";
-
+  static stateVariableForAttributeValue = 'variants';
 
   static returnSugarInstructions() {
     let sugarInstructions = super.returnSugarInstructions();
 
     let breakStringsIntoVariantsBySpaces = function ({ matchedChildren }) {
-
       // break any string by white space and wrap pieces with variant
 
       let newChildren = matchedChildren.reduce(function (a, c) {
-        if (c.componentType === "string") {
+        if (c.componentType === 'string') {
           return [
             ...a,
-            ...c.state.value.split(/\s+/)
-              .filter(s => s)
-              .map(s => ({
-                componentType: "variant",
-                state: { value: s }
-              }))
-          ]
+            ...c.state.value
+              .split(/\s+/)
+              .filter((s) => s)
+              .map((s) => ({
+                componentType: 'variant',
+                state: { value: s },
+              })),
+          ];
         } else {
-          return [...a, c]
+          return [...a, c];
         }
       }, []);
 
       return {
         success: true,
         newChildren: newChildren,
-      }
-    }
+      };
+    };
 
     sugarInstructions.push({
-      replacementFunction: breakStringsIntoVariantsBySpaces
+      replacementFunction: breakStringsIntoVariantsBySpaces,
     });
 
     return sugarInstructions;
-
   }
-
 
   static returnChildLogic(args) {
     let childLogic = super.returnChildLogic(args);
 
     childLogic.newLeaf({
-      name: "atLeastZeroVariants",
+      name: 'atLeastZeroVariants',
       componentType: 'variant',
       comparison: 'atLeast',
       number: 0,
@@ -59,34 +56,34 @@ export default class Variants extends BaseComponent {
     return childLogic;
   }
 
-
   static returnStateVariableDefinitions() {
-
     let stateVariableDefinitions = super.returnStateVariableDefinitions();
 
     stateVariableDefinitions.nVariants = {
       public: true,
-      componentType: "number",
+      componentType: 'number',
       returnDependencies: () => ({
         variantChildren: {
-          dependencyType: "child",
-          childLogicName: "atLeastZeroVariants",
-        }
+          dependencyType: 'child',
+          childLogicName: 'atLeastZeroVariants',
+        },
       }),
       definition: function ({ dependencyValues }) {
-        return { newValues: { nVariants: dependencyValues.variantChildren.length } }
-      }
-    }
+        return {
+          newValues: { nVariants: dependencyValues.variantChildren.length },
+        };
+      },
+    };
 
     stateVariableDefinitions.variants = {
       public: true,
-      componentType: "variant",
+      componentType: 'variant',
       isArray: true,
-      entryPrefixes: ["variant"],
+      entryPrefixes: ['variant'],
       returnArraySizeDependencies: () => ({
         nVariants: {
-          dependencyType: "stateVariable",
-          variableName: "nVariants",
+          dependencyType: 'stateVariable',
+          variableName: 'nVariants',
         },
       }),
       returnArraySize({ dependencyValues }) {
@@ -97,28 +94,29 @@ export default class Variants extends BaseComponent {
         for (let arrayKey of arrayKeys) {
           dependenciesByKey[arrayKey] = {
             variantChild: {
-              dependencyType: "child",
-              childLogicName: "atLeastZeroVariants",
-              variableNames: ["value"],
-              childIndices: [arrayKey]
-            }
-          }
+              dependencyType: 'child',
+              childLogicName: 'atLeastZeroVariants',
+              variableNames: ['value'],
+              childIndices: [arrayKey],
+            },
+          };
         }
-        return { dependenciesByKey }
+        return { dependenciesByKey };
       },
       arrayDefinitionByKey: function ({ dependencyValuesByKey, arrayKeys }) {
         let variants = {};
         for (let arrayKey of arrayKeys) {
           if (dependencyValuesByKey[arrayKey].variantChild.length === 1) {
-            variants[arrayKey] = dependencyValuesByKey[arrayKey].variantChild[0]
-              .stateValues.value.toLowerCase()
+            variants[arrayKey] =
+              dependencyValuesByKey[
+                arrayKey
+              ].variantChild[0].stateValues.value.toLowerCase();
           }
         }
-        return { newValues: { variants } }
-      }
-    }
+        return { newValues: { variants } };
+      },
+    };
 
     return stateVariableDefinitions;
   }
-
 }

@@ -8,20 +8,16 @@ import cssesc from 'cssesc';
 import { sizeToCSS } from './utils/css';
 
 export default class Video extends DoenetRenderer {
-
   constructor(props) {
     super(props);
 
     this.onPlayerReady = this.onPlayerReady.bind(this);
     this.onPlayerStateChange = this.onPlayerStateChange.bind(this);
     this.onPlaybackRateChange = this.onPlaybackRateChange.bind(this);
-
   }
-
 
   componentDidMount() {
     if (this.doenetSvData.youtube) {
-
       let cName = cssesc(this.componentName);
 
       this.player = new window.YT.Player(cName, {
@@ -33,74 +29,84 @@ export default class Video extends DoenetRenderer {
           controls: 1,
           modestbranding: 1,
           rel: 0,
-          showinfo: 0
+          showinfo: 0,
         },
         events: {
-          'onReady': this.onPlayerReady,
-          'onStateChange': this.onPlayerStateChange,
-          'onPlaybackRateChange': this.onPlaybackRateChange,
-        }
-      })
-
+          onReady: this.onPlayerReady,
+          onStateChange: this.onPlayerStateChange,
+          onPlaybackRateChange: this.onPlaybackRateChange,
+        },
+      });
     }
-
   }
 
   render() {
-
     if (this.doenetSvData.hidden) {
       return null;
     }
 
     if (this.doenetSvData.youtube) {
-      return <>
-        <a name={this.componentName} />
-        <div className="video" id={this.componentName} />
-      </>
+      return (
+        <>
+          <a name={this.componentName} />
+          <div className="video" id={this.componentName} />
+        </>
+      );
     } else if (this.doenetSvData.source) {
-      let extension = this.doenetSvData.source.split('/').pop().split('.').pop();
+      let extension = this.doenetSvData.source
+        .split('/')
+        .pop()
+        .split('.')
+        .pop();
       let type;
-      if (extension === "ogg") {
-        type = "video/ogg";
-      } else if (extension === "webm") {
-        type = "video/webm";
-      } else if (extension === "mp4") {
-        type = "video/mp4";
+      if (extension === 'ogg') {
+        type = 'video/ogg';
+      } else if (extension === 'webm') {
+        type = 'video/webm';
+      } else if (extension === 'mp4') {
+        type = 'video/mp4';
       } else {
-        console.warn("Haven't implemented video for any extension other than .ogg, .webm, .mp4");
+        console.warn(
+          "Haven't implemented video for any extension other than .ogg, .webm, .mp4",
+        );
       }
       if (type) {
-
-        return <React.Fragment>
-          <a name={this.componentName} />
-          <video className="video" id={this.componentName} style={{ objectFit: "fill" }} controls={true} width={sizeToCSS(this.doenetSvData.width)} height={sizeToCSS(this.doenetSvData.height)}>
-            <source src={this.doenetSvData.source} type={type} />
-          Your browser does not support the &lt;video&gt; tag.
-        </video>
-        </React.Fragment>
+        return (
+          <React.Fragment>
+            <a name={this.componentName} />
+            <video
+              className="video"
+              id={this.componentName}
+              style={{ objectFit: 'fill' }}
+              controls={true}
+              width={sizeToCSS(this.doenetSvData.width)}
+              height={sizeToCSS(this.doenetSvData.height)}
+            >
+              <source src={this.doenetSvData.source} type={type} />
+              Your browser does not support the &lt;video&gt; tag.
+            </video>
+          </React.Fragment>
+        );
       } else {
         return null;
       }
     }
 
-    console.warn("No video returned youtube or no valid sources specified");
+    console.warn('No video returned youtube or no valid sources specified');
     return null;
-
   }
 
   onPlayerReady() {
-
     let player = this.player;
     let renderer = this;
 
-    player.setPlaybackQuality("hd720");
+    player.setPlaybackQuality('hd720');
 
     // To correctly capture the "watched" events, we need to know the last time
     // of the player before the user skips to a new spot
     // Since the callbacks only give the time after a skip,
     // we poll the player for the current time every 200 ms
     // to record the last time before a skip
-
 
     window.setInterval(function () {
       let newTime = player.getCurrentTime();
@@ -121,7 +127,10 @@ export default class Video extends DoenetRenderer {
       // (which is typically long enough for the state change listener
       // to be able to grab the current time to determine
       // the end of the watched segment)
-      if (!(renderer.currentTime >= 0) || (timeInterval > 0 && timeInterval < 1)) {
+      if (
+        !(renderer.currentTime >= 0) ||
+        (timeInterval > 0 && timeInterval < 1)
+      ) {
         renderer.currentTime = newTime;
         renderer.skippedCurrentTime = null;
       } else {
@@ -129,12 +138,9 @@ export default class Video extends DoenetRenderer {
         renderer.skippedCurrentTime = newTime;
       }
     }, 200);
-
   }
 
-
   onPlayerStateChange(event) {
-
     var lastPlayerState = this.lastPlayerState;
 
     let renderer = this;
@@ -144,8 +150,7 @@ export default class Video extends DoenetRenderer {
     // console.log(`on player state change: ${event.data}`)
 
     switch (event.data) {
-      case (window.YT.PlayerState.PLAYING):
-
+      case window.YT.PlayerState.PLAYING:
         if (this.lastEventState !== event.data) {
           let newTime = player.getCurrentTime();
 
@@ -163,16 +168,18 @@ export default class Video extends DoenetRenderer {
                 beginTime: this.lastPausedTime,
                 endTime: newTime,
                 duration,
-              })
+              });
             }
           }
 
           this.lastPlayedTime = newTime;
           let rate = player.getPlaybackRate();
-          this.rates = [{
-            startingPoint: newTime,
-            rate
-          }]
+          this.rates = [
+            {
+              startingPoint: newTime,
+              rate,
+            },
+          ];
 
           this.currentTime = NaN;
 
@@ -181,47 +188,48 @@ export default class Video extends DoenetRenderer {
             beginTime: player.getCurrentTime(),
             duration,
             rate,
-          })
+          });
 
           this.lastEventState = event.data;
         }
         break;
 
-      case (window.YT.PlayerState.PAUSED):
-        var timer = setTimeout(
-          function () {
-            let currentTime = player.getCurrentTime();
+      case window.YT.PlayerState.PAUSED:
+        var timer = setTimeout(function () {
+          let currentTime = player.getCurrentTime();
 
-            if (renderer.lastEventState === window.YT.PlayerState.PLAYING) {
-              // console.log(`recording video watched ${renderer.lastPlayedTime}, ${currentTime}`);
-              renderer.rates[renderer.rates.length - 1].endingPoint = currentTime;
-              renderer.actions.recordVideoWatched({
-                beginTime: renderer.lastPlayedTime,
-                endTime: currentTime,
-                duration,
-                rates: renderer.rates,
-              })
-            }
-            // console.log(`recording that video paused ${currentTime}`)
-            renderer.actions.recordVideoPaused({
+          if (renderer.lastEventState === window.YT.PlayerState.PLAYING) {
+            // console.log(`recording video watched ${renderer.lastPlayedTime}, ${currentTime}`);
+            renderer.rates[renderer.rates.length - 1].endingPoint = currentTime;
+            renderer.actions.recordVideoWatched({
+              beginTime: renderer.lastPlayedTime,
               endTime: currentTime,
               duration,
-            })
+              rates: renderer.rates,
+            });
+          }
+          // console.log(`recording that video paused ${currentTime}`)
+          renderer.actions.recordVideoPaused({
+            endTime: currentTime,
+            duration,
+          });
 
-            renderer.currentTime = NaN;
-            renderer.lastEventState = event.data;
-            renderer.lastPausedTime = currentTime;
-
-          }, 250);
+          renderer.currentTime = NaN;
+          renderer.lastEventState = event.data;
+          renderer.lastPausedTime = currentTime;
+        }, 250);
 
         this.timer = timer;
 
         break;
 
-      case (window.YT.PlayerState.BUFFERING):
+      case window.YT.PlayerState.BUFFERING:
         clearTimeout(this.timer);
 
-        if (lastPlayerState !== window.YT.PlayerState.UNSTARTED && Number.isFinite(this.currentTime)) {
+        if (
+          lastPlayerState !== window.YT.PlayerState.UNSTARTED &&
+          Number.isFinite(this.currentTime)
+        ) {
           let newTime = player.getCurrentTime();
           // console.log(`recording video watched ${this.lastPlayedTime}, ${this.currentTime}`);
 
@@ -231,25 +239,24 @@ export default class Video extends DoenetRenderer {
             endTime: this.currentTime,
             duration,
             rates: this.rates,
-          })
+          });
 
           // console.log(`recording video skipped ${this.currentTime}, ${newTime}`)
           this.actions.recordVideoSkipped({
             beginTime: this.currentTime,
             endTime: newTime,
             duration,
-          })
+          });
           this.currentTime = NaN;
 
           // videoWatched(player, container, container.data('lastPlayedTime'), container.data('currentTime'));
           // videoSkipped(player, container, container.data('currentTime'), player.getCurrentTime());
 
           this.lastEventState = event.data;
-
         }
         break;
 
-      case (window.YT.PlayerState.ENDED):
+      case window.YT.PlayerState.ENDED:
         // BADBAD: We're treating ENDED as though it meant the user
         // completed the video, even thought it
         // doesn't necessarily mean the learner watched ALL the video
@@ -261,19 +268,19 @@ export default class Video extends DoenetRenderer {
           endTime: player.getCurrentTime(),
           duration,
           rates: this.rates,
-        })
+        });
 
         // console.log(`recording video ended`)
         this.actions.recordVideoCompleted({
           duration,
-        })
+        });
         this.currentTime = NaN;
 
         this.lastEventState = event.data;
 
         break;
 
-      case (window.YT.PlayerState.UNSTARTED):
+      case window.YT.PlayerState.UNSTARTED:
         break;
     }
 
@@ -281,13 +288,10 @@ export default class Video extends DoenetRenderer {
   }
 
   onPlaybackRateChange(event) {
-
     this.rates[this.rates.length - 1].endingPoint = this.currentTime;
     this.rates.push({
       startingPoint: this.currentTime,
-      rate: event.data
-    })
-
+      rate: event.data,
+    });
   }
 }
-

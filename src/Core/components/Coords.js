@@ -1,21 +1,19 @@
 import MathComponent from './Math';
 
 export default class Coords extends MathComponent {
-  static componentType = "coords";
-  static rendererType = "math";
+  static componentType = 'coords';
+  static rendererType = 'math';
 
   static createAttributesObject(args) {
     let attributes = super.createAttributesObject(args);
     attributes.createVectors = {
-      createComponentOfType: "boolean",
-      createStateVariable: "createVectors",
+      createComponentOfType: 'boolean',
+      createStateVariable: 'createVectors',
       defaultValue: true,
       public: true,
     };
     return attributes;
   }
-
-
 
   // TODO: do we want to give warnings or errors if value is not in form of a vector?
 

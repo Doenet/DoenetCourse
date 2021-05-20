@@ -1,7 +1,7 @@
-import { useContext, useRef, useState } from "react";
-import { BreadcrumbContext } from "../BreadcrumbProvider";
-import { useImmediateEffect } from "./useImmediateEffect";
-import { useWillUnmount } from "./useWillUnmount";
+import { useContext, useRef, useState } from 'react';
+import { BreadcrumbContext } from '../BreadcrumbProvider';
+import { useImmediateEffect } from './useImmediateEffect';
+import { useWillUnmount } from './useWillUnmount';
 
 export const useBreadcrumbItems = () => {
   const subscriptionRef = useRef();

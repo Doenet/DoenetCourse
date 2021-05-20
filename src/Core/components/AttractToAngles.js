@@ -1,16 +1,16 @@
 import ConstraintComponent from './abstract/ConstraintComponent';
 
 export default class AttractToAngles extends ConstraintComponent {
-  static componentType = "attractToAngles";
+  static componentType = 'attractToAngles';
 
   static createAttributesObject(args) {
     let attributes = super.createAttributesObject(args);
     attributes.threshold = {
-      createComponentOfType: "number",
-      createStateVariable: "threshold",
+      createComponentOfType: 'number',
+      createStateVariable: 'threshold',
       defaultValue: 0.3,
       public: true,
-    }
+    };
     return attributes;
   }
 
@@ -23,17 +23,17 @@ export default class AttractToAngles extends ConstraintComponent {
       for (let child of activeChildrenMatched) {
         anglesChildren.push({
           createdComponent: true,
-          componentName: child.componentName
+          componentName: child.componentName,
         });
       }
       return {
         success: true,
-        newChildren: [{ componentType: "angles", children: anglesChildren }],
-      }
-    }
+        newChildren: [{ componentType: 'angles', children: anglesChildren }],
+      };
+    };
 
     let AtLeastOneAngle = childLogic.newLeaf({
-      name: "AtLeastOneAngle",
+      name: 'AtLeastOneAngle',
       componentType: 'angle',
       comparison: 'atLeast',
       number: 1,
@@ -42,21 +42,21 @@ export default class AttractToAngles extends ConstraintComponent {
     });
 
     let AtLeastOneString = childLogic.newLeaf({
-      name: "AtLeastOneString",
+      name: 'AtLeastOneString',
       componentType: 'string',
       comparison: 'atLeast',
       number: 1,
     });
 
     let AtLeastOneMath = childLogic.newLeaf({
-      name: "AtLeastOneMath",
+      name: 'AtLeastOneMath',
       componentType: 'math',
       comparison: 'atLeast',
       number: 1,
     });
 
     let StringsAndMaths = childLogic.newOperator({
-      name: "StringsAndMaths",
+      name: 'StringsAndMaths',
       operator: 'or',
       propositions: [AtLeastOneString, AtLeastOneMath],
       requireConsecutive: true,
@@ -65,30 +65,30 @@ export default class AttractToAngles extends ConstraintComponent {
     });
 
     let AtMostOneAngles = childLogic.newLeaf({
-      name: "AtMostOneAngles",
-      componentType: "angles",
+      name: 'AtMostOneAngles',
+      componentType: 'angles',
       comparison: 'atMost',
       number: 1,
-    })
+    });
 
     let Angles = childLogic.newOperator({
-      name: "Angles",
+      name: 'Angles',
       operator: 'xor',
       propositions: [AtLeastOneAngle, StringsAndMaths, AtMostOneAngles],
       setAsBase: true,
     });
 
     let AtMostOnePoint = childLogic.newLeaf({
-      name: "AtMostOnePoint",
+      name: 'AtMostOnePoint',
       componentType: 'point',
       comparison: 'atMost',
       number: 1,
     });
 
     childLogic.newOperator({
-      name: "AnglesAndPoint",
+      name: 'AnglesAndPoint',
       operator: 'and',
-      propositions: [Angles, AtMostOnePoint,],
+      propositions: [Angles, AtMostOnePoint],
       setAsBase: true,
     });
 
@@ -108,8 +108,7 @@ export default class AttractToAngles extends ConstraintComponent {
     let childrenChanged = trackChanges.childrenChanged(this.componentName);
 
     if (childrenChanged) {
-
-      let anglesInd = this.childLogic.returnMatches("AtMostOneAngles");
+      let anglesInd = this.childLogic.returnMatches('AtMostOneAngles');
 
       if (anglesInd.length === 1) {
         this.state.anglesChild = this.activeChildren[anglesInd[0]];
@@ -119,7 +118,7 @@ export default class AttractToAngles extends ConstraintComponent {
         delete this.unresolvedState.angles;
       }
 
-      let pointInd = this.childLogic.returnMatches("AtMostOnePoint");
+      let pointInd = this.childLogic.returnMatches('AtMostOnePoint');
       if (pointInd.length === 1) {
         this.state.pointChild = this.activeChildren[pointInd[0]];
       } else {
@@ -135,14 +134,17 @@ export default class AttractToAngles extends ConstraintComponent {
         return;
       }
 
-      if (childrenChanged || trackChanges.getVariableChanges({
-        component: this.state.anglesChild, variable: "angles"
-      })) {
+      if (
+        childrenChanged ||
+        trackChanges.getVariableChanges({
+          component: this.state.anglesChild,
+          variable: 'angles',
+        })
+      ) {
         delete this.unresolvedState.angles;
         this.state.angles = this.state.anglesChild.state.angles;
       }
     }
-
 
     if (this.state.pointChild) {
       if (this.state.pointChild.unresolvedState.xs) {
@@ -150,9 +152,13 @@ export default class AttractToAngles extends ConstraintComponent {
         return;
       }
 
-      if (childrenChanged || trackChanges.getVariableChanges({
-        component: this.state.pointChild, variable: "xs"
-      })) {
+      if (
+        childrenChanged ||
+        trackChanges.getVariableChanges({
+          component: this.state.pointChild,
+          variable: 'xs',
+        })
+      ) {
         delete this.unresolvedState.offset;
 
         this.state.offset = [];
@@ -209,21 +215,21 @@ export default class AttractToAngles extends ConstraintComponent {
     let closestInd;
 
     for (let [ind, angleComp] of this.state.angles.entries()) {
-
       let angle = angleComp.state.angle.evaluate_to_constant();
 
       if (!Number.isFinite(angle)) {
         continue;
       }
 
-      let distanceToAngle = Math.abs(((angle - foundAngle + Math.PI) % (2 * Math.PI)) - Math.PI);
+      let distanceToAngle = Math.abs(
+        ((angle - foundAngle + Math.PI) % (2 * Math.PI)) - Math.PI,
+      );
 
       if (distanceToAngle < closestDistance) {
         closestAngle = angle;
         closestInd = ind;
         closestDistance = distanceToAngle;
       }
-
     }
 
     if (closestAngle === undefined) {
@@ -235,7 +241,9 @@ export default class AttractToAngles extends ConstraintComponent {
     let newX1 = offset[0] + mag * Math.cos(closestAngle);
     let newX2 = offset[1] + mag * Math.sin(closestAngle);
 
-    let distanceAsPoints = Math.sqrt(Math.pow(newX1 - x1, 2) + Math.pow(newX2 - x2, 2));
+    let distanceAsPoints = Math.sqrt(
+      Math.pow(newX1 - x1, 2) + Math.pow(newX2 - x2, 2),
+    );
     if (distanceAsPoints >= this.state.threshold) {
       return {};
     }
@@ -247,9 +255,8 @@ export default class AttractToAngles extends ConstraintComponent {
       },
       constraintIndices: [closestInd + 1],
       constrained: true,
-    }
+    };
 
     return result;
   }
-
 }

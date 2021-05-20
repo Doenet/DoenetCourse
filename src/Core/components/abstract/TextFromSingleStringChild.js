@@ -1,8 +1,8 @@
 import Text from '../Text';
 
 export default class TextFromSingleStringChild extends Text {
-  static componentType = "_textFromSingleStringChild";
-  static rendererType = "text";
+  static componentType = '_textFromSingleStringChild';
+  static rendererType = 'text';
 
   static returnChildLogic(args) {
     let childLogic = super.returnChildLogic(args);
@@ -10,7 +10,7 @@ export default class TextFromSingleStringChild extends Text {
     childLogic.deleteAllLogic();
 
     childLogic.newLeaf({
-      name: "stringsAndTexts",
+      name: 'stringsAndTexts',
       componentType: 'string',
       comparison: 'atMost',
       number: 1,
@@ -20,5 +20,4 @@ export default class TextFromSingleStringChild extends Text {
 
     return childLogic;
   }
-
 }

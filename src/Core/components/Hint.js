@@ -1,7 +1,7 @@
 import BlockComponent from './abstract/BlockComponent';
 
 export default class Hint extends BlockComponent {
-  static componentType = "hint";
+  static componentType = 'hint';
   static renderChildren = true;
 
   static includeBlankStringChildren = true;
@@ -10,21 +10,21 @@ export default class Hint extends BlockComponent {
     let childLogic = super.returnChildLogic(args);
 
     let atMostOneTitle = childLogic.newLeaf({
-      name: "atMostOneTitle",
-      componentType: "title",
-      comparison: "atMost",
+      name: 'atMostOneTitle',
+      componentType: 'title',
+      comparison: 'atMost',
       number: 1,
-    })
+    });
 
     let atLeastZeroInline = childLogic.newLeaf({
-      name: "atLeastZeroInline",
+      name: 'atLeastZeroInline',
       componentType: '_inline',
       comparison: 'atLeast',
       number: 0,
     });
 
     let atLeastZeroBlock = childLogic.newLeaf({
-      name: "atLeastZeroBlock",
+      name: 'atLeastZeroBlock',
       componentType: '_block',
       comparison: 'atLeast',
       number: 0,
@@ -32,49 +32,47 @@ export default class Hint extends BlockComponent {
 
     let inlineOrBlock = childLogic.newOperator({
       name: 'inlineOrBlock',
-      operator: "or",
+      operator: 'or',
       propositions: [atLeastZeroInline, atLeastZeroBlock],
-    })
+    });
 
     childLogic.newOperator({
-      name: "titleAndContent",
-      operator: "and",
+      name: 'titleAndContent',
+      operator: 'and',
       propositions: [atMostOneTitle, inlineOrBlock],
       setAsBase: true,
-    })
+    });
 
     return childLogic;
   }
 
-
   static returnStateVariableDefinitions() {
-
     let stateVariableDefinitions = super.returnStateVariableDefinitions();
 
     stateVariableDefinitions.showHints = {
       forRenderer: true,
       returnDependencies: () => ({
         hide: {
-          dependencyType: "stateVariable",
-          variableName: "hide"
+          dependencyType: 'stateVariable',
+          variableName: 'hide',
         },
         showHintsFlag: {
-          dependencyType: "flag",
-          flagName: "showHints"
-        }
+          dependencyType: 'flag',
+          flagName: 'showHints',
+        },
       }),
       definition({ dependencyValues }) {
         return {
           newValues: {
-            showHints: dependencyValues.showHintsFlag && !dependencyValues.hide
-          }
-        }
-      }
-    }
+            showHints: dependencyValues.showHintsFlag && !dependencyValues.hide,
+          },
+        };
+      },
+    };
 
     stateVariableDefinitions.open = {
       public: true,
-      componentType: "boolean",
+      componentType: 'boolean',
       forRenderer: true,
       defaultValue: false,
       returnDependencies: () => ({}),
@@ -82,106 +80,110 @@ export default class Hint extends BlockComponent {
         return {
           useEssentialOrDefaultValue: {
             open: {
-              variablesToCheck: ["open"]
-            }
-          }
-        }
+              variablesToCheck: ['open'],
+            },
+          },
+        };
       },
       inverseDefinition({ desiredStateVariableValues }) {
         return {
           success: true,
-          instructions: [{
-            setStateVariable: "open",
-            value: desiredStateVariableValues.open
-          }]
-        }
-      }
-    }
-
+          instructions: [
+            {
+              setStateVariable: 'open',
+              value: desiredStateVariableValues.open,
+            },
+          ],
+        };
+      },
+    };
 
     stateVariableDefinitions.titleDefinedByChildren = {
       forRenderer: true,
       returnDependencies: () => ({
         titleChild: {
-          dependencyType: "child",
-          childLogicName: "atMostOneTitle",
+          dependencyType: 'child',
+          childLogicName: 'atMostOneTitle',
         },
       }),
       definition({ dependencyValues }) {
         return {
           newValues: {
-            titleDefinedByChildren: dependencyValues.titleChild.length === 1
-          }
-        }
-      }
-    }
+            titleDefinedByChildren: dependencyValues.titleChild.length === 1,
+          },
+        };
+      },
+    };
 
     stateVariableDefinitions.title = {
       public: true,
-      componentType: "text",
+      componentType: 'text',
       forRenderer: true,
       returnDependencies: () => ({
         titleChild: {
-          dependencyType: "child",
-          childLogicName: "atMostOneTitle",
-          variableNames: ["text"],
+          dependencyType: 'child',
+          childLogicName: 'atMostOneTitle',
+          variableNames: ['text'],
         },
       }),
       definition({ dependencyValues }) {
         if (dependencyValues.titleChild.length === 0) {
-          return { newValues: { title: "Hint" } };
+          return { newValues: { title: 'Hint' } };
         } else {
-          return { newValues: { title: dependencyValues.titleChild[0].stateValues.text } };
+          return {
+            newValues: {
+              title: dependencyValues.titleChild[0].stateValues.text,
+            },
+          };
         }
-      }
-    }
+      },
+    };
 
     return stateVariableDefinitions;
-
   }
 
   revealHint() {
-
     this.coreFunctions.requestUpdate({
-      updateInstructions: [{
-        updateType: "updateValue",
-        componentName: this.componentName,
-        stateVariable: "open",
-        value: true
-      }],
+      updateInstructions: [
+        {
+          updateType: 'updateValue',
+          componentName: this.componentName,
+          stateVariable: 'open',
+          value: true,
+        },
+      ],
       event: {
-        verb: "viewed",
+        verb: 'viewed',
         object: {
           componentName: this.componentName,
           componentType: this.componentType,
         },
-      }
-    })
+      },
+    });
   }
 
   closeHint() {
-
     this.coreFunctions.requestUpdate({
-      updateInstructions: [{
-        updateType: "updateValue",
-        componentName: this.componentName,
-        stateVariable: "open",
-        value: false
-      }],
+      updateInstructions: [
+        {
+          updateType: 'updateValue',
+          componentName: this.componentName,
+          stateVariable: 'open',
+          value: false,
+        },
+      ],
       event: {
-        verb: "closed",
+        verb: 'closed',
         object: {
           componentName: this.componentName,
           componentType: this.componentType,
         },
-      }
-    })
+      },
+    });
   }
 
   actions = {
     revealHint: this.revealHint.bind(this),
     closeHint: this.closeHint.bind(this),
-  }
-
-
+  };
 }

@@ -1,8 +1,8 @@
 import BooleanComponent from '../Boolean';
 
 export default class BooleanOperator extends BooleanComponent {
-  static componentType = "_booleanOperator";
-  static rendererType = "boolean";
+  static componentType = '_booleanOperator';
+  static rendererType = 'boolean';
 
   static returnChildLogic(args) {
     let childLogic = super.returnChildLogic(args);
@@ -10,7 +10,7 @@ export default class BooleanOperator extends BooleanComponent {
     childLogic.deleteAllLogic();
 
     childLogic.newLeaf({
-      name: "atLeastOneBoolean",
+      name: 'atLeastOneBoolean',
       componentType: 'boolean',
       comparison: 'atLeast',
       number: 1,
@@ -18,12 +18,9 @@ export default class BooleanOperator extends BooleanComponent {
     });
 
     return childLogic;
-
   }
 
-
   static returnStateVariableDefinitions() {
-
     let stateVariableDefinitions = super.returnStateVariableDefinitions();
 
     delete stateVariableDefinitions.parsedExpression;
@@ -33,29 +30,26 @@ export default class BooleanOperator extends BooleanComponent {
 
     stateVariableDefinitions.value = {
       public: true,
-      componentType: "boolean",
+      componentType: 'boolean',
       forRenderer: true,
       returnDependencies: () => ({
         booleanChildren: {
-          dependencyType: "child",
-          childLogicName: "atLeastOneBoolean",
-          variableNames: ["value"]
-        }
+          dependencyType: 'child',
+          childLogicName: 'atLeastOneBoolean',
+          variableNames: ['value'],
+        },
       }),
       definition: function ({ dependencyValues }) {
         return {
           newValues: {
             value: constructor.applyBooleanOperator(
-              dependencyValues.booleanChildren
-                .map(x => x.stateValues.value)
-            )
-          }
-        }
-      }
-    }
+              dependencyValues.booleanChildren.map((x) => x.stateValues.value),
+            ),
+          },
+        };
+      },
+    };
 
     return stateVariableDefinitions;
-
   }
-
 }

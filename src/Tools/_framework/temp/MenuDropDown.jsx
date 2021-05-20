@@ -1,8 +1,8 @@
-import React, { useState, useEffect, useRef } from "react";
-import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
-import { animated, useSpring, useTransition, useChain } from "react-spring";
-import { faChevronDown } from "@fortawesome/free-solid-svg-icons";
-import styled from "styled-components";
+import React, { useState, useEffect, useRef } from 'react';
+import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
+import { animated, useSpring, useTransition, useChain } from 'react-spring';
+import { faChevronDown } from '@fortawesome/free-solid-svg-icons';
+import styled from 'styled-components';
 // import MenuItem from './menuItem.js';
 
 const DropDown = styled(animated.div)`
@@ -24,17 +24,17 @@ const MenuController = styled.button`
 `;
 const DropDownContent = styled.div`
   opacity: 1;
-  display: ${(props) => (props.open ? "block" : "none")};
+  display: ${(props) => (props.open ? 'block' : 'none')};
   background-color: rgb(246, 248, 255);
   width: 300px;
   border-radius: 1%;
   border: 1px solid black;
   z-index: 9999;
   color: black;
-  position: ${(props) => (props.appendToBody ? "fixed" : "absolute")};
-  left: ${(props) => (props.position === "right" ? 0 : "unset")};
-  right: ${(props) => (props.position === "left" ? 0 : "unset")};
-  top: ${(props) => (props.position === "right" ? "55px" : "55px")};
+  position: ${(props) => (props.appendToBody ? 'fixed' : 'absolute')};
+  left: ${(props) => (props.position === 'right' ? 0 : 'unset')};
+  right: ${(props) => (props.position === 'left' ? 0 : 'unset')};
+  top: ${(props) => (props.position === 'right' ? '55px' : '55px')};
   @media (max-width: 768px) {
     right: -110px;
   }
@@ -48,18 +48,18 @@ const DropdownLabelLink = styled.div`
   height: 45px;
   justify-content: center;
   align-items: center;
-  background-color: ${(props) => (props.selected ? "#8fb8de" : "transperant")};
+  background-color: ${(props) => (props.selected ? '#8fb8de' : 'transperant')};
   display: flex;
-  color: ${(props) => (props.selected ? "white" : "black")};
+  color: ${(props) => (props.selected ? 'white' : 'black')};
   &:hover {
-    background-color: ${(props) => (props.selected ? "#8fb8de" : "lightgray")};
+    background-color: ${(props) => (props.selected ? '#8fb8de' : 'lightgray')};
   }
   a {
     width: 190px;
     padding: 20px 0px;
     text-decoration: none !important;
     background-color: transperant;
-    color: ${(props) => (props.selected ? "white" : "black")};
+    color: ${(props) => (props.selected ? 'white' : 'black')};
   }
 `;
 
@@ -112,7 +112,7 @@ const DropdownCustomOption = styled.div`
 
 const MenuDropDown = ({
   currentTool,
-  showThisMenuText = "",
+  showThisMenuText = '',
   options = [],
   menuBase,
   width,
@@ -120,9 +120,9 @@ const MenuDropDown = ({
   grayTheseOut = [],
   offsetPos = 0,
   appendToBody = false,
-  position = "right",
+  position = 'right',
   menuWidth,
-  placeholder = "Select Value",
+  placeholder = 'Select Value',
 }) => {
   const [MenuWidth, setMenuWidth] = useState(menuWidth);
   let defaultValue =
@@ -139,9 +139,9 @@ const MenuDropDown = ({
   const [show, setShow] = useState(false);
 
   useEffect(() => {
-    document.addEventListener("click", handleClick, false);
+    document.addEventListener('click', handleClick, false);
     return () => {
-      document.removeEventListener("click", handleClick, false);
+      document.removeEventListener('click', handleClick, false);
     };
   });
 
@@ -162,21 +162,21 @@ const MenuDropDown = ({
       <button
         style={{
           color: "'black'",
-          margin: "0",
-          height: "20px",
-          fontSize: "14px",
-          cursor: "pointer",
-          display: "block",
+          margin: '0',
+          height: '20px',
+          fontSize: '14px',
+          cursor: 'pointer',
+          display: 'block',
         }}
       >
         {!!Object.keys(currentItemDisplay).length ? (
           <div
             style={{
-              whiteSpace: "nowrap",
-              overflow: "hidden",
-              textOverflow: "ellipsis",
-              maxWidth: "100px",
-              display: "inline-block",
+              whiteSpace: 'nowrap',
+              overflow: 'hidden',
+              textOverflow: 'ellipsis',
+              maxWidth: '100px',
+              display: 'inline-block',
             }}
           >
             {currentItemDisplay.label}
@@ -184,11 +184,11 @@ const MenuDropDown = ({
         ) : (
           <div
             style={{
-              whiteSpace: "nowrap",
-              overflow: "hidden",
-              textOverflow: "ellipsis",
-              maxWidth: "100px",
-              display: "inline-block",
+              whiteSpace: 'nowrap',
+              overflow: 'hidden',
+              textOverflow: 'ellipsis',
+              maxWidth: '100px',
+              display: 'inline-block',
             }}
           >
             {placeholder}
@@ -197,10 +197,10 @@ const MenuDropDown = ({
         <FontAwesomeIcon
           icon={faChevronDown}
           style={{
-            verticalAlign: "1px",
-            marginLeft: "5px",
+            verticalAlign: '1px',
+            marginLeft: '5px',
           }}
-          size={"sm"}
+          size={'sm'}
         />
       </button>
     );
@@ -219,37 +219,37 @@ const MenuDropDown = ({
           <DropDownContentItem
             key={i}
             onClick={() => {
-              if (o["url"]) {
-                window.location.href = o["url"];
+              if (o['url']) {
+                window.location.href = o['url'];
               } else {
                 setCurrentItemDisplay(o);
-                if (o["callBackFunction"]) {
-                  o["callBackFunction"](o);
+                if (o['callBackFunction']) {
+                  o['callBackFunction'](o);
                 }
               }
             }}
           >
-            {!!o["optionElem"] ? (
+            {!!o['optionElem'] ? (
               <>
-                <DropdownCustomOption>{o["optionElem"]}</DropdownCustomOption>
+                <DropdownCustomOption>{o['optionElem']}</DropdownCustomOption>
                 <DropdownCustomLabelLink>
-                  {!!o.link ? <a href={o.link}>{o["label"]}</a> : o["label"]}
+                  {!!o.link ? <a href={o.link}>{o['label']}</a> : o['label']}
                 </DropdownCustomLabelLink>
-                {o["subLabel"] && (
-                  <DropdownSubLabel>{o["subLabel"]}</DropdownSubLabel>
+                {o['subLabel'] && (
+                  <DropdownSubLabel>{o['subLabel']}</DropdownSubLabel>
                 )}
               </>
             ) : (
               <>
                 <DropdownLabelLink
                   selected={
-                    currentItemDisplay && currentItemDisplay.id === o["id"]
+                    currentItemDisplay && currentItemDisplay.id === o['id']
                   }
                 >
-                  {!!o.link ? <a href={o.link}>{o["label"]}</a> : o["label"]}
+                  {!!o.link ? <a href={o.link}>{o['label']}</a> : o['label']}
                 </DropdownLabelLink>
-                {o["subLabel"] && (
-                  <DropdownSubLabel>{o["subLabel"]}</DropdownSubLabel>
+                {o['subLabel'] && (
+                  <DropdownSubLabel>{o['subLabel']}</DropdownSubLabel>
                 )}
               </>
             )}

@@ -17,14 +17,16 @@
 
  */
 
-
- export default class Numerics {
-  constructor({maxIterationsRoot = 80, maxIterationsMinimize = 500, eps = 0.000001} ={}) {
+export default class Numerics {
+  constructor({
+    maxIterationsRoot = 80,
+    maxIterationsMinimize = 500,
+    eps = 0.000001,
+  } = {}) {
     this.maxIterationsRoot = maxIterationsRoot;
     this.maxIterationsMinimize = maxIterationsMinimize;
     this.eps = eps;
   }
-
 
   /**
    *
@@ -43,15 +45,28 @@
    * If this fails, we fall back to Newton's method.
    */
   fzero(f, x0, object) {
-    var a, b, c,
-      fa, fb, fc,
-      aa, blist, i, len, u, fu,
-      prev_step, t1, cb, t2,
+    var a,
+      b,
+      c,
+      fa,
+      fb,
+      fc,
+      aa,
+      blist,
+      i,
+      len,
+      u,
+      fu,
+      prev_step,
+      t1,
+      cb,
+      t2,
       // Actual tolerance
       tol_act,
       // Interpolation step is calculated in the form p/q; division
       // operations is delayed until the last moment
-      p, q,
+      p,
+      q,
       // Step at this iteration
       new_step,
       eps = this.eps,
@@ -61,7 +76,7 @@
 
     if (Array.isArray(x0)) {
       if (x0.length < 2) {
-        throw new Error("fzero: length of array x0 has to be at least two.");
+        throw new Error('fzero: length of array x0 has to be at least two.');
       }
 
       a = x0[0];
@@ -82,7 +97,18 @@
         aa = a;
       }
 
-      blist = [0.9 * aa, 1.1 * aa, aa - 1, aa + 1, 0.5 * aa, 1.5 * aa, -aa, 2 * aa, -10 * aa, 10 * aa];
+      blist = [
+        0.9 * aa,
+        1.1 * aa,
+        aa - 1,
+        aa + 1,
+        0.5 * aa,
+        1.5 * aa,
+        -aa,
+        2 * aa,
+        -10 * aa,
+        10 * aa,
+      ];
       len = blist.length;
 
       for (i = 0; i < len; i++) {
@@ -153,7 +179,7 @@
           t1 = fb / fa;
           p = cb * t1;
           q = 1.0 - t1;
-        // Quadric inverse interpolation
+          // Quadric inverse interpolation
         } else {
           q = fa / fc;
           t1 = fb / fc;
@@ -166,15 +192,17 @@
         // p was calculated with the opposite sign; make p positive
         if (p > 0) {
           q = -q;
-        // and assign possible minus to q
+          // and assign possible minus to q
         } else {
           p = -p;
         }
 
         // If b+p/q falls in [b,c] and isn't too large it is accepted
         // If p/q is too large then the bissection procedure can reduce [b,c] range to more extent
-        if (p < (0.75 * cb * q - Math.abs(tol_act * q) * 0.5) &&
-            p < Math.abs(prev_step * q * 0.5)) {
+        if (
+          p < 0.75 * cb * q - Math.abs(tol_act * q) * 0.5 &&
+          p < Math.abs(prev_step * q * 0.5)
+        ) {
           new_step = p / q;
         }
       }
@@ -218,7 +246,7 @@
    * @param {function} f Function, whose minimum is to be found
    * @param {Array} x0  Start interval enclosing the minimum
    * @param {Object} context Parent object in case f is method of it
-   * 
+   *
    * Return object with attributes:
    * - success: true if reached minimum before max number of iterations
    * - x: the approximation of the minimum value position
@@ -227,10 +255,22 @@
    **/
 
   fminbr(f, x0, context) {
-    var a, b, x, v, w,
-      fx, fv, fw,
-      range, middle_range, tol_act, new_step,
-      p, q, t, ft,
+    var a,
+      b,
+      x,
+      v,
+      w,
+      fx,
+      fv,
+      fw,
+      range,
+      middle_range,
+      tol_act,
+      new_step,
+      p,
+      q,
+      t,
+      ft,
       // Golden section ratio
       r = (3.0 - Math.sqrt(5.0)) * 0.5,
       tol = this.eps,
@@ -240,15 +280,17 @@
       nfev = 0;
 
     if (!Array.isArray(x0) || x0.length < 2) {
-      throw new Error("Numerics.fminbr: length of array x0 has to be at least two.");
+      throw new Error(
+        'Numerics.fminbr: length of array x0 has to be at least two.',
+      );
     }
 
     a = x0[0];
     b = x0[1];
     v = a + r * (b - a);
     fv = f.call(context, v);
-    if(Number.isNaN(fv)){
-      return {success: false};
+    if (Number.isNaN(fv)) {
+      return { success: false };
     }
 
     // First step - always gold section
@@ -268,7 +310,7 @@
 
       if (Math.abs(x - middle_range) + range * 0.5 <= 2.0 * tol_act) {
         // Acceptable approx. is found
-        return {success: true, x: x, fx: fx, tol: tol_act};
+        return { success: true, x: x, fx: fx, tol: tol_act };
       }
 
       // Obtain the golden section step
@@ -283,15 +325,20 @@
         p = (x - v) * q - (x - w) * t;
         q = 2 * (q - t);
 
-        if (q > 0) {                      // q was calculated with the op-
-          p = -p;                         // posite sign; make q positive
-        } else {                          // and assign possible minus to
-          q = -q;                         // p
+        if (q > 0) {
+          // q was calculated with the op-
+          p = -p; // posite sign; make q positive
+        } else {
+          // and assign possible minus to
+          q = -q; // p
         }
-        if (Math.abs(p) < Math.abs(new_step * q) &&     // If x+p/q falls in [a,b]
-            p > q * (a - x + 2 * tol_act) &&            //  not too close to a and
-            p < q * (b - x - 2 * tol_act)) {            // b, and isn't too large
-          new_step = p / q;                             // it is accepted
+        if (
+          Math.abs(p) < Math.abs(new_step * q) && // If x+p/q falls in [a,b]
+          p > q * (a - x + 2 * tol_act) && //  not too close to a and
+          p < q * (b - x - 2 * tol_act)
+        ) {
+          // b, and isn't too large
+          new_step = p / q; // it is accepted
         }
         // If p/q is too large then the
         // golden section procedure can
@@ -314,8 +361,8 @@
       // Tentative point for the min
       t = x + new_step;
       ft = f.call(context, t);
-      if(Number.isNaN(ft)){
-        return {success: false};
+      if (Number.isNaN(ft)) {
+        return { success: false };
       }
       nfev += 1;
 
@@ -336,7 +383,7 @@
         fv = fw;
         fw = fx;
         fx = ft;
-      // x remains the better approx
+        // x remains the better approx
       } else {
         // Reduce the range enclosing x
         if (t < x) {
@@ -357,11 +404,9 @@
       }
       niter += 1;
     }
-    
-    return {success: false, x: x, fx: fx};
 
+    return { success: false, x: x, fx: fx };
   }
-
 
   /**
    * Newton's method to find roots of a funtion in one variable.
@@ -388,9 +433,9 @@
       nfev += 2;
 
       if (Math.abs(df) > h) {
-          x -= newf / df;
+        x -= newf / df;
       } else {
-          x += (Math.random() * 0.2 - 1.0);
+        x += Math.random() * 0.2 - 1.0;
       }
 
       newf = f.apply(context, [x]);
@@ -400,7 +445,6 @@
 
     return x;
   }
-
 
   /**
    * Numerical (symmetric) approximation of derivative.
@@ -413,17 +457,16 @@
     if (!(obj === undefined || obj === null)) {
       return function (x) {
         var h = 0.00001,
-          h2 = (h * 2.0);
+          h2 = h * 2.0;
         return (f(x + h) - f(x - h)) / h2;
       };
     }
 
     return function (x) {
       var h = 0.00001,
-        h2 = (h * 2.0);
+        h2 = h * 2.0;
 
       return (f.apply(obj, [x + h]) - f.apply(obj, [x - h])) / h2;
     };
   }
-
 }

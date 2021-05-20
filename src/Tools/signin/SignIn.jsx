@@ -38,19 +38,20 @@ export default function SignIn() {
   //If already signed in go to course
   if (Object.keys(jwt).includes('JWT_JS')) {
     axios
-    .get('/api/loadProfile.php', {params: {}})
-    .then((resp) => {
-      if (resp.data.success === '1') {
-        localStorage.setItem("Profile",JSON.stringify(resp.data.profile));
-        location.href = '/course';
-      }else{
-        //  Error currently does nothing
-      }})
+      .get('/api/loadProfile.php', { params: {} })
+      .then((resp) => {
+        if (resp.data.success === '1') {
+          localStorage.setItem('Profile', JSON.stringify(resp.data.profile));
+          location.href = '/course';
+        } else {
+          //  Error currently does nothing
+        }
+      })
       .catch((error) => {
         //  Error currently does nothing
       });
 
-      return null;
+    return null;
   }
 
   // ** *** *** *** *** **

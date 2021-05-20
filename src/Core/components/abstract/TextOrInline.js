@@ -1,7 +1,7 @@
 import InlineComponent from './InlineComponent';
 
 export default class TextOrInline extends InlineComponent {
-  static componentType = "_textOrInline";
+  static componentType = '_textOrInline';
   static renderChildren = true;
 
   static includeBlankStringChildren = true;
@@ -10,7 +10,7 @@ export default class TextOrInline extends InlineComponent {
     let childLogic = super.returnChildLogic(args);
 
     childLogic.newLeaf({
-      name: "atLeastZeroInline",
+      name: 'atLeastZeroInline',
       componentType: '_inline',
       comparison: 'atLeast',
       number: 0,
@@ -21,7 +21,6 @@ export default class TextOrInline extends InlineComponent {
   }
 
   static returnStateVariableDefinitions() {
-
     let stateVariableDefinitions = super.returnStateVariableDefinitions();
 
     stateVariableDefinitions.value = {
@@ -29,42 +28,37 @@ export default class TextOrInline extends InlineComponent {
       componentType: this.componentType,
       returnDependencies: () => ({
         inlineChildren: {
-          dependencyType: "child",
-          childLogicName: "atLeastZeroInline",
-          variableNames: ["text"],
+          dependencyType: 'child',
+          childLogicName: 'atLeastZeroInline',
+          variableNames: ['text'],
           variablesOptional: true,
         },
       }),
       definition: function ({ dependencyValues }) {
-        let value = "";
+        let value = '';
         for (let comp of dependencyValues.inlineChildren) {
-          if(typeof comp.stateValues.text === "string") {
+          if (typeof comp.stateValues.text === 'string') {
             value += comp.stateValues.text;
           }
         }
         return { newValues: { value } };
-      }
-    }
+      },
+    };
 
     stateVariableDefinitions.text = {
       public: true,
-      componentType: "text",
+      componentType: 'text',
       returnDependencies: () => ({
         value: {
-          dependencyType: "stateVariable",
-          variableName: "value"
-        }
+          dependencyType: 'stateVariable',
+          variableName: 'value',
+        },
       }),
       definition: ({ dependencyValues }) => ({
-        newValues: { text: dependencyValues.value }
-      })
-    }
-
+        newValues: { text: dependencyValues.value },
+      }),
+    };
 
     return stateVariableDefinitions;
-
   }
-
-
-
 }

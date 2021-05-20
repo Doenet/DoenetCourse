@@ -1,4 +1,4 @@
-import { useEffect, useRef } from "react";
+import { useEffect, useRef } from 'react';
 
 export const useWillUnmount = (callback) => {
   const callbackRef = useRef(callback);
@@ -11,6 +11,6 @@ export const useWillUnmount = (callback) => {
     () => () => {
       callbackRef.current();
     },
-    []
+    [],
   );
 };

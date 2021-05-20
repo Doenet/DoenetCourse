@@ -3,13 +3,13 @@ import Tool from '../Tools/_framework/Tool';
 import logo from '../Media/Doenet_Logo_Frontpage.png';
 import doenetImage from '../Media/Doenet_Logo_cloud_only.png';
 import styled from 'styled-components';
-import './homepage.css' ;
+import './homepage.css';
 
 const ToolName = styled.span`
-   font-size: 20px;
-    color: #333333;
-    font-weight: 700;
-    margin-left: 10px;
+  font-size: 20px;
+  color: #333333;
+  font-weight: 700;
+  margin-left: 10px;
 `;
 const Headings = styled.h1`
   line-height: 1.1em;
@@ -25,9 +25,10 @@ const DoenetLogo = styled.div`
   align-items: center;
 `;
 const DoenetImage = styled.img`
-@media (max-width: 768px) {
-  width:500px;
-}`;
+  @media (max-width: 768px) {
+    width: 500px;
+  }
+`;
 
 const CloudColor = styled.div`
   background-color: #fff;
@@ -42,8 +43,8 @@ const CloudColorSection = styled(CloudColor)`
 `;
 
 const ChoclateColor = styled.div`
-background-color: #6d4445;
-color:#e3d2d2;
+  background-color: #6d4445;
+  color: #e3d2d2;
 `;
 const ChoclateColorSection = styled(ChoclateColor)`
   padding: 20px 10px 60px 10px;
@@ -67,22 +68,24 @@ const SectionText = styled.div`
   text-align: center;
   max-width: 800px;
   display: inline-block;
-  margin-left:3em;
-  margin-right:3em;`;
-  
+  margin-left: 3em;
+  margin-right: 3em;
+`;
+
 const ParagraphTags = styled.p`
   text-align: left;
-   display: block;
-    margin-block-start: 1em;
-    margin-block-end: 1em;
-    margin-inline-start: 0px;
-    margin-inline-end: 0px;
-    @media (max-width: 768px) {
-        margin-left:1em;
-        margin-right:1em;
-        text-align: left;
-        display: block;
-    }`;
+  display: block;
+  margin-block-start: 1em;
+  margin-block-end: 1em;
+  margin-inline-start: 0px;
+  margin-inline-end: 0px;
+  @media (max-width: 768px) {
+    margin-left: 1em;
+    margin-right: 1em;
+    text-align: left;
+    display: block;
+  }
+`;
 
 const Footer = styled.div`
   background-color: #e3e2e2;
@@ -94,11 +97,9 @@ const Footer = styled.div`
 export default function DoenetHomePage() {
   return (
     <Tool>
-      <headerPanel >
+      <headerPanel>
         <img id="doenetLogo" src={doenetImage} height="40px" />
-        <ToolName>
-          Announcements
-        </ToolName>
+        <ToolName>Announcements</ToolName>
       </headerPanel>
 
       <mainPanel>
@@ -138,14 +139,15 @@ export default function DoenetHomePage() {
               >
                 this MAA DUE Point article
               </a>
-              
             </ParagraphTags>
           </SectionText>
         </CloudColorSection>
 
         <ChoclateColorSection>
           <SectionText>
-            <Headings className="section-headline">Introducing DoenetML</Headings>
+            <Headings className="section-headline">
+              Introducing DoenetML
+            </Headings>
             <ParagraphTags>
               The markup language DoenetML allows you to build richly
               interactive activities by focusing on the meaning of the elements
@@ -179,43 +181,43 @@ export default function DoenetHomePage() {
         </ShadowColorSection>
         <Footer>
           <SectionText>
-          <div>
-            <h4 style={{ marginBottom: '0px' }}>Contact us</h4>
-            <div style={{ marginBottom: '40px' }}>
-              <a href="mailto:info@doenet.org">info@doenet.org</a>
+            <div>
+              <h4 style={{ marginBottom: '0px' }}>Contact us</h4>
+              <div style={{ marginBottom: '40px' }}>
+                <a href="mailto:info@doenet.org">info@doenet.org</a>
+              </div>
+              <p>
+                <a
+                  rel="license"
+                  href="http://creativecommons.org/licenses/by/4.0/"
+                >
+                  <img
+                    alt="Creative Commons License"
+                    style={{ borderWidth: 0 }}
+                    src="https://i.creativecommons.org/l/by/4.0/88x31.png"
+                  />
+                </a>
+                <br />
+                This work is licensed under a{' '}
+                <a
+                  rel="license"
+                  href="http://creativecommons.org/licenses/by/4.0/"
+                >
+                  Creative Commons Attribution 4.0 International License
+                </a>
+                .
+              </p>
+              <p>
+                Doenet is a collaborative project involving the University of
+                Minnesota, the Ohio State University, and Ithaca College, with
+                support from the National Science Foundation (DUE-1915294,
+                DUE-1915363, DUE-1915438). Any opinions, findings, and
+                conclusions or recommendations expressed in this material are
+                those of the author(s) and do not necessarily reflect the views
+                of the National Science Foundation.{' '}
+              </p>
             </div>
-            <p>
-              <a
-                rel="license"
-                href="http://creativecommons.org/licenses/by/4.0/"
-              >
-                <img
-                  alt="Creative Commons License"
-                  style={{ borderWidth: 0 }}
-                  src="https://i.creativecommons.org/l/by/4.0/88x31.png"
-                />
-              </a>
-              <br />
-              This work is licensed under a{' '}
-              <a
-                rel="license"
-                href="http://creativecommons.org/licenses/by/4.0/"
-              >
-                Creative Commons Attribution 4.0 International License
-              </a>
-              .
-            </p>
-            <p>
-              Doenet is a collaborative project involving the University of
-              Minnesota, the Ohio State University, and Ithaca College, with
-              support from the National Science Foundation (DUE-1915294,
-              DUE-1915363, DUE-1915438). Any opinions, findings, and conclusions
-              or recommendations expressed in this material are those of the
-              author(s) and do not necessarily reflect the views of the National
-              Science Foundation.{' '}
-            </p>
-          </div>
-          </SectionText>       
+          </SectionText>
         </Footer>
       </mainPanel>
     </Tool>

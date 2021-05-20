@@ -1,4 +1,4 @@
-export const driveColors=[
+export const driveColors = [
   'FF0000',
   'FFA500',
   'FFFF00',
@@ -10,9 +10,9 @@ export const driveColors=[
   '964B00',
   'D2B48C',
   'FFFDD0',
-]
+];
 
-export const driveImages=[
+export const driveImages = [
   'picture1.jpg',
   'picture2.jpg',
   'picture3.jpg',
@@ -29,4 +29,4 @@ export const driveImages=[
   'picture14.jpg',
   'picture15.jpg',
   'picture16.jpg',
-]
+];
